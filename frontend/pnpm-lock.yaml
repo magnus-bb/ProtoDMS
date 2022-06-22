@@ -1,6 +1,9 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@tailwindcss/line-clamp': ^0.4.0
+  '@tailwindcss/typography': ^0.5.2
+  '@types/node': ^18.0.0
   '@vueuse/core': ^8.7.4
   autoprefixer: ^10.4.7
   daisyui: ^2.15.4
@@ -14,6 +17,9 @@ dependencies:
   daisyui: 2.15.4_ugi4xkrfysqkt4c4y6hkyfj344
 
 devDependencies:
+  '@tailwindcss/line-clamp': 0.4.0_tailwindcss@3.1.4
+  '@tailwindcss/typography': 0.5.2_tailwindcss@3.1.4
+  '@types/node': 18.0.0
   autoprefixer: 10.4.7_postcss@8.4.14
   nuxt: 3.0.0-rc.4
   postcss: 8.4.14
@@ -734,6 +740,25 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.3.1
+    dev: true
+
+  /@tailwindcss/line-clamp/0.4.0_tailwindcss@3.1.4:
+    resolution: {integrity: sha512-HQZo6gfx1D0+DU3nWlNLD5iA6Ef4JAXh0LeD8lOGrJwEDBwwJNKQza6WoXhhY1uQrxOuU8ROxV7CqiQV4CoiLw==}
+    peerDependencies:
+      tailwindcss: '>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1'
+    dependencies:
+      tailwindcss: 3.1.4
+    dev: true
+
+  /@tailwindcss/typography/0.5.2_tailwindcss@3.1.4:
+    resolution: {integrity: sha512-coq8DBABRPFcVhVIk6IbKyyHUt7YTEC/C992tatFB+yEx5WGBQrCgsSFjxHUr8AWXphWckadVJbominEduYBqw==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || insiders'
+    dependencies:
+      lodash.castarray: 4.4.0
+      lodash.isplainobject: 4.0.6
+      lodash.merge: 4.6.2
+      tailwindcss: 3.1.4
     dev: true
 
   /@trysound/sax/0.2.0:
@@ -2749,6 +2774,10 @@ packages:
     resolution: {integrity: sha512-xYHt68QRoYGjeeM/XOE1uJtvXQAgvszfBhjV4yvsQH0u2i9I6cI6c6/eG4Hh3UAOVn0y/xAXwmTzEay49Q//HA==}
     dev: true
 
+  /lodash.castarray/4.4.0:
+    resolution: {integrity: sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==}
+    dev: true
+
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
     dev: true
@@ -2775,6 +2804,10 @@ packages:
 
   /lodash.memoize/4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
+    dev: true
+
+  /lodash.merge/4.6.2:
+    resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
 
   /lodash.pick/4.4.0:

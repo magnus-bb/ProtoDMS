@@ -2,8 +2,11 @@ import { defineNuxtConfig } from 'nuxt'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
+	ssr: false, // SSR breaks setting theme from localstorage
+
 	typescript: {
 		strict: true,
+		typeCheck: true
 	},
 
 	build: {
@@ -20,5 +23,5 @@ export default defineNuxtConfig({
 		},
 	},
 
-	css: ['@/assets/css/tailwind.css', '@/assets/css/theme.css'],
+	css: ['@/assets/css/styles.css'],
 })

@@ -12,9 +12,14 @@ module.exports = {
     extend: {},
   },
   plugins: [
+    require("@tailwindcss/typography"),
+    require('@tailwindcss/line-clamp'),
     require("daisyui")
   ],
+  // Use a class instead of 'prefers-color-scheme' to switch theme
+  darkMode: 'class', // mostly so tailwind won't interfere with daisyui theme toggling
   daisyui: {
     themes: ['light', 'dark'],
+    darkTheme: 'dark'
   }
 }
