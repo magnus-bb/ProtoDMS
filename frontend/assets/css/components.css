@@ -1,5 +1,2 @@
 @layer components {
-	.btn {
-		@apply capitalize;
-	}
 }

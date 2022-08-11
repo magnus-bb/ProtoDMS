@@ -1,8 +1,14 @@
 import { defineNuxtConfig } from 'nuxt'
 
+const title = 'Thesis Platform'
+
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-	ssr: false, // SSR breaks setting theme from localstorage
+	meta: {
+		title,
+	},
+
+	ssr: true, // SSR breaks setting theme from localstorage
 
 	typescript: {
 		strict: true,
@@ -13,10 +19,7 @@ export default defineNuxtConfig({
 		postcss: {
 			postcssOptions: {
 				plugins: {
-					'postcss-import': {},
-					'tailwindcss/nesting': {},
-					tailwindcss: {},
-					autoprefixer: {},
+					'postcss-import': {}, // Makes sure @imports just embed the imported file into the importer (instead of requiring a separate request to fetch the other file)
 					...(process.env.NODE_ENV === 'production' ? { cssnano: {} } : {})
 				},
 			},
@@ -24,4 +27,14 @@ export default defineNuxtConfig({
 	},
 
 	css: ['@/assets/css/styles.css'],
+
+	components: {
+		dirs: [
+			'@/components/organisms',
+			'@/components/molecules',
+			'@/components/atoms',
+			'@/components/inputs',
+			'@/components',
+		],
+	},
 })

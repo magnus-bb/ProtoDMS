@@ -1,4 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+
+const defaultTheme = require('tailwindcss/defaultTheme')
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   content: [
     "./components/**/*.{js,vue,ts}",
@@ -9,7 +13,16 @@ module.exports = {
     "./app.{js,ts,vue}",
   ],
   theme: {
-    extend: {},
+    screens: {
+			xs: '475px',
+			...defaultTheme.screens,
+		},
+    extend: {
+			fontFamily: { // Add font overwrites here
+				// example: sans: ['Kantumruy Pro', ...defaultTheme.fontFamily.sans],
+				// example: mono: ['Ubuntu Mono', ...defaultTheme.fontFamily.mono],
+			},
+		},
   },
   plugins: [
     require("@tailwindcss/typography"),
