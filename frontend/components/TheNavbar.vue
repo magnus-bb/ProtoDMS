@@ -28,7 +28,7 @@
 					<input
 						type="text"
 						placeholder="Search…"
-						class="input input-bordered"
+						class="input input-bordered bg-transparent"
 					/>
 				</div>
 			</div>
@@ -36,7 +36,7 @@
 			<label class="swap swap-rotate">
 				<!-- this hidden checkbox controls the state -->
 				<input
-					aria-label="Dark mode toggle"
+					aria-label="Color theme toggle"
 					type="checkbox"
 					v-model="darkMode"
 				/>

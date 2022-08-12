@@ -10,9 +10,23 @@ export default defineNuxtConfig({
 
 	ssr: true, // SSR breaks setting theme from localstorage
 
+	modules: ['@nuxtjs/tailwindcss'],
+
+	css: ['@/assets/css/styles.css'],
+
+	components: {
+		dirs: [
+			'@/components/organisms',
+			'@/components/molecules',
+			'@/components/atoms',
+			'@/components/inputs',
+			'@/components',
+		],
+	},
 	typescript: {
 		strict: true,
-		typeCheck: true
+		typeCheck: true,
+		shim: false
 	},
 
 	build: {
@@ -26,15 +40,4 @@ export default defineNuxtConfig({
 		},
 	},
 
-	css: ['@/assets/css/styles.css'],
-
-	components: {
-		dirs: [
-			'@/components/organisms',
-			'@/components/molecules',
-			'@/components/atoms',
-			'@/components/inputs',
-			'@/components',
-		],
-	},
 })
