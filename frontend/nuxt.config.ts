@@ -10,8 +10,6 @@ export default defineNuxtConfig({
 
 	ssr: true, // SSR breaks setting theme from localstorage
 
-	modules: ['@nuxtjs/tailwindcss'],
-
 	css: ['@/assets/css/styles.css'],
 
 	components: {
@@ -23,6 +21,11 @@ export default defineNuxtConfig({
 			'@/components',
 		],
 	},
+
+	modules: ['@nuxtjs/tailwindcss', 'nuxt-directus'],
+
+	directus: { url: process.env.NUXT_DIRECTUS_URL },
+
 	typescript: {
 		strict: true,
 		typeCheck: true,
