@@ -1,25 +1,29 @@
 import { useStorage } from '@vueuse/core'
+import type { RemovableRef } from '@vueuse/core'
 
 const LIGHT_THEME = 'light'
 const DARK_THEME = 'dark'
 const DEFAULT_THEME = LIGHT_THEME
+const THEME_KEY = 'theme'
 
-const theme = useStorage('theme', DEFAULT_THEME)
+export type ColorTheme = typeof LIGHT_THEME | typeof DARK_THEME
 
-export default function useThemes() {
-	const darkMode = computed({
-		get() {
-			return theme.value === DARK_THEME
-		},
+const theme = useStorage(THEME_KEY, DEFAULT_THEME) as RemovableRef<ColorTheme>
 
-		set(val) {
-			if (val) {
-				theme.value = DARK_THEME
-			} else {
-				theme.value = LIGHT_THEME
-			}
-		},
-	})
+export default function useThemes () {
+  const darkMode = computed({
+    get () {
+      return theme.value === DARK_THEME
+    },
 
-	return { theme, darkMode }
+    set (val: boolean) {
+      if (val) {
+        theme.value = DARK_THEME
+      } else {
+        theme.value = LIGHT_THEME
+      }
+    }
+  })
+
+  return { theme, darkMode }
 }

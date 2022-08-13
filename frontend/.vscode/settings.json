@@ -10,7 +10,7 @@
 		"source.fixAll.eslint": true,
 		"source.fixAll.stylelint": true,
 	},
-  "eslint.validate": ["vue", "javascript", "javascriptvue"],
+  "eslint.validate": ["vue", "javascript", "typescript", "typescriptvue", "javascriptvue"],
   "emmet.includeLanguages": {
     "postcss": "css"
 	},
