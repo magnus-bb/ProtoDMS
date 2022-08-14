@@ -1,61 +1,55 @@
 <template>
 	<main>
-		<article class="prose">
-			<h1>Hey</h1>
-			<p>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus,
-				aspernatur.
-			</p>
-			<h2>There</h2>
-			<p class="line-clamp-5">
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias vero sunt
-				aliquam incidunt ex vel, omnis nostrum accusamus, atque ad rerum
-				pariatur voluptatibus nulla ipsum veniam perferendis porro maxime? Vero
-				error harum maiores, cum suscipit eaque aspernatur sit repellat dolores
-				sapiente eum quasi minima hic maxime sequi? Illum, porro! Quas saepe
-				voluptate aperiam eaque totam perferendis! Dolor exercitationem aliquam
-				veniam soluta, repellendus maxime numquam non sunt impedit corrupti sit
-				illo quaerat autem quod nisi facere dolorum mollitia eaque esse ipsa nam
-				sapiente labore nemo? Laboriosam libero nam, placeat alias quos quas
-				recusandae dignissimos obcaecati, repellat, sint fugiat aspernatur saepe
-				quasi.
-			</p>
+		<progress v-if="pending" class="progress" />
+		<article v-for="post of posts" v-else :key="post.id" class="prose">
+			<h1>{{ post.title }}</h1>
+			<section v-html="post.content"></section> <!-- eslint-disable-line -->
 		</article>
+		<p v-if="error">{{ asyncDataErrorMessage }}</p>
 	</main>
 </template>
 
 <script setup lang="ts">
-import { Posts } from '@/types/directus'
-const { login, logout } = useDirectusAuth()
+// Directus collections are plural, so we just rename for ts semantics
+import type { Posts as Post } from '@/types/directus'
+const { login } = useDirectusAuth()
 const { getItems } = useDirectusItems()
 
-try {
-	await login({ email: 'example@example.com', password: 'asd!' })
-} catch (err) {
-	console.error(err)
-}
+// Async data does not rerun correctly when refreshed
+const {
+	data: posts,
+	error,
+	pending,
+} = await useLazyAsyncData<Post[]>(async () => {
+	const user = useDirectusUser()
+	const { userEmail, userPassword } = useRuntimeConfig()
 
-// logout()
+	if (!user.value) {
+		//! DEMO - we quickly login, if there is no logged in user
+		try {
+			await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
+		} catch (err) {
+			setAsyncDataError('Could not log in')
+		}
+	}
 
-let posts: Posts[]
+	let posts!: Post[]
+	try {
+		posts = await getItems<Post>({
+			collection: 'posts',
+		})
+	} catch (err) {
+		setAsyncDataError('Could not get posts')
+	}
 
-try {
-	posts = await getItems<Posts>({
-		collection: 'posts',
-	})
-	// console.log(posts)
-} catch (err) {
-	console.error(err)
-}
+	return posts
+})
 
-function ok(func: (thing: string) => void) {
-	func('abc')
-}
+const asyncDataErrorMessage = useState('errorMessage')
 
-const res: void = ok(text => console.log(text))
-
-const wad: string = {
-	abc: 'abc',
+function setAsyncDataError(msg: string) {
+	useState('errorMessage', () => msg)
+	throw new Error(msg)
 }
 </script>
 

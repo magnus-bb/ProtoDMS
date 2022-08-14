@@ -11,6 +11,12 @@ export default defineNuxtConfig({
 
 	ssr: true,
 
+	runtimeConfig: {
+		// These are automatically read from environment
+		userEmail: 'example@example.com',
+		userPassword: 'password',
+	},
+
 	css: ['@/assets/css/styles.css'],
 
 	components: {
@@ -29,7 +35,7 @@ export default defineNuxtConfig({
 
 	typescript: {
 		strict: true,
-		typeCheck: true,
+		// typeCheck: true, We use eslint instead for type checking
 		shim: false,
 	},
 

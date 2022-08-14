@@ -2,7 +2,7 @@
 	<div class="navbar bg-base-100">
 		<nav class="flex-1" aria-label="Home">
 			<NuxtLink to="/" title="Home" class="btn btn-ghost normal-case text-xl">
-				Thesis
+				Should I Use?
 			</NuxtLink>
 		</nav>
 

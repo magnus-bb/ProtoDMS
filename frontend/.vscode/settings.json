@@ -14,5 +14,8 @@
   "emmet.includeLanguages": {
     "postcss": "css"
 	},
-	"volar.completion.autoImportComponent": false
+  "volar.completion.autoImportComponent": false,
+  "eslint.format.enable": true,
+  "volar.autoCompleteRefs": true,
+  "volar.diagnostics.delay": 100
 }
