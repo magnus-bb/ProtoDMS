@@ -1,4 +1,5 @@
 {
+  "name": "caniuse-frontend",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -7,17 +8,17 @@
     "preview": "nuxt preview"
   },
   "devDependencies": {
-    "@novicell/stylelint-config": "^0.2.7",
+    "nuxt": "3.0.0-rc.7",
     "@nuxtjs/color-mode": "^3.1.4",
-    "@nuxtjs/eslint-config-typescript": "^10.0.0",
     "@nuxtjs/tailwindcss": "^5.3.1",
     "@tailwindcss/line-clamp": "^0.4.0",
     "@tailwindcss/typography": "^0.5.4",
-    "@types/node": "^18.0.0",
-    "nuxt": "3.0.0-rc.7",
+    "@nuxtjs/eslint-config-typescript": "^10.0.0",
+    "@novicell/stylelint-config": "^0.2.7",
     "postcss-import": "^14.1.0",
     "stylelint": "^14.10.0",
-    "vue-tsc": "^0.40.1"
+    "vue-tsc": "^0.40.1",
+    "@types/node": "^18.0.0"
   },
   "dependencies": {
     "@directus/format-title": "^9.12.2",
