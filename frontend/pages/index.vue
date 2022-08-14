@@ -30,7 +30,7 @@ const { login, logout } = useDirectusAuth()
 const { getItems } = useDirectusItems()
 
 try {
-	await login({ email: 'example@example.com', password: 'example' })
+	await login({ email: 'example@example.com', password: 'asd!' })
 } catch (err) {
 	console.error(err)
 }
@@ -43,7 +43,7 @@ try {
 	posts = await getItems<Posts>({
 		collection: 'posts',
 	})
-	console.log(posts)
+	// console.log(posts)
 } catch (err) {
 	console.error(err)
 }
@@ -53,6 +53,10 @@ function ok(func: (thing: string) => void) {
 }
 
 const res: void = ok(text => console.log(text))
+
+const wad: string = {
+	abc: 'abc',
+}
 </script>
 
 <style lang="postcss" scoped></style>

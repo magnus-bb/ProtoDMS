@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt'
+import eslintPlugin from 'vite-plugin-eslint'
 
 const title = 'Should I Use? - What are the implications of my stack?'
 
@@ -41,5 +42,10 @@ export default defineNuxtConfig({
 				},
 			},
 		},
+	},
+
+	// Makes eslint show errors in browser
+	vite: {
+		plugins: [eslintPlugin()],
 	},
 })

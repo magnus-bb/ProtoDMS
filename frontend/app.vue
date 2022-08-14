@@ -1,12 +1,10 @@
 <template>
-  <div class="min-h-screen">
-    <TheNavbar />
-    <NuxtPage />
-  </div>
+	<div class="min-h-screen">
+		<TheNavbar />
+		<NuxtPage />
+	</div>
 </template>
 
-<script lang="ts" setup>
-
-</script>
+<script lang="ts" setup></script>
 
 <style scoped></style>
