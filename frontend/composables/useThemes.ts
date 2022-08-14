@@ -10,20 +10,20 @@ export type ColorTheme = typeof LIGHT_THEME | typeof DARK_THEME
 
 const theme = useStorage(THEME_KEY, DEFAULT_THEME) as RemovableRef<ColorTheme>
 
-export default function useThemes () {
-  const darkMode = computed({
-    get () {
-      return theme.value === DARK_THEME
-    },
+export default function useThemes() {
+	const darkMode = computed({
+		get() {
+			return theme.value === DARK_THEME
+		},
 
-    set (val: boolean) {
-      if (val) {
-        theme.value = DARK_THEME
-      } else {
-        theme.value = LIGHT_THEME
-      }
-    }
-  })
+		set(val: boolean) {
+			if (val) {
+				theme.value = DARK_THEME
+			} else {
+				theme.value = LIGHT_THEME
+			}
+		},
+	})
 
-  return { theme, darkMode }
+	return { theme, darkMode }
 }
