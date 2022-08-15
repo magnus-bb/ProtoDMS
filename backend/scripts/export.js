@@ -1,15 +1,14 @@
 const axios = require('axios').default
 require('dotenv').config() // MUST RUN SCRIPT FROM WHERE .env IS LOCATED
 const fs = require('fs')
-
+// const config = require('../directus-config.js')(process.env) // use this for environment vars?
 //TODO: let admin credentials be passed or env, pass in directus url but default to dev val, pass in output location but with default.
 
+const DIRECTUS_URL = 'http://localhost:8055'
 const ADMIN = {
   EMAIL: process.env.ADMIN_EMAIL,
   PASSWORD: process.env.ADMIN_PASSWORD
 }
-
-const DIRECTUS_URL = 'http://localhost:8055'
 
 let envErrors = []
 if (!ADMIN.EMAIL) envErrors.push('ADMIN_EMAIL')
@@ -31,17 +30,16 @@ async function main() {
   access_token = loginRes.data.data.access_token
   
   //* GET DATA FOR REQUIRED TABLES (not the schemas exported by Directus cli)
-  // good to go = fjern alt det, der ikke skal bruges i import upload, men behold IDs, så man i import kan tjekke om noget allerede findes
   const [
-    { data: { data: dashboards } }, // good to go
-    { data: { data: panels } }, // good to go
-    { data: { data: flows } }, // good to go
-    { data: { data: operations } }, // good to go
-    { data: { data: folders } }, // good to go
-    { data: { data: webhooks } }, // good to go
-    { data: { data: roles } }, // fjern administrator-rolle og fjern users-array på alle roller
-    { data: { data: permissions } }, // fjern alle permissions med admin-ID
-    { data: { data: presets } }, // Filtrér så vi kun har presets hvor user er null, det er så vi kun beholder globale eller rolle-specifikke presets
+    { data: { data: dashboards } }, 
+    { data: { data: panels } }, 
+    { data: { data: flows } }, 
+    { data: { data: operations } }, 
+    { data: { data: folders } }, 
+    { data: { data: webhooks } }, 
+    { data: { data: roles } }, 
+    { data: { data: permissions } }, 
+    { data: { data: presets } }, 
   ] = await Promise.all([
     axios.get(DIRECTUS_URL + '/dashboards?access_token=' + access_token),
     axios.get(DIRECTUS_URL + '/panels?access_token=' + access_token),
@@ -59,9 +57,15 @@ async function main() {
 
   //* TRANSFORM DATA
   const output = {
-    dashboards: dashboards.map(removeCreatedMetaData),
+    dashboards: dashboards.map(removeCreatedMetaData).map(d => {
+      delete d.panels // Panels are added to dashboards, not other way around
+      return d
+    }),
     panels: panels.map(removeCreatedMetaData),
-    flows: flows.map(removeCreatedMetaData),
+    flows: flows.map(removeCreatedMetaData).map(f => {
+      delete f.operations // Operations are added to flows, not other way around
+      return f
+    }),
     operations: operations.map(removeCreatedMetaData),
     folders,
     webhooks,

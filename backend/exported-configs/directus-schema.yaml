@@ -24,14 +24,16 @@ collections:
     schema:
       name: posts
       sql: >-
-        CREATE TABLE "posts" (`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `status` varchar(255) NOT NULL DEFAULT 'draft', `sort` integer NULL,
-        `user_created` char(36) NULL, `date_created` datetime NULL,
-        `user_updated` char(36) NULL, `date_updated` datetime NULL, `title`
-        varchar(255) NULL, `content` text null, CONSTRAINT
+        CREATE TABLE "posts" (`content` text NULL DEFAULT null, `date_created`
+        datetime NULL DEFAULT null, `date_updated` datetime NULL DEFAULT null,
+        `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `sort` integer NULL
+        DEFAULT null, `status` varchar(255) NOT NULL DEFAULT 'draft', `title`
+        varchar(255) NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
+        null, `user_updated` char(36) NULL DEFAULT null, CONSTRAINT
         `posts_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
-        `directus_users` (`id`), CONSTRAINT `posts_user_updated_foreign` FOREIGN
-        KEY (`user_updated`) REFERENCES `directus_users` (`id`))
+        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        `posts_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
+        `directus_users` (`id`) ON DELETE NO ACTION)
 fields:
   - collection: posts
     field: content
