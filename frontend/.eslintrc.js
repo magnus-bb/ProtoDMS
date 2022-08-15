@@ -7,7 +7,20 @@ module.exports = {
 	],
 	plugins: ['prettier'], // Uses prettier rules as eslint rules (eslint-plugin-prettier)
 	rules: {
-		'@typescript-eslint/no-unused-vars': ['warn'],
+		'@typescript-eslint/no-unused-vars': 1,
+		'import/no-named-as-default': 0, // with ts declarations, non-default exports can function as default, which this doesn't like
+		'no-console': ['warn', { allow: ['warn', 'error'] }],
+		'object-property-newline': [
+			'error',
+			{
+				allowAllPropertiesOnSameLine: true,
+			},
+		],
+		'vue/component-name-in-template-casing': ['warn', 'PascalCase'],
+		'vue/multi-word-component-names': 0,
+		'vue/no-multiple-template-root': 0,
+		'vue/no-v-for-template-key': 0, // is allowed in vue 3
+		'vue/no-v-for-template-key-on-child': 2, // keys should be set on templates in vue 3
 		'prettier/prettier': 1, // Prettier rules are set to warnings but will be autofixed
 	},
 }

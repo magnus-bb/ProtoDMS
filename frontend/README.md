@@ -5,6 +5,3 @@
 * Tailwind CSS
 * DaisyUI (components and theming for Tailwind)
 * VueUse (utilites for Vue)
-
-## To add
-* Linting / autofixing

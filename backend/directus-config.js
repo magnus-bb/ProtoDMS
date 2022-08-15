@@ -139,7 +139,7 @@ module.exports = env => ({
 	//* Caching
 
 	// Whether or not caching is enabled. [false]
-	CACHE_ENABLED: true,
+	CACHE_ENABLED: false,
 
 	// How long the cache is persisted ["5m"]
 	CACHE_TTL: '30m',

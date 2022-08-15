@@ -28,7 +28,7 @@ collections:
         `status` varchar(255) NOT NULL DEFAULT 'draft', `sort` integer NULL,
         `user_created` char(36) NULL, `date_created` datetime NULL,
         `user_updated` char(36) NULL, `date_updated` datetime NULL, `title`
-        varchar(255) null, `content` text null, CONSTRAINT
+        varchar(255) NULL, `content` text null, CONSTRAINT
         `posts_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
         `directus_users` (`id`), CONSTRAINT `posts_user_updated_foreign` FOREIGN
         KEY (`user_updated`) REFERENCES `directus_users` (`id`))
@@ -46,7 +46,6 @@ fields:
       interface: input-rich-text-html
       note: null
       options:
-        folder: 910a8ec9-6d0c-4a9c-bf6e-ee0007d04c8d
         toolbar:
           - aligncenter
           - alignjustify
@@ -94,7 +93,7 @@ fields:
           - visualaid
       readonly: false
       required: false
-      sort: 9
+      sort: null
       special: null
       translations: null
       validation: null

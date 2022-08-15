@@ -2,7 +2,13 @@
   "recommendations": [
     "csstools.postcss",
     "bradlc.vscode-tailwindcss",
+    "stylelint.vscode-stylelint",
+    "cpylua.language-postcss",
     "dbaeumer.vscode-eslint",
-    "Vue.volar"
-  ]
+    "Vue.volar",
+    "aaron-bond.better-comments"
+  ],
+  "unwantedRecommendations": [
+		"octref.vetur"
+	]
 }

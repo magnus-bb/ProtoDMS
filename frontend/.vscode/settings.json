@@ -17,5 +17,9 @@
   "volar.completion.autoImportComponent": false,
   "eslint.format.enable": true,
   "volar.autoCompleteRefs": true,
-  "volar.diagnostics.delay": 100
+  "volar.diagnostics.delay": 100,
+  "tailwindCSS.includeLanguages": {
+    "vue": "html",
+    "vue-html": "html",
+  }
 }
