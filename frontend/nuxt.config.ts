@@ -66,7 +66,7 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [
 			eslintPlugin({
-				fix: true, // This also fixes files that you didn't open and save manually
+				// fix: true, // This also fixes files that you didn't open and save manually
 				cache: true, // Caches lint results and uses it if each target file is not changed. Please mind that ESLint doesn’t clear the cache when you upgrade ESLint plugins. In that case, you have to remove the cache file manually
 				emitWarning: false, // don't bother printing warnings, they will show in editor
 			}),

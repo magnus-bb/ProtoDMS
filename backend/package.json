@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "directus start",
-    "create-schema": "directus schema snapshot ./exported-configs/directus-schema.yaml && node scripts/export.js",
-    "apply-schema": "directus schema apply ./exported-configs/directus-schema.yaml",
+    "create-schema": "directus schema snapshot -y ./exported-configs/directus-schema.yaml && node scripts/export.js",
+    "apply-schema": "directus schema apply -y ./exported-configs/directus-schema.yaml",
     "diff-schema": "directus schema apply --dry-run ./exported-configs/directus-schema.yaml"
   },
   "keywords": [],

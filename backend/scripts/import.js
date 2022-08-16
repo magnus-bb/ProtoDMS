@@ -1,86 +1,87 @@
-/* 
-linkede entries er følgende (pilens retning angiver hvem der har et link til hvem):
-* dashboards <-> panels (dashboards først)
-* flows <-> operations (garanteret flows først)
-* folders -> folders (parent folder) (skal måske oprettes i et træ-format, så parent altid findes når child oprettes)
-* permissions -> roles
-* presets -> roles
-*/
-
-// TODO: Flows skal ikke oprettes med operations lige umiddelbart. Der skal bygges et træ af operations der tilhører flows. Følgende er idéen om hvordan det skal gøres:
+/* ========= README ========== */
 /*
-Først skal man finde den første operation i et Flow (jeg går ud fra, at den der står under 'operation' er først node i flowet, og 'operations' er et ligegyldigt array, som bare kan være tomt ved oprettelse)
-Når man har første 'operation' skal man linke den til de to næste, der står under 'resolve' og 'reject', og så fortsætte med de operations, der er linket til.
-Måske er der flere forgreninger end bare resolve og reject (hvis man bruger conditionals - test det). Når dette træ er færdigt kan man tage rod-operationen og oprette den med link til flowet.
-Dernæst kan man oprette resten af nodes i rækkefølge af forgreningerne (skal dette gøres baglæns i stedet? Det handler om at de operationer man refererer til bare skal findes på forhånd).
-Når man er færdig, så skal man opdatere flowet med 'operation' sat til rod-operationen.
-*/
-// TODO: Folders skal oprettes i en træ-struktur (lidt simplere end operations).
-/*
-Der skal bygges træer af folders, som er fuldstændigt ligesom almindelige mapper.
-Der kan være flere rodfolders, da alle folders har en parent, undtagen første lag (parent: null er dem lige under File Library).
-Når de importeres skal de så gøres i den rækkefølge hvor man starter med de folders med parent: null, og så bare ét lag ad gangen,
-så parent altid findes inden et child oprettes.
+These scripts were last tested for Directus v9.15.1.
+You will need nodejs > v17.5 for built-in fetch.
+You will need to have Directus installed so npx can find the 'directus' command.
+
+These script will use administrator privileges to export Directus configurations of the following types into a JSON file and allow you to re-import them into another Directus instance
+- Collection schemas (Created by admin - exported with Directus CLI)
+- Dashboards (Insights module)
+- Panels (Used in dashboards)
+- Flows
+- Operations (Used in flows)
+- Folders
+- Webhooks
+- Roles (Except for the admin role)
+- Permissions (Except for admin permissions)
+- Presets (& bookmarks - only global presets and role-specific presets, not for specific users)
+
+These script can hopefully help you migrate your configurations between Directus environments (e.g. development -> production).
+BUT the scripts will only create the exported data and/or update the data if any configuration entries with the same IDs exist in the target environment.
+That means that in order for these scripts to work as intended, you should manage all of these configurations from your development environment and then import them into the target environment.
+Creating configurations in the target environment directly should not cause errors, but will make your exported configs out of sync, which could potentially cause issues down the line ¯\_(ツ)_/¯
+
+These scripts go through the regular Directus API endpoints and therefore require administrator privileges and a running Directus server.
+This allows us to export / import the data in a format that will work across different databases (e.g. Sqlite3 (dev) -> MySQL (prod)).
+
+When running this script, the following variables must be present in your environment:
+  DIRECTUS_URL (default: "http://localhost:8055")
+  CONFIG_FILE (default: "./directus-configs.json")
+  SCHEMA_FILE (default: "./directus-schemas.yaml" - this uses the Directus cli)
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+
+Environment variables can be omitted in favor of the default values.
 */
 
-
-const axios = require('axios').default
-require('dotenv').config() // MUST RUN SCRIPT FROM WHERE .env IS LOCATED
 const fs = require('fs')
-// const config = require('../directus-config.js')(process.env) // use this for environment vars?
+const util = require('util')
+const exec = util.promisify(require('child_process').exec)
 
-
-
-const DIRECTUS_URL = 'http://localhost:8055' // Set the remote URL here
+const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055'
+const CONFIG_FILE = process.env.CONFIG_FILE || './directus-configs.json'
+const SCHEMA_FILE = process.env.SCHEMA_FILE || './directus-schemas.yaml'
 const ADMIN = {
   EMAIL: process.env.ADMIN_EMAIL,
   PASSWORD: process.env.ADMIN_PASSWORD
 }
 
-
-
-
 let envErrors = []
 if (!ADMIN.EMAIL) envErrors.push('ADMIN_EMAIL')
 if (!ADMIN.PASSWORD) envErrors.push('ADMIN_PASSWORD')
-
 if (envErrors.length) {
   console.error('Missing environment variables: ' + envErrors.join(', '))
   process.exit(1)
 }
 
 
-
-
-let access_token = ''
-let configs
-
-
-
-
 async function main() {
   //* LOAD SAVED CONFIGS FROM FILE
+  let configs
   try {
-    const json = fs.readFileSync('./exported-configs/directus-configs.json')
-
+    const json = fs.readFileSync(CONFIG_FILE)
     configs = JSON.parse(json)
   } catch (err) {
-    console.error('Could not load config file. ' + err)
+    console.error('Could not load config file')
+    console.error(err)
+    process.exit(1)
+  }
+  
+  //* LOGIN AS ADMIN
+  let access_token
+  try {
+    ({ data: { access_token } } = await login())
+  } catch (err) {
+    console.error('Failed to login')
+    console.error(err)
+    process.exit(1)
+  }
+  if (!access_token) {
+    console.error('Failed to get access token from admin login')
     process.exit(1)
   }
 
-
-
-  //* LOGIN AS ADMIN
-  const loginRes = await axios.post(DIRECTUS_URL + '/auth/login', {
-    email: ADMIN.EMAIL,
-    password: ADMIN.PASSWORD
-  })
-
-  access_token = loginRes.data.data.access_token
-
-
-
+  // TODO: Continue here - use export.js as guide for the rest
   //* CHECK FOR EXISTING ENTRIES FOR ALL CONFIGS IN THE DATABASE
   // Contains lists of all of the ids of the different config types in the actual database
   // If our imported config has the same ID as any of these, we need to update instead of create
@@ -135,23 +136,31 @@ async function main() {
     presets: intersection(configs.presets.map(p => p.id), existingIds.presets) 
   }
 
+  // This set will contain the configs that have already been created, so we can go directly to 'update' for all, for example, folders in batch 2, since they were all created in batch 1
+  const alreadyCreated = new Set()
 
   //* BATCH THE CONFIGS SO DEPENDENCIES CAN BE CREATED FIRST
   const batches = [
     {
-      dashboards: configs.dashboards,
-      flows: configs.flows,
-      roles: configs.roles,
-      folders: configs.folders,
-      webhooks: configs.webhooks,
+      dashboards: configs.dashboards, // Dashboards are created without any panels
+      flows: configs.flows.map(f => omit(f, 'operation')), // Flows are created without any operations and without any initial operation
+      roles: configs.roles, // Roles have no dependencies
+      folders: configs.folders.map(f => omit(f, 'parent')), // Folders are created with no parents
+      webhooks: configs.webhooks, // Webhooks have no dependencies
     },
     {
-      panels: configs.panels, // panels depend on dashboards to be created already
-      operations: configs.operations, // operations depend on flows to be created already
-      permissions: configs.permissions, // permissions depend on roles to be created already
-      presets: configs.presets // presets (sometimes) depend on roles to be created already
+      folders: configs.folders, // Now that all folders exist, update them to point at their parents
+      panels: configs.panels, // Now we add panels to dashboards
+      operations: configs.operations.map(o => omit(o, 'resolve', 'reject')), // Operations can now be added to their parent flows, but not linked to each other yet
+      permissions: configs.permissions, // Permissions can be created now that roles exist
+      presets: configs.presets // Presets (sometimes) depend on roles, so now they can be created
+    },
+    {
+      flows: configs.flows, // Now we can update flows with their initial operation
+      operations: configs.operations // Now operations can be updated to reference each other
     }
   ]
+
 
 
   //* DO THE UPDATES / CREATES
@@ -161,12 +170,13 @@ async function main() {
       const batchPromises = [] // we populate this with promises for each config request for all config types of the batch
 
       for (const configName in batch) { // 'configName' is the name of the config type
-        const configArray = batch[configName] // 'configArray' is the actual configs for that type
+        const configArray = batch[configName] // 'configArray' are the actual configs for that type
         
         // We then go through all configs for the type and update / create them and save the array of promises we get out
         const promises = configArray.map(conf => {
-          if (updateThese[configName].includes(conf.id)) {
-            // If the config is in the previous object of arrays of configs to update, we need to update it
+          if (alreadyCreated.has(configName) || updateThese[configName].includes(conf.id)) {
+            // If the config is in the previous object of arrays of configs to update
+            // Or this kind of config has already been created in a previous batch, we need to update it
             return update(configName, conf)
           }
 
@@ -180,10 +190,15 @@ async function main() {
       }
     
       await Promise.all(batchPromises)
+
+      // We add the names of all the configs we created / updated in this batch so we can go directly to updating them in a later batch
+      for (const configName of Object.keys(batch)) {
+        alreadyCreated.add(configName)
+      }
     }
   } catch (err) {
     console.error(err)
-    console.error(err.response.data.errors)
+    console.error(err?.response?.data?.errors)
   }
 }
 
@@ -205,4 +220,27 @@ function update(confName, conf) {
 
 function create(confName, conf) {
   return axios.post(`${DIRECTUS_URL}/${confName}?access_token=${access_token}`, conf)
+}
+
+function omit(obj, ...keys) {
+  const clone = Object.assign({}, obj)
+  for (const key of keys) {
+    delete clone[key]
+  }
+  return clone
+}
+
+async function login() {
+  const res = await fetch(DIRECTUS_URL + '/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: ADMIN.EMAIL,
+      password: ADMIN.PASSWORD
+    })
+  })
+
+  return res.json()
 }
