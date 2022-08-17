@@ -1,5 +1,5 @@
 <template>
-	<div class="navbar bg-base-100">
+	<div class="navbar">
 		<nav class="flex-1" aria-label="Home">
 			<NuxtLink to="/" title="Home" class="btn btn-ghost normal-case text-xl">
 				Should I Use?
@@ -32,6 +32,8 @@
 					/>
 				</div>
 			</div>
+
+			<ThemePicker class="" />
 
 			<!-- TODO: keyboard usage for nav (tab and arrow keys) -->
 			<nav aria-label="Main" class="dropdown dropdown-end">

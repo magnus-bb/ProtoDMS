@@ -3,7 +3,7 @@
 		<progress v-if="pending" class="progress" />
 		<article v-for="post of posts" v-else :key="post.id" class="prose relative">
 			<h1>{{ post.title }}</h1>
-			<section v-html="post.content"></section> <!-- eslint-disable-line -->
+			<section v-html="post.content" /> <!-- eslint-disable-line -->
 		</article>
 		<p v-if="error">{{ asyncDataErrorMessage }}</p>
 	</main>

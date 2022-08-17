@@ -66,7 +66,7 @@ const CONFIGS_TO_GET = [
 ]
 
 async function main() {
-  //* USE DIRECTUS CLI TO EXPORT CREATED COLLECTIONS' SCHEMAS
+  //* USE DIRECTUS CLI TO EXPORT CREATED COLLECTION SCHEMAS
   try {
     const { stderr } = await exec(`npx directus schema snapshot -y ${SCHEMA_FILE}`)
 
@@ -75,6 +75,7 @@ async function main() {
       console.error(stderr)
       process.exit(1)
     }
+
   } catch (err) {
     console.error('Failed to use Directus CLI to export collection schemas')
     console.error(err)
@@ -98,8 +99,10 @@ async function main() {
   //* GET DATA FOR REQUIRED TABLES (not the schemas exported by Directus cli)
   let configRes
   try {
-    // Returns an array the resolved configs for each config in CONFIGS_TO_GET
-    configRes = (await Promise.all(CONFIGS_TO_GET.map(conf => get(conf, access_token)))).map(res => res.data)
+    // Returns an array the resolved configs for each config name in CONFIGS_TO_GET
+    configRes = (await Promise.all(CONFIGS_TO_GET
+      .map(conf => get(conf, access_token))))
+      .map(res => res.data)
 
   } catch (err) {
     console.error('There was an issue getting the configs')
@@ -109,7 +112,7 @@ async function main() {
 
   // Zip together config names and the resolved config data from Directus into entries array (e.g. [ 'dashboards', [...dashboardObj] ])
   // and then create an object from this (e.g. { 'dashboards: [{ xyz: abc }] })
-  const configData = Object.fromEntries(CONFIGS_TO_GET.map((conf, i) => ([ conf, configRes[i] ])))
+  const configData = Object.fromEntries(CONFIGS_TO_GET.map((confName, i) => ([ confName, configRes[i] ])))
   
   // We need the admin ID to remove all permissions pertaining to the admin
   const adminId = configData.roles.find(role => role.name === 'Administrator').id

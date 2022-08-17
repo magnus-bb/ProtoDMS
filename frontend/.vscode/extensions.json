@@ -9,6 +9,7 @@
     "aaron-bond.better-comments"
   ],
   "unwantedRecommendations": [
-		"octref.vetur"
+		"octref.vetur",
+    "Vue.vscode-typescript-vue-plugin"
 	]
 }

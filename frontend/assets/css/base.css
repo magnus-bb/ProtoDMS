@@ -1,1 +1,13 @@
-@layer base {}
+@layer base {
+  @font-face {
+    font-weight: 100 700;
+    font-family: "Material Symbols Rounded";
+    font-style: normal;
+    font-display: block;
+    src:
+      url(@/assets/fonts/material-symbols-rounded.woff2)
+      format("woff2");
+  }
+
+  :root { @apply transition-colors ease-in-out duration-daisy-input; }
+}

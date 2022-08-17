@@ -32,6 +32,8 @@ When running this script, the following variables must be present in your enviro
   ADMIN_PASSWORD
 
 Environment variables can be omitted in favor of the default values.
+
+I have found that importing schemas created with Directus CLI works best when the admin is not signed in.
 */
 
 const fs = require('fs')
@@ -54,8 +56,36 @@ if (envErrors.length) {
   process.exit(1)
 }
 
+const CONFIGS_TO_CREATE = [
+  'dashboards', 
+  'panels',
+  'flows',
+  'operations', 
+  'folders',
+  'webhooks',
+  'roles',
+  'permissions', 
+  'presets' 
+]
+
 
 async function main() {
+  //* USE DIRECTUS CLI TO IMPORT CREATED COLLECTION SCHEMAS
+  try {
+    const { stderr } = await exec(`npx directus schema apply -y ${SCHEMA_FILE}`)
+
+    if (stderr) {
+      console.error('Failed to use Directus CLI to import collection schemas')
+      console.error(stderr)
+      process.exit(1)
+    }
+
+  } catch (err) {
+    console.error('Failed to use Directus CLI to import collection schemas')
+    console.error(err)
+    process.exit(1)
+  }
+
   //* LOAD SAVED CONFIGS FROM FILE
   let configs
   try {
@@ -81,60 +111,31 @@ async function main() {
     process.exit(1)
   }
 
-  // TODO: Continue here - use export.js as guide for the rest
   //* CHECK FOR EXISTING ENTRIES FOR ALL CONFIGS IN THE DATABASE
   // Contains lists of all of the ids of the different config types in the actual database
   // If our imported config has the same ID as any of these, we need to update instead of create
-  const [
-    { data: { data: dashboards } }, 
-    { data: { data: panels } }, 
-    { data: { data: flows } }, 
-    { data: { data: operations } }, 
-    { data: { data: folders } }, 
-    { data: { data: webhooks } }, 
-    { data: { data: roles } }, 
-    { data: { data: permissions } }, 
-    { data: { data: presets } }, 
-  ] = await Promise.all([
-    axios.get(DIRECTUS_URL + '/dashboards?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/panels?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/flows?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/operations?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/folders?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/webhooks?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/roles?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/permissions?access_token=' + access_token),
-    axios.get(DIRECTUS_URL + '/presets?access_token=' + access_token),
-  ])
+  let configIds
+  try {
+    // Returns an array the resolved configs' ID for each config name in CONFIGS_TO_CREATE
+    configIds = (await Promise.all(CONFIGS_TO_CREATE
+      .map(confName => get(confName, access_token))))
+      .map(res => res.data
+      .map(conf => conf.id))
 
-  const existingIds = {
-    dashboards: dashboards.map(d => d.id),
-    panels: panels.map(p => p.id),
-    flows: flows.map(f => f.id),
-    operations: operations.map(o => o.id),
-    folders: folders.map(f => f.id),
-    webhooks: webhooks.map(w => w.id),
-    roles: roles.map(r => r.id),
-    permissions: permissions.map(p => p.id),
-    presets: presets.map(p => p.id)
+  } catch (err) {
+    console.error('There was an issue getting the existing configs')
+    console.error(err)
+    process.exit(1)
   }
 
-
-
+  // Zip together config names and the resolved config data's ID from Directus into entries array (e.g. [ 'dashboards', [...dashboardIds] ])
+  const existingIdsEntries = CONFIGS_TO_CREATE.map((confName, i) => ([ confName, configIds[i] ]))
+  // const existingIds = Object.fromEntries(CONFIGS_TO_CREATE.map((confName, i) => ([ confName, configIds[i] ])))
+  
   //* FIND THE CONFIGS THAT WE HAVE AND ALREADY EXIST, THEY WILL NEED TO BE UPDATED
-  // Contains the intersection of the IDs in the exported configs and the configs in the database
+  // Contains the intersection of the IDs in the exported configs and the configs in the database in an object
   // i.e. the exported configs that need to be updated instead of created
-  const updateThese = {
-    dashboards: intersection(configs.dashboards.map(d => d.id), existingIds.dashboards),
-    panels: intersection(configs.panels.map(p => p.id), existingIds.panels),
-    flows: intersection(configs.flows.map(f => f.id), existingIds.flows),
-    operations: intersection(configs.operations.map(o => o.id), existingIds.operations),
-    folders: intersection(configs.folders.map(f => f.id), existingIds.folders),
-    webhooks: intersection(configs.webhooks.map(w => w.id), existingIds.webhooks),
-    roles: intersection(configs.roles.map(r => r.id), existingIds.roles),
-    permissions: intersection(configs.permissions.map(p => p.id), existingIds.permissions),
-    presets: intersection(configs.presets.map(p => p.id), existingIds.presets) 
-  }
+  const updateThese = Object.fromEntries(existingIdsEntries.map(([ confName, existingIds ]) => ([ confName, intersection(getIds(configs[confName]), existingIds) ])))
 
   // This set will contain the configs that have already been created, so we can go directly to 'update' for all, for example, folders in batch 2, since they were all created in batch 1
   const alreadyCreated = new Set()
@@ -177,11 +178,11 @@ async function main() {
           if (alreadyCreated.has(configName) || updateThese[configName].includes(conf.id)) {
             // If the config is in the previous object of arrays of configs to update
             // Or this kind of config has already been created in a previous batch, we need to update it
-            return update(configName, conf)
+            return update(configName, conf, access_token)
           }
 
           // Otherwise, just create it as a new config
-          return create(configName, conf)
+          return create(configName, conf, access_token)
         })
 
         // We then flatten the different types of config promises arrays into one big batch of promises that can be awaited
@@ -210,16 +211,32 @@ function intersection(arr1, arr2) {
   return arr1.filter(x => arr2.includes(x))
 }
 
-function update(confName, conf) {
+async function update(confName, conf, access_token) {
   // We need configs ID for the request, but we don't want it in the body of the request
   const id = conf.id
   delete conf.id
 
-  return axios.patch(`${DIRECTUS_URL}/${confName}/${id}?access_token=${access_token}`, conf)
+  const res = await fetch(`${DIRECTUS_URL}/${confName}/${id}?access_token=${access_token}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(conf)
+  })
+
+  return res.json()
 }
 
-function create(confName, conf) {
-  return axios.post(`${DIRECTUS_URL}/${confName}?access_token=${access_token}`, conf)
+async function create(confName, conf, access_token) {
+  const res = await fetch(`${DIRECTUS_URL}/${confName}?access_token=${access_token}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(conf)
+  })
+
+  return res.json()
 }
 
 function omit(obj, ...keys) {
@@ -243,4 +260,14 @@ async function login() {
   })
 
   return res.json()
+}
+
+async function get(configName, access_token) {
+  const res = await fetch(`${DIRECTUS_URL}/${configName}?access_token=${access_token}`)
+  
+  return res.json()
+}
+
+function getIds(configArr) {
+  return configArr.map(c => c.id)
 }

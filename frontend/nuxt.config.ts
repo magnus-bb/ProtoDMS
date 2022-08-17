@@ -11,26 +11,40 @@ export default defineNuxtConfig({
 
 	ssr: true,
 
+	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
-		// These are automatically read from environment
 		userEmail: 'example@example.com',
 		userPassword: 'password',
 	},
 
-	modules: ['@nuxtjs/tailwindcss', 'nuxt-directus', '@nuxtjs/google-fonts'],
+	modules: [
+		'@nuxtjs/tailwindcss',
+		'nuxt-directus',
+		'@nuxtjs/google-fonts',
+		'@nuxtjs/color-mode',
+	],
 
 	directus: { url: process.env.NUXT_DIRECTUS_URL },
 
-	googleFonts: {
-		families: {
-			// 'Kantumruy Pro': true,
-			// 'Ubuntu Mono': {
-			// 	wght: [400, 700],
-			// 	ital: [400, 700],
-			// },
-		},
-		prefetch: true,
-		preconnect: true,
+	//* Icon font is downloaded manually into @/assets/fonts/
+	// googleFonts: {
+	// 	families: {
+	// 		'Kantumruy Pro': true,
+	// 		'Ubuntu Mono': {
+	// 			wght: [400, 700],
+	// 			ital: [400, 700],
+	// 		},
+	// 	},
+	// 	prefetch: true,
+	// 	preconnect: true,
+	// 	preload: true,
+	// 	download: true,
+	// 	inject: true,
+	// },
+
+	colorMode: {
+		fallback: 'dark',
+		dataValue: 'theme', // Allows us to use DaisyUI data-theme
 	},
 
 	css: ['@/assets/css/styles.css'],
@@ -64,6 +78,9 @@ export default defineNuxtConfig({
 
 	// Makes eslint show errors in browser
 	vite: {
+		vue: {
+			reactivityTransform: true, // enables TypeScript props with default values
+		},
 		plugins: [
 			eslintPlugin({
 				// fix: true, // This also fixes files that you didn't open and save manually
