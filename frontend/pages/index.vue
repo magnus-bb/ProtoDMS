@@ -5,6 +5,7 @@
 			<h1>{{ post.title }}</h1>
 			<section v-html="post.content" /> <!-- eslint-disable-line -->
 		</article>
+
 		<p v-if="error">{{ asyncDataErrorMessage }}</p>
 	</main>
 </template>
@@ -22,9 +23,10 @@ const {
 	pending,
 } = await useLazyAsyncData<Post[]>(async () => {
 	const user = useDirectusUser()
-	const { userEmail, userPassword } = useRuntimeConfig()
 
 	if (!user.value) {
+		const { userEmail, userPassword } = useRuntimeConfig()
+
 		//! DEMO - we quickly login, if there is no logged in user
 		try {
 			await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
@@ -53,4 +55,4 @@ function setAsyncDataError(msg: string) {
 }
 </script>
 
-<style lang="postcss" scoped></style>
+<style lang="postcss"></style>
