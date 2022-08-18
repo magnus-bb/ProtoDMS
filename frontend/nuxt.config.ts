@@ -27,20 +27,17 @@ export default defineNuxtConfig({
 	directus: { url: process.env.NUXT_DIRECTUS_URL },
 
 	//* Icon font is downloaded manually into @/assets/fonts/
-	// googleFonts: {
-	// 	families: {
-	// 		'Kantumruy Pro': true,
-	// 		'Ubuntu Mono': {
-	// 			wght: [400, 700],
-	// 			ital: [400, 700],
-	// 		},
-	// 	},
-	// 	prefetch: true,
-	// 	preconnect: true,
-	// 	preload: true,
-	// 	download: true,
-	// 	inject: true,
-	// },
+	googleFonts: {
+		families: {
+			// 'Kantumruy Pro': true,
+			'Ubuntu Mono': [400, 600],
+		},
+		prefetch: true,
+		preconnect: true,
+		preload: true,
+		// download: true,
+		// inject: true,
+	},
 
 	colorMode: {
 		fallback: 'dark',
@@ -54,7 +51,6 @@ export default defineNuxtConfig({
 			'@/components/organisms',
 			'@/components/molecules',
 			'@/components/atoms',
-			'@/components/inputs',
 			'@/components',
 		],
 	},

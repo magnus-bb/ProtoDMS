@@ -27,8 +27,8 @@ module.exports = {
 			},
 			fontFamily: {
 				// Add font overwrites here
-				// example: sans: ['Kantumruy Pro', ...defaultTheme.fontFamily.sans],
-				// example: mono: ['Ubuntu Mono', ...defaultTheme.fontFamily.mono],
+				// sans: ['Kantumruy Pro', ...defaultTheme.fontFamily.sans],
+				mono: ['Ubuntu Mono', ...defaultTheme.fontFamily.mono],
 			},
 			colors: {
 				muted: colors.gray['500'],
@@ -64,18 +64,20 @@ module.exports = {
 			{
 				dark: {
 					...require('daisyui/src/colors/themes')['[data-theme=dark]'],
-					primary: '#8A2387',
-					secondary: '#E94057',
-					accent: '#F27121',
-					'accent-content': '#fff',
+					primary: '#b44150',
+					secondary: '#27E8BC',
+					accent: '#8533e8',
+					'secondary-content': '#191D24', // default 'neutral'
+					// 'accent-content': '#fff',
 					'base-content': '#C2C7D0',
 				},
 				light: {
 					...require('daisyui/src/colors/themes')['[data-theme=light]'],
-					primary: '#8A2387',
-					secondary: '#E94057',
-					accent: '#F27121',
-					'accent-content': '#fff',
+					primary: '#b44150', // brighten
+					secondary: '#27E8BC', // darken? I hate it, but maybe find another version
+					accent: '#8533e8',
+					// 'secondary-content': '#191D24', // default 'neutral'
+					'accent-content': '#fff', // default '-content' from primary, secondary, accent when it should be light
 				},
 			},
 		],
