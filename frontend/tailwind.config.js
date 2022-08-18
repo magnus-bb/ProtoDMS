@@ -59,17 +59,26 @@ module.exports = {
 		require('daisyui'),
 	],
 	daisyui: {
-		themes: ['dark', 'light'],
-		// themes: [
-		// 	{
-		// 		dark: {
-		// 			...require('daisyui/src/colors/themes')['[data-theme=dark]'],
-		// 		},
-		// 		light: {
-		// 			...require('daisyui/src/colors/themes')['[data-theme=light]'],
-		// 		},
-		// 	},
-		// ],
+		// themes: ['dark', 'light'],
+		themes: [
+			{
+				dark: {
+					...require('daisyui/src/colors/themes')['[data-theme=dark]'],
+					primary: '#8A2387',
+					secondary: '#E94057',
+					accent: '#F27121',
+					'accent-content': '#fff',
+					'base-content': '#C2C7D0',
+				},
+				light: {
+					...require('daisyui/src/colors/themes')['[data-theme=light]'],
+					primary: '#8A2387',
+					secondary: '#E94057',
+					accent: '#F27121',
+					'accent-content': '#fff',
+				},
+			},
+		],
 		darkTheme: 'dark',
 	},
 }

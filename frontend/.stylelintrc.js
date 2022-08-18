@@ -5,10 +5,10 @@ module.exports = {
     'at-rule-no-unknown': [true, {
       ignoreAtRules: [
         'tailwind',
+        'screen',
         // 'apply',
         // 'variants',
         // 'responsive',
-        // 'screen'
       ]
     }],
     'function-no-unknown': [true, {
