@@ -5,23 +5,19 @@
 		@click="toggleTheme"
 	>
 		<Icon
-			class="sun text-4xl text-neutral-content"
+			class="sun optical-size-48 fill text-4xl text-neutral-content"
 			:class="{
 				'rotate-[360deg] text-neutral': $colorMode.value === LIGHT_THEME,
 			}"
-			optical-size="48"
-			fill
 		>
 			&#xe1ac;
 		</Icon>
 		<Icon
-			class="circle text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-neutral-content duration-500 ease-out"
+			class="optical-size-20 fill text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-neutral-content duration-500 ease-out"
 			:class="{
 				'scale-150 -translate-x-full text-neutral':
 					$colorMode.value === LIGHT_THEME,
 			}"
-			optical-size="20"
-			fill
 		>
 			circle
 		</Icon>

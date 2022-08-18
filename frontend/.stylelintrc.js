@@ -1,20 +1,27 @@
 module.exports = {
-  extends: "@novicell/stylelint-config",
+  extends: ["@novicell/stylelint-config","stylelint-prettier/recommended", "stylelint-config-prettier"],
   rules: {
     // Extensions here
     'at-rule-no-unknown': [true, {
       ignoreAtRules: [
         'tailwind',
-        'apply',
-        'variants',
-        'responsive',
-        'screen'
+        // 'apply',
+        // 'variants',
+        // 'responsive',
+        // 'screen'
       ]
     }],
     'function-no-unknown': [true, {
       ignoreFunctions: [
-        "theme"
+        "theme",
+        "v-bind",
       ]
     }],
+    'value-keyword-case': ['lower', {
+      ignoreFunctions: [
+        'v-bind' // js vars in v-bind in css should not be lowercase
+      ]
+    }],
+    '@novicell/declaration-block-single-line': null
   }
 }
