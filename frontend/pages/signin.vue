@@ -11,9 +11,18 @@
 
 			<div class="bg-base-100 dark:bg-base-200 p-6 w-full">
 				<div class="mb-8 text-center">
-					<h1 class="mb-3 text-4xl font-bold">Sign in</h1>
-					<p class="text-sm text-muted">Sign in to access your account</p>
+					<h1 class="mb-3 text-4xl font-bold">
+						Sign {{ signInPage ? 'in' : 'up' }}
+					</h1>
+					<p class="text-sm text-muted">
+						{{
+							signInPage
+								? 'Sign in to access your account'
+								: 'Create an account'
+						}}
+					</p>
 				</div>
+
 				<Form
 					v-slot="{ meta: formMeta }"
 					class="space-y-12"
@@ -39,7 +48,10 @@
 						<div class="form-control w-full">
 							<label for="email" class="label">
 								<span class="label-text">Password</span>
-								<NuxtLink class="label-text-alt link link-hover">
+								<NuxtLink
+									class="label-text-alt link link-hover rounded"
+									tabindex="0"
+								>
 									Forgot password?
 								</NuxtLink>
 							</label>
@@ -48,7 +60,7 @@
 									id="password"
 									type="password"
 									v-bind="field"
-									placeholder="example@example.com"
+									placeholder="••••••••"
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
@@ -59,15 +71,27 @@
 						<button
 							role="submit"
 							class="btn btn-accent btn-block"
-							:disabled="!formMeta.valid"
+							:disabled="!formMeta.touched || !formMeta.valid"
 						>
-							Sign in
+							Sign {{ signInPage ? 'in' : 'up' }}
 						</button>
 						<p class="px-6 text-sm text-center text-muted">
-							Don't have an account yet?
-							<NuxtLink class="link link-secondary font-semibold">
-								Sign up
-							</NuxtLink>
+							<span v-if="signInPage">Don't have an account yet? </span>
+							<span v-else>Already have an account? </span>
+							<NuxtLink
+								v-if="signInPage"
+								tabindex="0"
+								class="link link-secondary font-semibold rounded"
+								to="/signup"
+								>Sign up</NuxtLink
+							>
+							<NuxtLink
+								v-else
+								tabindex="0"
+								class="link link-secondary font-semibold rounded"
+								to="/signin"
+								>Sign in</NuxtLink
+							>
 						</p>
 					</div>
 				</Form>
@@ -79,7 +103,22 @@
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
 import { string, object } from 'yup'
+import { computed } from '#imports'
 
+//* PAGE VERSION
+const route = useRoute()
+const routeName = route.name as 'signin' | 'signup' // lets us know whether we are signing in or signing up
+
+// Are we on the signin version of the page?
+const signInPage = computed<boolean>(() => routeName === 'signin')
+
+definePageMeta({
+	title: ' - Sign in', // TODO: do this inside signup as well and destructure the Signin component
+	// keepalive: true, // When switching to sign up, we can keep the form filled
+	// middleware: // if we are logged in, go to 'profile instead'
+})
+
+//* FORM VALIDATION
 interface FormData {
 	email?: string
 	password?: string
@@ -92,6 +131,7 @@ const schema = object({
 })
 
 function onSubmit(values: FormDataValidated) {
+	// Navigate to front page on login if success: https://v3.nuxtjs.org/guide/directory-structure/pages/#programmatic-navigation
 	console.log(values)
 }
 </script>
@@ -99,6 +139,7 @@ function onSubmit(values: FormDataValidated) {
 <style lang="postcss" scoped>
 .mockup-window {
 	@apply w-full;
+
 	@screen xs {
 		width: clamp(23rem, 35vw, 28rem);
 	}

@@ -1,7 +1,7 @@
 import { defineNuxtConfig } from 'nuxt'
 import eslintPlugin from 'vite-plugin-eslint'
 
-const title = 'Should I Use? - What are the implications of my stack?'
+const title = 'Should I Use?'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
