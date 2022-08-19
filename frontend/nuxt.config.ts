@@ -9,7 +9,7 @@ export default defineNuxtConfig({
 		title,
 	},
 
-	ssr: true,
+	ssr: false,
 
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
@@ -74,6 +74,11 @@ export default defineNuxtConfig({
 
 	// Makes eslint show errors in browser
 	vite: {
+		// server: {
+		// 	watch: {
+		// 		usePolling: true, // fixes hmr not updating with vue files
+		// 	},
+		// },
 		vue: {
 			reactivityTransform: true, // enables TypeScript props with default values
 		},

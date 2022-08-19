@@ -27,5 +27,12 @@
     "less",
     "postcss",
     "vue"
+  ],
+  "cSpell.ignoreWords": [
+    "nuxt",
+    "nuxtjs",
+    "postcss",
+    "tailwind",
+    "tailwindcss",
   ]
 }

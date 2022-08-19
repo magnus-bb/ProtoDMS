@@ -1,0 +1,7 @@
+[
+  {
+    "key": "ctrl+shift+f",
+    "command": "-vue3snippets.format",
+    "when": "editorTextFocus && !editorReadonly && editorLangId == 'vue'"
+  }
+]

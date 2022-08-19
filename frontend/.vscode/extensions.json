@@ -5,8 +5,10 @@
     "stylelint.vscode-stylelint",
     "cpylua.language-postcss",
     "dbaeumer.vscode-eslint",
-    "Vue.volar",
-    "aaron-bond.better-comments"
+    "vue.volar",
+    "aaron-bond.better-comments",
+    "znck.vue-language-features",
+    "Wscats.vue"
   ],
   "unwantedRecommendations": [
 		"octref.vetur",

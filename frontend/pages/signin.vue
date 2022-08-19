@@ -30,6 +30,39 @@
 					@submit="onSubmit"
 				>
 					<div class="space-y-4">
+						<!-- FIRST NAME -->
+						<div v-if="!signInPage" class="form-control w-full">
+							<label for="first-name" class="label">
+								<span class="label-text">First name</span>
+							</label>
+							<Field v-slot="{ meta, field }" name="first-name">
+								<input
+									id="first-name"
+									type="text"
+									v-bind="field"
+									placeholder="Jane/John"
+									class="input input-bordered w-full placeholder:text-muted transition-all"
+									:class="{ 'input-error': meta.dirty && !meta.valid }"
+								/>
+							</Field>
+						</div>
+						<!-- LAST NAME -->
+						<div v-if="!signInPage" class="form-control w-full">
+							<label for="last-name" class="label">
+								<span class="label-text">Last name</span>
+							</label>
+							<Field v-slot="{ meta, field }" name="last-name">
+								<input
+									id="last-name"
+									type="text"
+									v-bind="field"
+									placeholder="Doe"
+									class="input input-bordered w-full placeholder:text-muted transition-all"
+									:class="{ 'input-error': meta.dirty && !meta.valid }"
+								/>
+							</Field>
+						</div>
+						<!-- EMAIL -->
 						<div class="form-control w-full">
 							<label for="email" class="label">
 								<span class="label-text">E-mail address</span>
@@ -49,6 +82,7 @@
 							<label for="email" class="label">
 								<span class="label-text">Password</span>
 								<NuxtLink
+									v-if="signInPage"
 									class="label-text-alt link link-hover rounded"
 									tabindex="0"
 								>
@@ -58,6 +92,21 @@
 							<Field v-slot="{ meta, field }" name="password">
 								<input
 									id="password"
+									type="password"
+									v-bind="field"
+									placeholder="••••••••"
+									class="input input-bordered w-full placeholder:text-muted transition-all"
+									:class="{ 'input-error': meta.dirty && !meta.valid }"
+								/>
+							</Field>
+						</div>
+						<div v-if="!signInPage" class="form-control w-full">
+							<label for="email" class="label">
+								<span class="label-text">Repeat password</span>
+							</label>
+							<Field v-slot="{ meta, field }" name="repeat-password">
+								<input
+									id="repeat-password"
 									type="password"
 									v-bind="field"
 									placeholder="••••••••"
@@ -83,15 +132,16 @@
 								tabindex="0"
 								class="link link-secondary font-semibold rounded"
 								to="/signup"
-								>Sign up</NuxtLink
+							>
+								Sign up</NuxtLink
 							>
 							<NuxtLink
 								v-else
 								tabindex="0"
 								class="link link-secondary font-semibold rounded"
 								to="/signin"
-								>Sign in</NuxtLink
-							>
+								>Sign in
+							</NuxtLink>
 						</p>
 					</div>
 				</Form>
@@ -118,7 +168,7 @@ definePageMeta({
 	// middleware: // if we are logged in, go to 'profile instead'
 })
 
-//* FORM VALIDATION
+// TODO: FORM VALIDATION for both signin and signup. Rememeber that repeat pass should also be eq to pass
 interface FormData {
 	email?: string
 	password?: string
