@@ -1,5 +1,5 @@
 version: 1
-directus: 9.15.1
+directus: 9.16.0
 collections:
   - collection: posts
     meta:
@@ -95,7 +95,7 @@ fields:
           - visualaid
       readonly: false
       required: false
-      sort: null
+      sort: 9
       special: null
       translations: null
       validation: null
@@ -134,7 +134,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 6
+      sort: 5
       special:
         - cast-timestamp
         - date-created
@@ -175,7 +175,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 8
+      sort: 7
       special:
         - cast-timestamp
         - date-updated
@@ -215,7 +215,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 2
+      sort: 1
       special: null
       translations: null
       validation: null
@@ -253,7 +253,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 4
+      sort: 3
       special: null
       translations: null
       validation: null
@@ -312,7 +312,7 @@ fields:
             value: archived
       readonly: false
       required: false
-      sort: 3
+      sort: 2
       special: null
       translations: null
       validation: null
@@ -350,7 +350,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 1
+      sort: 8
       special: null
       translations: null
       validation: null
@@ -389,7 +389,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 5
+      sort: 4
       special:
         - user-created
       translations: null
@@ -429,7 +429,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 7
+      sort: 6
       special:
         - user-updated
       translations: null

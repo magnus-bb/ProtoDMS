@@ -14,20 +14,27 @@
 					<h1 class="mb-3 text-4xl font-bold">Sign in</h1>
 					<p class="text-sm text-muted">Sign in to access your account</p>
 				</div>
-				<Form class="space-y-12" @submit="onSubmit">
+				<Form
+					v-slot="{ meta: formMeta }"
+					class="space-y-12"
+					:validation-schema="schema"
+					@submit="onSubmit"
+				>
 					<div class="space-y-4">
 						<div class="form-control w-full">
 							<label for="email" class="label">
 								<span class="label-text">E-mail address</span>
 							</label>
-							<Field
-								id="email"
-								name="email"
-								type="email"
-								placeholder="example@example.com"
-								class="input input-bordered w-full placeholder:text-muted"
-							/>
-							<ErrorMessage name="email" />
+							<Field v-slot="{ meta, field }" name="email">
+								<input
+									id="email"
+									type="email"
+									v-bind="field"
+									placeholder="example@example.com"
+									class="input input-bordered w-full placeholder:text-muted transition-all"
+									:class="{ 'input-error': meta.dirty && !meta.valid }"
+								/>
+							</Field>
 						</div>
 						<div class="form-control w-full">
 							<label for="email" class="label">
@@ -36,18 +43,24 @@
 									Forgot password?
 								</NuxtLink>
 							</label>
-							<Field
-								id="password"
-								type="password"
-								name="password"
-								placeholder="••••••••"
-								class="input input-bordered w-full placeholder:text-muted"
-							/>
-							<ErrorMessage name="password" />
+							<Field v-slot="{ meta, field }" name="password">
+								<input
+									id="password"
+									type="password"
+									v-bind="field"
+									placeholder="example@example.com"
+									class="input input-bordered w-full placeholder:text-muted transition-all"
+									:class="{ 'input-error': meta.dirty && !meta.valid }"
+								/>
+							</Field>
 						</div>
 					</div>
 					<div class="space-y-2">
-						<button role="submit" class="btn btn-accent btn-block">
+						<button
+							role="submit"
+							class="btn btn-accent btn-block"
+							:disabled="!formMeta.valid"
+						>
 							Sign in
 						</button>
 						<p class="px-6 text-sm text-center text-muted">
@@ -64,22 +77,21 @@
 </template>
 
 <script lang="ts" setup>
-import { Form, Field, ErrorMessage } from 'vee-validate'
-import * as yup from 'yup'
-
-console.log(yup)
+import { Form, Field } from 'vee-validate'
+import { string, object } from 'yup'
 
 interface FormData {
 	email?: string
 	password?: string
 }
+type FormDataValidated = Required<FormData>
 
-// const schema = Yup.object({
-//   email_addr: Yup.string().email().required().label('Email Address'),
-//   acc_pazzword: Yup.string().min(5).required().label('Your Password'),
-// })
+const schema = object({
+	email: string().required().email().label('Your e-mail address'),
+	password: string().required().min(8).label('Your password'),
+})
 
-function onSubmit(values: FormData) {
+function onSubmit(values: FormDataValidated) {
 	console.log(values)
 }
 </script>
@@ -91,4 +103,8 @@ function onSubmit(values: FormData) {
 		width: clamp(23rem, 35vw, 28rem);
 	}
 }
+
+/* .input {
+	transition: outline-color 200ms ease-in-out;
+} */
 </style>
