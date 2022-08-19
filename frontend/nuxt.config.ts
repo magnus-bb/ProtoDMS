@@ -9,7 +9,7 @@ export default defineNuxtConfig({
 		title,
 	},
 
-	ssr: false,
+	ssr: true,
 
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {

@@ -7,7 +7,6 @@
     "dbaeumer.vscode-eslint",
     "vue.volar",
     "aaron-bond.better-comments",
-    "znck.vue-language-features",
     "Wscats.vue"
   ],
   "unwantedRecommendations": [

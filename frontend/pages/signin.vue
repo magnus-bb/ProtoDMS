@@ -32,12 +32,12 @@
 					<div class="space-y-4">
 						<!-- FIRST NAME -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="first-name" class="label">
+							<label for="firstName" class="label">
 								<span class="label-text">First name</span>
 							</label>
-							<Field v-slot="{ meta, field }" name="first-name">
+							<Field v-slot="{ meta, field }" name="firstName">
 								<input
-									id="first-name"
+									id="firstName"
 									type="text"
 									v-bind="field"
 									placeholder="Jane/John"
@@ -48,12 +48,12 @@
 						</div>
 						<!-- LAST NAME -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="last-name" class="label">
+							<label for="lastName" class="label">
 								<span class="label-text">Last name</span>
 							</label>
-							<Field v-slot="{ meta, field }" name="last-name">
+							<Field v-slot="{ meta, field }" name="lastName">
 								<input
-									id="last-name"
+									id="lastName"
 									type="text"
 									v-bind="field"
 									placeholder="Doe"
@@ -78,6 +78,7 @@
 								/>
 							</Field>
 						</div>
+						<!-- PASSWORD -->
 						<div class="form-control w-full">
 							<label for="email" class="label">
 								<span class="label-text">Password</span>
@@ -100,13 +101,14 @@
 								/>
 							</Field>
 						</div>
+						<!-- CONFIRM PASSWORD -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="email" class="label">
+							<label for="confirmPassword" class="label">
 								<span class="label-text">Repeat password</span>
 							</label>
-							<Field v-slot="{ meta, field }" name="repeat-password">
+							<Field v-slot="{ meta, field }" name="confirmPassword">
 								<input
-									id="repeat-password"
+									id="confirmPassword"
 									type="password"
 									v-bind="field"
 									placeholder="••••••••"
@@ -152,7 +154,7 @@
 
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
-import { string, object } from 'yup'
+import { string, object, ref } from 'yup'
 import { computed } from '#imports'
 
 //* PAGE VERSION
@@ -169,20 +171,45 @@ definePageMeta({
 })
 
 // TODO: FORM VALIDATION for both signin and signup. Rememeber that repeat pass should also be eq to pass
-interface FormData {
+interface SignUpForm {
+	firstName?: string
+	lastName?: string
 	email?: string
 	password?: string
+	confirmPassword?: string
 }
-type FormDataValidated = Required<FormData>
+type SignUpFormValidated = Required<SignUpForm>
+type SignInForm = Pick<SignUpForm, 'email' | 'password'>
+type SignInFormValidated = Required<SignInForm>
 
-const schema = object({
-	email: string().required().email().label('Your e-mail address'),
-	password: string().required().min(8).label('Your password'),
+const schema = computed(() => {
+	const schema = object({
+		firstName: string().required().label('Your first name'),
+		lastName: string().label('Your last name'),
+		email: string().required().email().label('Your e-mail address'),
+		password: string().required().min(8).label('Your password'),
+		confirmPassword: string()
+			.required()
+			.min(8)
+			.oneOf([ref('password')], "Passwords don't match")
+			.label('Your repeated password'),
+	})
+
+	return signInPage.value ? schema.pick(['email', 'password']) : schema
 })
 
-function onSubmit(values: FormDataValidated) {
+function onSubmit(formData: unknown) {
+	if (signInPage.value) {
+		// sign in with formData as signinformvalidated
+		formData as SignInFormValidated
+	}
+
+	formData as SignUpFormValidated
+
+	// sign up with vlaues as signupformvalidated
+
 	// Navigate to front page on login if success: https://v3.nuxtjs.org/guide/directory-structure/pages/#programmatic-navigation
-	console.log(values)
+	console.log(formData)
 }
 </script>
 
