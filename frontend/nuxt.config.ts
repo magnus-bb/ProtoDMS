@@ -24,6 +24,17 @@ export default defineNuxtConfig({
 		'@nuxtjs/color-mode',
 	],
 
+	hooks: {
+		// Route /signup to the signin.vue page file for reuse
+		'pages:extend'(pages) {
+			pages.push({
+				name: 'signup', // use this to render the signup version of the page
+				path: '/signup',
+				file: '@/pages/signin.vue',
+			})
+		},
+	},
+
 	directus: { url: process.env.NUXT_DIRECTUS_URL },
 
 	//* Icon font is downloaded manually into @/assets/fonts/
@@ -74,11 +85,15 @@ export default defineNuxtConfig({
 
 	// Makes eslint show errors in browser
 	vite: {
-		// server: {
-		// 	watch: {
-		// 		usePolling: true, // fixes hmr not updating with vue files
-		// 	},
-		// },
+		server: {
+			// hmr: {
+			// 	protocol: 'ws',
+			// 	host: 'localhost',
+			// },
+			// watch: {
+			// 	usePolling: true,
+			// },
+		},
 		vue: {
 			reactivityTransform: true, // enables TypeScript props with default values
 		},

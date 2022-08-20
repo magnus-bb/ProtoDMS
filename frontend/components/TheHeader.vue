@@ -33,7 +33,7 @@
 				</div>
 			</div>
 
-			<ThemePicker class="" />
+			<ThemePicker />
 
 			<!-- TODO: keyboard usage for nav (tab and arrow keys) -->
 			<nav aria-label="Main" class="dropdown dropdown-end">

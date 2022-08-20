@@ -24,7 +24,7 @@
 				</div>
 
 				<Form
-					v-slot="{ meta: formMeta }"
+					v-slot="{ meta: formMeta, isSubmitting }"
 					class="space-y-12"
 					:validation-schema="schema"
 					@submit="onSubmit"
@@ -51,16 +51,21 @@
 							<label for="lastName" class="label">
 								<span class="label-text">Last name</span>
 							</label>
-							<Field v-slot="{ meta, field }" name="lastName">
-								<input
-									id="lastName"
-									type="text"
-									v-bind="field"
-									placeholder="Doe"
-									class="input input-bordered w-full placeholder:text-muted transition-all"
-									:class="{ 'input-error': meta.dirty && !meta.valid }"
-								/>
-							</Field>
+							<div class="indicator w-full">
+								<span class="indicator-item indicator-center badge"
+									>Optional</span
+								>
+								<Field v-slot="{ meta, field }" name="lastName">
+									<input
+										id="lastName"
+										type="text"
+										v-bind="field"
+										placeholder="Doe"
+										class="input input-bordered w-full placeholder:text-muted transition-all"
+										:class="{ 'input-error': meta.dirty && !meta.valid }"
+									/>
+								</Field>
+							</div>
 						</div>
 						<!-- EMAIL -->
 						<div class="form-control w-full">
@@ -82,13 +87,6 @@
 						<div class="form-control w-full">
 							<label for="email" class="label">
 								<span class="label-text">Password</span>
-								<NuxtLink
-									v-if="signInPage"
-									class="label-text-alt link link-hover rounded"
-									tabindex="0"
-								>
-									Forgot password?
-								</NuxtLink>
 							</label>
 							<Field v-slot="{ meta, field }" name="password">
 								<input
@@ -100,11 +98,20 @@
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
 							</Field>
+							<label class="label">
+								<NuxtLink
+									v-if="signInPage"
+									class="label-text-alt link link-hover rounded"
+									tabindex="0"
+								>
+									Forgot password?
+								</NuxtLink>
+							</label>
 						</div>
 						<!-- CONFIRM PASSWORD -->
 						<div v-if="!signInPage" class="form-control w-full">
 							<label for="confirmPassword" class="label">
-								<span class="label-text">Repeat password</span>
+								<span class="label-text">Confirm password</span>
 							</label>
 							<Field v-slot="{ meta, field }" name="confirmPassword">
 								<input
@@ -122,7 +129,7 @@
 						<button
 							role="submit"
 							class="btn btn-accent btn-block"
-							:disabled="!formMeta.touched || !formMeta.valid"
+							:disabled="!formMeta.touched || !formMeta.valid || isSubmitting"
 						>
 							Sign {{ signInPage ? 'in' : 'up' }}
 						</button>
@@ -146,6 +153,12 @@
 							</NuxtLink>
 						</p>
 					</div>
+					<div v-show="showAlert" class="alert alert-error shadow-inner">
+						<div>
+							<Icon class="text-2xl grade-100">block</Icon>
+							<span>{{ submissionErrorText }}</span>
+						</div>
+					</div>
 				</Form>
 			</div>
 		</div>
@@ -154,8 +167,9 @@
 
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
-import { string, object, ref } from 'yup'
-import { computed } from '#imports'
+import { string, object, ref as reference } from 'yup'
+const { login } = useDirectusAuth()
+const directus = useDirectus()
 
 //* PAGE VERSION
 const route = useRoute()
@@ -164,53 +178,66 @@ const routeName = route.name as 'signin' | 'signup' // lets us know whether we a
 // Are we on the signin version of the page?
 const signInPage = computed<boolean>(() => routeName === 'signin')
 
-definePageMeta({
-	title: ' - Sign in', // TODO: do this inside signup as well and destructure the Signin component
-	// keepalive: true, // When switching to sign up, we can keep the form filled
-	// middleware: // if we are logged in, go to 'profile instead'
+useHead({
+	titleTemplate(titleChunk) {
+		return `${titleChunk} - Sign ${signInPage.value ? 'in' : 'up'}`
+	},
 })
 
-// TODO: FORM VALIDATION for both signin and signup. Rememeber that repeat pass should also be eq to pass
-interface SignUpForm {
+// FORM VALIDATION (client only)
+interface SignUpFormData {
 	firstName?: string
 	lastName?: string
 	email?: string
 	password?: string
 	confirmPassword?: string
 }
-type SignUpFormValidated = Required<SignUpForm>
-type SignInForm = Pick<SignUpForm, 'email' | 'password'>
-type SignInFormValidated = Required<SignInForm>
+type SignUpFormDataValidated = Required<SignUpFormData>
+type SignInFormData = Pick<SignUpFormData, 'email' | 'password'>
+type SignInFormDataValidated = Required<SignInFormData>
 
 const schema = computed(() => {
 	const schema = object({
 		firstName: string().required().label('Your first name'),
 		lastName: string().label('Your last name'),
 		email: string().required().email().label('Your e-mail address'),
-		password: string().required().min(8).label('Your password'),
+		// The min length is only used for sign up
+		password: string()
+			.required()
+			.min(signInPage.value ? 0 : 8)
+			.label('Your password'),
 		confirmPassword: string()
 			.required()
 			.min(8)
-			.oneOf([ref('password')], "Passwords don't match")
+			.oneOf([reference('password')], "Passwords don't match")
 			.label('Your repeated password'),
 	})
 
 	return signInPage.value ? schema.pick(['email', 'password']) : schema
 })
 
-function onSubmit(formData: unknown) {
-	if (signInPage.value) {
-		// sign in with formData as signinformvalidated
-		formData as SignInFormValidated
+//* SUBMISSION
+// TODO useDirectus instead, since we cannot get responses with useDirectusAuth (https://github.com/Intevel/nuxt-directus/blob/main/src/runtime/composables/useDirectus.ts)
+async function onSubmit(formData: unknown) {
+	console.log(formData)
+	try {
+		if (signInPage.value) {
+			// Sign in
+			await login(formData as SignInFormDataValidated)
+		} else {
+			// Sign up
+		}
+	} catch (err) {
+		console.log({ err })
+		return
 	}
 
-	formData as SignUpFormValidated
-
-	// sign up with vlaues as signupformvalidated
-
-	// Navigate to front page on login if success: https://v3.nuxtjs.org/guide/directory-structure/pages/#programmatic-navigation
-	console.log(formData)
+	await navigateTo('/')
 }
+
+//* SUBMISSION RESPONSE ERROR
+const submissionErrorText = ref<string>('')
+const showAlert = ref<boolean>(false)
 </script>
 
 <style lang="postcss" scoped>

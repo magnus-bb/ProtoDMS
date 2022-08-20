@@ -8,6 +8,7 @@ module.exports = {
 	plugins: ['prettier'], // Uses prettier rules as eslint rules (eslint-plugin-prettier)
 	rules: {
 		'@typescript-eslint/no-unused-vars': 1,
+		'vue/no-unused-vars': 1,
 		'import/no-named-as-default': 0, // with ts declarations, non-default exports can function as default, which this doesn't like
 		'no-console': ['warn', { allow: ['warn', 'error'] }],
 		'object-property-newline': [

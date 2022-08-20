@@ -1,7 +1,7 @@
 <template>
-	<div
+	<button
 		v-if="!colorMode.unknown"
-		class="relative flex items-center justify-center cursor-pointer"
+		class="relative btn btn-square btn-ghost"
 		@click="toggleTheme"
 	>
 		<Icon
@@ -21,9 +21,9 @@
 		>
 			circle
 		</Icon>
-	</div>
+	</button>
 
-	<div v-else class="flex items-center justify-center">
+	<div v-else class="btn btn-square btn-ghost disabled">
 		<Icon
 			class="text-4xl motion-safe:animate-spin-slow text-base-300"
 			style="font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48"
