@@ -23,17 +23,11 @@
 					</p>
 				</div>
 
-				<div v-show="showAlert" class="alert alert-error shadow-inner mb-4">
-					<div>
-						<Icon class="text-2xl grade-100">block</Icon>
-						<span>{{ submissionErrorText }}</span>
-					</div>
-				</div>
-
 				<Form
 					v-slot="{ meta: formMeta, isSubmitting }"
 					class="space-y-8"
 					:validation-schema="schema"
+					@input="showAlert = false"
 					@submit="onSubmit"
 				>
 					<div :class="signInPage ? 'space-y-4' : 'space-y-2'">
@@ -203,6 +197,18 @@
 				</Form>
 			</div>
 		</div>
+
+		<div v-show="showAlert" class="toast">
+			<div class="alert alert-error shadow-lg mb-4">
+				<div>
+					<Icon class="text-2xl -grade-25">block</Icon>
+					<h4 class="text-sm">{{ submissionErrorText }}</h4>
+				</div>
+				<div class="flex-none">
+					<button class="btn btn-sm" @click="showAlert = false">Alright</button>
+				</div>
+			</div>
+		</div>
 	</main>
 </template>
 
@@ -225,14 +231,7 @@ useHead({
 	},
 })
 
-// FORM VALIDATION (client only)
-// interface SignUpFormData {
-// 	first_name?: string
-// 	last_name?: string
-// 	email?: string
-// 	password?: string
-// 	confirm_password?: string
-// }
+//* FORM VALIDATION (client only)
 interface SignUpFormData
 	extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
 	confirm_password?: string
@@ -261,9 +260,11 @@ const schema = computed(() => {
 })
 
 //* SUBMISSION ERROR
+const SIGN_IN_ERROR_MESSAGE = 'Your e-mail or password is incorrect'
+const SIGN_UP_ERROR_MESSAGE = 'Could not register account'
+
 const submissionErrorText = ref<string>('')
 const showAlert = ref<boolean>(false)
-const SIGN_IN_ERROR_MESSAGE = 'Your e-mail or password is incorrect'
 
 //* SUBMISSION
 async function onSubmit(formData: unknown) {
@@ -271,18 +272,35 @@ async function onSubmit(formData: unknown) {
 		if (signInPage.value) {
 			await login(formData as SignInFormDataValidated)
 		} else {
-			//! TODO: register with an API (backend) call that uses a static token for admin privileges so new users can be created as User
+			const { authenticatedRoleId } = useRuntimeConfig().public
 			/* eslint-disable camelcase */
-			// const { first_name, last_name, email, password } =
-			// 	formData as SignUpFormDataValidated
-			// register({ first_name, last_name, email, password, role: 'admin' })
+			const { first_name, last_name, email, password } =
+				formData as SignUpFormDataValidated
+
+			// nuxt-directus uses a wrong type for registering arg, so we ignore ts errors
+			const success = await register({
+				// @ts-ignore
+				first_name,
+				// @ts-ignore
+				last_name,
+				email,
+				password,
+				role: authenticatedRoleId, // only role that can be set, so this is safe
+			})
+
+			if (!success) {
+				// nuxt-directus does not throw error if register fails (like it does with login),
+				// so we just do it manually to be consistent with handling errors in the catch-block
+				throw new Error(SIGN_UP_ERROR_MESSAGE)
+			}
+
 			/* eslint-enable camelcase */
 		}
 	} catch (err) {
 		if (signInPage.value) {
-			showSignInError()
+			displayErrorMessage(SIGN_IN_ERROR_MESSAGE)
 		} else {
-			// Sign up error
+			displayErrorMessage(SIGN_UP_ERROR_MESSAGE)
 		}
 
 		return
@@ -291,8 +309,10 @@ async function onSubmit(formData: unknown) {
 	await navigateTo('/')
 }
 
-function showSignInError() {
-	submissionErrorText.value = SIGN_IN_ERROR_MESSAGE
+function displayErrorMessage(
+	msg: typeof SIGN_IN_ERROR_MESSAGE | typeof SIGN_UP_ERROR_MESSAGE
+) {
+	submissionErrorText.value = msg
 	showAlert.value = true
 }
 </script>

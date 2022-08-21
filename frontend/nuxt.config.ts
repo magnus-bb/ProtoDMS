@@ -14,6 +14,7 @@ export default defineNuxtConfig({
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
 		public: {
+			authenticatedRoleId: '',
 			userEmail: 'example@example.com',
 			userPassword: 'password',
 		},
