@@ -23,56 +23,75 @@
 					</p>
 				</div>
 
+				<div v-show="showAlert" class="alert alert-error shadow-inner mb-4">
+					<div>
+						<Icon class="text-2xl grade-100">block</Icon>
+						<span>{{ submissionErrorText }}</span>
+					</div>
+				</div>
+
 				<Form
 					v-slot="{ meta: formMeta, isSubmitting }"
-					class="space-y-12"
+					class="space-y-8"
 					:validation-schema="schema"
 					@submit="onSubmit"
 				>
-					<div class="space-y-4">
+					<div :class="signInPage ? 'space-y-4' : 'space-y-2'">
 						<!-- FIRST NAME -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="firstName" class="label">
-								<span class="label-text">First name</span>
-							</label>
-							<Field v-slot="{ meta, field }" name="firstName">
+							<Field v-slot="{ meta, field, errorMessage }" name="first_name">
+								<label for="first_name" class="label">
+									<span class="label-text">First name</span>
+								</label>
 								<input
-									id="firstName"
+									id="first_name"
 									type="text"
 									v-bind="field"
 									placeholder="Jane/John"
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
+								<label :class="{ invisible: !errorMessage }" class="label">
+									<span class="label-text-alt text-error">{{
+										errorMessage
+									}}</span>
+								</label>
 							</Field>
 						</div>
+
 						<!-- LAST NAME -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="lastName" class="label">
-								<span class="label-text">Last name</span>
-							</label>
-							<div class="indicator w-full">
-								<span class="indicator-item indicator-center badge"
-									>Optional</span
-								>
-								<Field v-slot="{ meta, field }" name="lastName">
+							<Field v-slot="{ meta, field, errorMessage }" name="last_name">
+								<label for="last_name" class="label">
+									<span class="label-text">Last name</span>
+								</label>
+								<div class="indicator w-full">
+									<span class="indicator-item indicator-center badge"
+										>Optional</span
+									>
 									<input
-										id="lastName"
+										id="last_name"
 										type="text"
 										v-bind="field"
 										placeholder="Doe"
 										class="input input-bordered w-full placeholder:text-muted transition-all"
 										:class="{ 'input-error': meta.dirty && !meta.valid }"
 									/>
-								</Field>
-							</div>
+								</div>
+								<label :class="{ invisible: !errorMessage }" class="label">
+									<span class="label-text-alt text-error">{{
+										errorMessage
+									}}</span>
+								</label>
+							</Field>
 						</div>
+
 						<!-- EMAIL -->
 						<div class="form-control w-full">
-							<label for="email" class="label">
-								<span class="label-text">E-mail address</span>
-							</label>
-							<Field v-slot="{ meta, field }" name="email">
+							<Field v-slot="{ meta, field, errorMessage }" name="email">
+								<label for="email" class="label">
+									<span class="label-text">E-mail address</span>
+								</label>
 								<input
 									id="email"
 									type="email"
@@ -81,14 +100,24 @@
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
+								<label
+									v-if="!signInPage"
+									:class="{ invisible: !errorMessage }"
+									class="label"
+								>
+									<span class="label-text-alt text-error">{{
+										errorMessage
+									}}</span>
+								</label>
 							</Field>
 						</div>
+
 						<!-- PASSWORD -->
 						<div class="form-control w-full">
-							<label for="email" class="label">
-								<span class="label-text">Password</span>
-							</label>
-							<Field v-slot="{ meta, field }" name="password">
+							<Field v-slot="{ meta, field, errorMessage }" name="password">
+								<label for="email" class="label">
+									<span class="label-text">Password</span>
+								</label>
 								<input
 									id="password"
 									type="password"
@@ -97,34 +126,52 @@
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
-							</Field>
-							<label class="label">
-								<NuxtLink
-									v-if="signInPage"
-									class="label-text-alt link link-hover rounded"
-									tabindex="0"
+								<label v-if="signInPage" class="label">
+									<NuxtLink
+										class="label-text-alt link link-hover rounded"
+										tabindex="0"
+									>
+										Forgot password?
+									</NuxtLink>
+								</label>
+								<label
+									v-else
+									:class="{ invisible: !errorMessage }"
+									class="label"
 								>
-									Forgot password?
-								</NuxtLink>
-							</label>
+									<span class="label-text-alt text-error">{{
+										errorMessage
+									}}</span>
+								</label>
+							</Field>
 						</div>
+
 						<!-- CONFIRM PASSWORD -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<label for="confirmPassword" class="label">
-								<span class="label-text">Confirm password</span>
-							</label>
-							<Field v-slot="{ meta, field }" name="confirmPassword">
+							<Field
+								v-slot="{ meta, field, errorMessage }"
+								name="confirm_password"
+							>
+								<label for="confirm_password" class="label">
+									<span class="label-text">Confirm password</span>
+								</label>
 								<input
-									id="confirmPassword"
+									id="confirm_password"
 									type="password"
 									v-bind="field"
 									placeholder="••••••••"
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
+								<label :class="{ invisible: !errorMessage }" class="label">
+									<span class="label-text-alt text-error">{{
+										errorMessage
+									}}</span>
+								</label>
 							</Field>
 						</div>
 					</div>
+
 					<div class="space-y-2">
 						<button
 							role="submit"
@@ -153,12 +200,6 @@
 							</NuxtLink>
 						</p>
 					</div>
-					<div v-show="showAlert" class="alert alert-error shadow-inner">
-						<div>
-							<Icon class="text-2xl grade-100">block</Icon>
-							<span>{{ submissionErrorText }}</span>
-						</div>
-					</div>
 				</Form>
 			</div>
 		</div>
@@ -168,8 +209,8 @@
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
 import { string, object, ref as reference } from 'yup'
-const { login } = useDirectusAuth()
-const directus = useDirectus()
+import type { DirectusUsers as User } from '@/types/directus'
+const { login, register } = useDirectusAuth()
 
 //* PAGE VERSION
 const route = useRoute()
@@ -185,12 +226,16 @@ useHead({
 })
 
 // FORM VALIDATION (client only)
-interface SignUpFormData {
-	firstName?: string
-	lastName?: string
-	email?: string
-	password?: string
-	confirmPassword?: string
+// interface SignUpFormData {
+// 	first_name?: string
+// 	last_name?: string
+// 	email?: string
+// 	password?: string
+// 	confirm_password?: string
+// }
+interface SignUpFormData
+	extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
+	confirm_password?: string
 }
 type SignUpFormDataValidated = Required<SignUpFormData>
 type SignInFormData = Pick<SignUpFormData, 'email' | 'password'>
@@ -198,46 +243,58 @@ type SignInFormDataValidated = Required<SignInFormData>
 
 const schema = computed(() => {
 	const schema = object({
-		firstName: string().required().label('Your first name'),
-		lastName: string().label('Your last name'),
+		first_name: string().required().label('Your first name'),
+		last_name: string().label('Your last name'),
 		email: string().required().email().label('Your e-mail address'),
 		// The min length is only used for sign up
 		password: string()
 			.required()
 			.min(signInPage.value ? 0 : 8)
 			.label('Your password'),
-		confirmPassword: string()
+		confirm_password: string()
 			.required()
-			.min(8)
 			.oneOf([reference('password')], "Passwords don't match")
-			.label('Your repeated password'),
+			.label('The repeated password'),
 	})
 
 	return signInPage.value ? schema.pick(['email', 'password']) : schema
 })
 
+//* SUBMISSION ERROR
+const submissionErrorText = ref<string>('')
+const showAlert = ref<boolean>(false)
+const SIGN_IN_ERROR_MESSAGE = 'Your e-mail or password is incorrect'
+
 //* SUBMISSION
-// TODO useDirectus instead, since we cannot get responses with useDirectusAuth (https://github.com/Intevel/nuxt-directus/blob/main/src/runtime/composables/useDirectus.ts)
 async function onSubmit(formData: unknown) {
-	console.log(formData)
 	try {
 		if (signInPage.value) {
-			// Sign in
 			await login(formData as SignInFormDataValidated)
 		} else {
-			// Sign up
+			//! TODO: register with an API (backend) call that uses a static token for admin privileges so new users can be created as User
+			/* eslint-disable camelcase */
+			// const { first_name, last_name, email, password } =
+			// 	formData as SignUpFormDataValidated
+			// register({ first_name, last_name, email, password, role: 'admin' })
+			/* eslint-enable camelcase */
 		}
 	} catch (err) {
-		console.log({ err })
+		if (signInPage.value) {
+			showSignInError()
+		} else {
+			// Sign up error
+		}
+
 		return
 	}
 
 	await navigateTo('/')
 }
 
-//* SUBMISSION RESPONSE ERROR
-const submissionErrorText = ref<string>('')
-const showAlert = ref<boolean>(false)
+function showSignInError() {
+	submissionErrorText.value = SIGN_IN_ERROR_MESSAGE
+	showAlert.value = true
+}
 </script>
 
 <style lang="postcss" scoped>

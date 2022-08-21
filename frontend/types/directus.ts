@@ -1,13 +1,13 @@
 export type Posts = {
-	id: number
-	status: string
-	sort?: number
-	user_created?: string | DirectusUsers
-	date_created?: string
-	user_updated?: string | DirectusUsers
-	date_updated?: string
-	title?: string
 	content?: string
+	date_created?: string
+	date_updated?: string
+	id: number
+	sort?: number
+	status: string
+	title?: string
+	user_created?: string | DirectusUsers
+	user_updated?: string | DirectusUsers
 }
 
 export type DirectusActivity = {

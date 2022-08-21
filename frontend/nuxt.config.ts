@@ -13,8 +13,10 @@ export default defineNuxtConfig({
 
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
-		userEmail: 'example@example.com',
-		userPassword: 'password',
+		public: {
+			userEmail: 'example@example.com',
+			userPassword: 'password',
+		},
 	},
 
 	modules: [

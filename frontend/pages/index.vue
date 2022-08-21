@@ -16,36 +16,39 @@ import type { Posts as Post } from '@/types/directus'
 const { login } = useDirectusAuth()
 const { getItems } = useDirectusItems()
 
-// Async data does not rerun correctly when refreshed
 const {
 	data: posts,
 	error,
 	pending,
-} = await useLazyAsyncData<Post[]>(async () => {
-	const user = useDirectusUser()
+} = await useLazyAsyncData<Post[] | undefined>(
+	async () => {
+		const user = useDirectusUser()
 
-	if (!user.value) {
-		const { userEmail, userPassword } = useRuntimeConfig()
-
-		//! DEMO - we quickly login, if there is no logged in user
-		try {
-			await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
-		} catch (err) {
-			setAsyncDataError('Could not log in')
+		if (!user.value) {
+			const { userEmail, userPassword } = useRuntimeConfig().public
+			try {
+				await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
+			} catch (err) {
+				setAsyncDataError('Could not log in')
+				return
+			}
 		}
-	}
 
-	let posts!: Post[]
-	try {
-		posts = await getItems<Post>({
-			collection: 'posts',
-		})
-	} catch (err) {
-		setAsyncDataError('Could not get posts')
-	}
+		let posts!: Post[]
+		try {
+			posts = await getItems<Post>({
+				collection: 'posts',
+			})
+		} catch (err) {
+			setAsyncDataError('Could not get posts')
+		}
 
-	return posts
-})
+		return posts
+	},
+	{
+		server: false,
+	}
+)
 
 const asyncDataErrorMessage = useState('errorMessage')
 
