@@ -14,9 +14,10 @@ export default defineNuxtConfig({
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
 		public: {
-			authenticatedRoleId: '',
-			userEmail: 'example@example.com',
-			userPassword: 'password',
+			directusUrl: 'http://localhost:8055',
+			authenticatedRoleId: '', // get field presets to work for new users instead of this
+			userEmail: 'example@example.com', // remove
+			userPassword: 'password', // remove
 		},
 	},
 
@@ -38,7 +39,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	directus: { url: process.env.NUXT_DIRECTUS_URL },
+	directus: { url: process.env.NUXT_PUBLIC_DIRECTUS_URL },
 
 	//* Icon font is downloaded manually into @/assets/fonts/
 	googleFonts: {
