@@ -22,17 +22,17 @@ const {
 	pending,
 } = await useLazyAsyncData<Post[] | undefined>(
 	async () => {
-		// const user = useDirectusUser()
+		const user = useDirectusUser()
 
-		// if (!user.value) {
-		// 	const { userEmail, userPassword } = useRuntimeConfig().public
-		// 	try {
-		// 		await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
-		// 	} catch (err) {
-		// 		setAsyncDataError('Could not log in')
-		// 		return
-		// 	}
-		// }
+		if (!user.value) {
+			const { userEmail, userPassword } = useRuntimeConfig().public
+			try {
+				await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
+			} catch (err) {
+				setAsyncDataError('Could not log in')
+				return
+			}
+		}
 
 		let posts!: Post[]
 		try {
