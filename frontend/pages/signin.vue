@@ -288,11 +288,12 @@ async function onSubmit(formData: unknown) {
 				role: authenticatedRoleId, // only role that can be set, so this is safe
 			})
 
-			if (!success) {
-				// nuxt-directus does not throw error if register fails (like it does with login),
-				// so we just do it manually to be consistent with handling errors in the catch-block
-				throw new Error(SIGN_UP_ERROR_MESSAGE)
-			}
+			console.log(success)
+			// if (!success) {
+			// 	// nuxt-directus does not throw error if register fails (like it does with login),
+			// 	// so we just do it manually to be consistent with handling errors in the catch-block
+			// 	throw new Error(SIGN_UP_ERROR_MESSAGE)
+			// }
 
 			/* eslint-enable camelcase */
 		}

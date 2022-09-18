@@ -54,8 +54,8 @@ module.exports = env => ({
   you need to pass to the database instance.
   */
 
-	DB_CLIENT: env.DB_CLIENT, // 'sqlite3' in development
-	DB_FILENAME: env.DB_FILENAME, // './data.db' in development
+	DB_CLIENT: env.DB_CLIENT || 'sqlite3', // 'sqlite3' in development
+	DB_FILENAME: env.DB_FILENAME || './data.db', // './data.db' in development
 
 	// These match the databases defined in the docker-compose file in the root of this repo
 

@@ -59,18 +59,20 @@
 				</ul>
 			</nav>
 
-			<div v-if="hasAvatar" class="avatar">
+			<!-- <div v-if="user"> -->
+			<div v-if="user && hasAvatar" class="avatar">
 				<div class="w-14 mask mask-squircle">
 					<img :src="getThumbnail(user?.avatar as string)" />
 				</div>
 			</div>
-			<div v-else class="avatar placeholder">
+			<div v-else-if="user" class="avatar placeholder">
 				<div
 					class="bg-secondary text-secondary-content w-14 mask mask-squircle"
 				>
 					<span>{{ initials }}</span>
 				</div>
 			</div>
+			<!-- </div> -->
 		</div>
 	</div>
 </template>

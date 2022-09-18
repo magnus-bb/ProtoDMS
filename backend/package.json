@@ -18,6 +18,6 @@
     "sqlite3": "^5.0.11"
   },
   "dependencies": {
-    "directus": "^9.15.1"
+    "directus": "^9.17.4"
   }
 }

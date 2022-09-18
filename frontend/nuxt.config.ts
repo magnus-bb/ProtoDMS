@@ -1,4 +1,3 @@
-import { defineNuxtConfig } from 'nuxt'
 import eslintPlugin from 'vite-plugin-eslint'
 
 const title = 'Should I Use?'
@@ -87,21 +86,12 @@ export default defineNuxtConfig({
 		},
 	},
 
-	// Makes eslint show errors in browser
 	vite: {
-		server: {
-			// hmr: {
-			// 	protocol: 'ws',
-			// 	host: 'localhost',
-			// },
-			// watch: {
-			// 	usePolling: true,
-			// },
-		},
 		vue: {
 			reactivityTransform: true, // enables TypeScript props with default values
 		},
 		plugins: [
+			// Makes eslint show errors in browser
 			eslintPlugin({
 				// fix: true, // This also fixes files that you didn't open and save manually
 				cache: true, // Caches lint results and uses it if each target file is not changed. Please mind that ESLint doesn’t clear the cache when you upgrade ESLint plugins. In that case, you have to remove the cache file manually

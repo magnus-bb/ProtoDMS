@@ -1,5 +1,20 @@
 # Should I Use? Directus backend
 
+## First time setup
+I recommend setting the following environment variables for development:
+`.env`
+```
+CONFIG_PATH=directus-config.js
+```
+
+And these should be used for the initial schema import see [Migrate environments](#migrate-environments). Set them in the terminal with `export` or `set` (Windows)
+```
+DB_CLIENT=sqlite3
+DB_FILENAME=./data.db
+ADMIN_EMAIL=admin@user.email
+ADMIN_PASSWORD=adminuserpassword
+```
+
 ## Plugins
 ### [generate-types](https://github.com/maltejur/directus-extension-generate-types "GitHub"))
 This plugin is simply an `index.js` file located in `extensions/modules/generate-types/`.
@@ -48,10 +63,10 @@ You can use a remote `DIRECTUS_URL` for both importing and exporting.
 ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password node scripts/export.js
 
 # Import to target DIRECTUS_URL environment
-ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password node scripts/export.js
+ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password node scripts/import.js
 
 # Alternatively you can run the scripts from package.json
-ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password
+export ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password
 npm run export-config
 npm run import-config
 ```
