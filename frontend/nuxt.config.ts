@@ -41,12 +41,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	modules: [
-		'@nuxtjs/tailwindcss',
-		'nuxt-directus',
-		'@nuxtjs/google-fonts',
-		'@nuxtjs/color-mode',
-	],
+	modules: ['@nuxtjs/tailwindcss', 'nuxt-directus', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
 
 	hooks: {
 		// Route /signup to the signin.vue page file for reuse

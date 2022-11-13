@@ -56,5 +56,3 @@ function setAsyncDataError(msg: string) {
 	throw new Error(msg)
 }
 </script>
-
-<!-- <style lang="postcss"></style> -->

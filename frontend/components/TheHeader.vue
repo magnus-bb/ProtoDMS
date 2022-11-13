@@ -45,48 +45,19 @@
 						<path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
 					</svg>
 				</button>
-				<ul class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
+				<ul
+					class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-max"
+				>
 					<li><NuxtLink to="/">Home</NuxtLink></li>
 					<li><NuxtLink to="/signin">Sign in</NuxtLink></li>
 				</ul>
 			</nav>
 
-			<!-- <div v-if="user"> -->
-			<div v-if="user && hasAvatar" class="avatar">
-				<div class="w-14 mask mask-squircle">
-					<img :src="getThumbnail(user?.avatar as string)" />
-				</div>
-			</div>
-			<div v-else-if="user" class="avatar placeholder">
-				<div class="bg-secondary text-secondary-content w-14 mask mask-squircle">
-					<span>{{ initials }}</span>
-				</div>
-			</div>
-			<!-- </div> -->
+			<ProfileMenu v-if="user" :user="user" />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { Ref } from 'vue'
-import type { DirectusUsers as DirectusUser } from '@/types/directus'
-
-// useDirectusUser is just object | null, so we use the actual type instead
-const user = useDirectusUser() as unknown as Ref<Partial<DirectusUser> | null>
-const hasAvatar = computed<boolean>(() => !!user.value?.avatar)
-
-const { getThumbnail } = useDirectusFiles()
-
-const initials = computed<string>(() => {
-	if (!user.value) {
-		return '?'
-	}
-
-	if (user.value.last_name) {
-		// If there is a last name, return first and last name initials (first name is required, so it will exist)
-		return (user.value.first_name![0] + user.value.last_name[0]).toUpperCase()
-	}
-
-	return user.value.first_name![0].toUpperCase()
-})
+const user = useDirectusUser()
 </script>

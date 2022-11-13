@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+
 const defaultTheme = require('tailwindcss/defaultTheme')
 const colors = require('tailwindcss/colors')
+const plugin = require('tailwindcss/plugin')
 
 // This file must be the vanilla js version for the tailwind vscode intellisense extension to work correctly
 module.exports = {
@@ -57,19 +59,34 @@ module.exports = {
 		require('@tailwindcss/typography'),
 		require('@tailwindcss/line-clamp'),
 		require('daisyui'),
+		plugin(({ addVariant }) => {
+			addVariant('not-last', '&:not(:last-child)')
+			addVariant('next', '& + *')
+		}),
 	],
 	daisyui: {
 		// themes: ['dark', 'light'],
 		themes: [
 			{
+				// dark: {
+				// 	...require('daisyui/src/colors/themes')['[data-theme=dark]'],
+				// 	primary: '#b44150',
+				// 	secondary: '#27E8BC',
+				// 	accent: '#8533e8',
+				// 	'secondary-content': '#191D24', // default 'neutral'
+				// 	// 'accent-content': '#fff',
+				// 	'base-content': '#C2C7D0',
+				// },
 				dark: {
+					// Neutral and base content are the same, and are both dark versions of primary
 					...require('daisyui/src/colors/themes')['[data-theme=dark]'],
-					primary: '#b44150',
-					secondary: '#27E8BC',
-					accent: '#8533e8',
-					'secondary-content': '#191D24', // default 'neutral'
-					// 'accent-content': '#fff',
-					'base-content': '#C2C7D0',
+					primary: colors.emerald[500],
+					secondary: '#6b96bf',
+					accent: '#006ECE',
+					'accent-content': colors.white, // #fff
+					info: colors.indigo[100], // #e0e7ff
+					warning: colors.lime[400], // #a3e635
+					error: colors.rose[600], // #e11d48
 				},
 				light: {
 					...require('daisyui/src/colors/themes')['[data-theme=light]'],
