@@ -1,11 +1,32 @@
 import eslintPlugin from 'vite-plugin-eslint'
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 const title = 'Should I Use?'
+const description = 'SOME DESCRIPTION'
+// const logoPath = ORIGIN + '/img/POPlogo-socials.png'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-	meta: {
-		title,
+	app: {
+		head: {
+			title,
+			meta: [
+				{ name: 'description', content: description },
+				{ property: 'og:description', content: description },
+				{ property: 'og:title', content: title },
+				{ property: 'og:type', content: 'website' },
+				// { property: 'og:image', content: logoPath },
+				// {
+				// 	property: 'og:url',
+				// 	content: ORIGIN,
+				// },
+				{ name: 'twitter:card', content: 'summary_large_image' },
+				{ name: 'twitter:title', content: title },
+				{ name: 'twitter:description', content: description },
+				// { name: 'twitter:image', content: logoPath },
+			],
+		},
 	},
 
 	ssr: true,
@@ -71,7 +92,6 @@ export default defineNuxtConfig({
 
 	typescript: {
 		strict: true,
-		// typeCheck: true, We use eslint instead for type checking
 		shim: false,
 	},
 
@@ -90,13 +110,18 @@ export default defineNuxtConfig({
 		vue: {
 			reactivityTransform: true, // enables TypeScript props with default values
 		},
+		build: {
+			sourcemap: true,
+		},
 		plugins: [
 			// Makes eslint show errors in browser
-			eslintPlugin({
-				// fix: true, // This also fixes files that you didn't open and save manually
-				cache: true, // Caches lint results and uses it if each target file is not changed. Please mind that ESLint doesn’t clear the cache when you upgrade ESLint plugins. In that case, you have to remove the cache file manually
-				emitWarning: false, // don't bother printing warnings, they will show in editor
-			}),
+			isDev
+				? eslintPlugin({
+						fix: true, // This also fixes files that you didn't open and save manually
+						cache: true, // Caches lint results and uses it if each target file is not changed. Please mind that ESLint doesn’t clear the cache when you upgrade ESLint plugins. In that case, you have to remove the cache file manually
+						emitWarning: false, // don't bother printing warnings, they will show in editor
+				  })
+				: null,
 		],
 	},
 })

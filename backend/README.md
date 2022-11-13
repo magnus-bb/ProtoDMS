@@ -15,6 +15,18 @@ ADMIN_EMAIL=admin@user.email
 ADMIN_PASSWORD=adminuserpassword
 ```
 
+If needed, recreate the database file in production with:
+```sh
+npx directus bootstrap
+```
+
+Follow this by running the server with:
+```sh
+npm start
+```
+
+When the server is running, you can **import** configurations as described in the [Migrate environments section](#migrate-environments).
+
 ## Plugins
 ### [generate-types](https://github.com/maltejur/directus-extension-generate-types "GitHub"))
 This plugin is simply an `index.js` file located in `extensions/modules/generate-types/`.

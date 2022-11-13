@@ -22,6 +22,7 @@ module.exports = {
         'v-bind' // js vars in v-bind in css should not be lowercase
       ]
     }],
-    '@novicell/declaration-block-single-line': null
+    '@novicell/declaration-block-single-line': null,
+    "declaration-property-unit-allowed-list": null
   }
 }

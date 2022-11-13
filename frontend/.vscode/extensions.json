@@ -1,16 +1,16 @@
 {
   "recommendations": [
-    "csstools.postcss",
-    "bradlc.vscode-tailwindcss",
-    "stylelint.vscode-stylelint",
-    "cpylua.language-postcss",
     "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
     "vue.volar",
     "aaron-bond.better-comments",
-    "Wscats.vue"
+    "csstools.postcss",
+    "bradlc.vscode-tailwindcss",
+    "cpylua.language-postcss",
+    "Vue.vscode-typescript-vue-plugin", //maybe remove??
   ],
   "unwantedRecommendations": [
 		"octref.vetur",
-    "Vue.vscode-typescript-vue-plugin"
+    "vscode.typescript-language-features"
 	]
 }

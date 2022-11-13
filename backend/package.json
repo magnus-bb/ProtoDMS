@@ -15,9 +15,9 @@
   "author": "Magnus Bendix Borregaard",
   "license": "MIT",
   "devDependencies": {
-    "sqlite3": "^5.0.11"
+    "sqlite3": "^5.1.2"
   },
   "dependencies": {
-    "directus": "^9.18.0"
+    "directus": "^9.20.4"
   }
 }

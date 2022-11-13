@@ -1,25 +1,15 @@
 <template>
 	<main class="grow xs:grid xs:place-items-center">
-		<div
-			class="mockup-window border dark:border-neutral bg-base-200 dark:bg-base-300 shadow-xl"
-		>
-			<code
-				class="absolute top-8 left-24 tracking-wider leading-none -translate-y-3.5"
-			>
+		<div class="mockup-window border dark:border-neutral bg-base-200 dark:bg-base-300 shadow-xl">
+			<code class="absolute top-8 left-24 tracking-wider leading-none -translate-y-3.5">
 				shouldiuse.exe
 			</code>
 
 			<div class="bg-base-100 dark:bg-base-200 p-6 w-full">
 				<div class="mb-8 text-center">
-					<h1 class="mb-3 text-4xl font-bold">
-						Sign {{ signInPage ? 'in' : 'up' }}
-					</h1>
+					<h1 class="mb-3 text-4xl font-bold">Sign {{ signInPage ? 'in' : 'up' }}</h1>
 					<p class="text-sm text-muted">
-						{{
-							signInPage
-								? 'Sign in to access your account'
-								: 'Create an account'
-						}}
+						{{ signInPage ? 'Sign in to access your account' : 'Create an account' }}
 					</p>
 				</div>
 
@@ -46,9 +36,7 @@
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
 								<label :class="{ invisible: !errorMessage }" class="label">
-									<span class="label-text-alt text-error">{{
-										errorMessage
-									}}</span>
+									<span class="label-text-alt text-error">{{ errorMessage }}</span>
 								</label>
 							</Field>
 						</div>
@@ -60,9 +48,7 @@
 									<span class="label-text">Last name</span>
 								</label>
 								<div class="indicator w-full">
-									<span class="indicator-item indicator-center badge"
-										>Optional</span
-									>
+									<span class="indicator-item indicator-center badge">Optional</span>
 									<input
 										id="last_name"
 										type="text"
@@ -73,9 +59,7 @@
 									/>
 								</div>
 								<label :class="{ invisible: !errorMessage }" class="label">
-									<span class="label-text-alt text-error">{{
-										errorMessage
-									}}</span>
+									<span class="label-text-alt text-error">{{ errorMessage }}</span>
 								</label>
 							</Field>
 						</div>
@@ -94,14 +78,8 @@
 									class="input input-bordered w-full placeholder:text-muted transition-all"
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
-								<label
-									v-if="!signInPage"
-									:class="{ invisible: !errorMessage }"
-									class="label"
-								>
-									<span class="label-text-alt text-error">{{
-										errorMessage
-									}}</span>
+								<label v-if="!signInPage" :class="{ invisible: !errorMessage }" class="label">
+									<span class="label-text-alt text-error">{{ errorMessage }}</span>
 								</label>
 							</Field>
 						</div>
@@ -121,31 +99,19 @@
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
 								<label v-if="signInPage" class="label">
-									<NuxtLink
-										class="label-text-alt link link-hover rounded"
-										tabindex="0"
-									>
+									<NuxtLink class="label-text-alt link link-hover rounded" tabindex="0">
 										Forgot password?
 									</NuxtLink>
 								</label>
-								<label
-									v-else
-									:class="{ invisible: !errorMessage }"
-									class="label"
-								>
-									<span class="label-text-alt text-error">{{
-										errorMessage
-									}}</span>
+								<label v-else :class="{ invisible: !errorMessage }" class="label">
+									<span class="label-text-alt text-error">{{ errorMessage }}</span>
 								</label>
 							</Field>
 						</div>
 
 						<!-- CONFIRM PASSWORD -->
 						<div v-if="!signInPage" class="form-control w-full">
-							<Field
-								v-slot="{ meta, field, errorMessage }"
-								name="confirm_password"
-							>
+							<Field v-slot="{ meta, field, errorMessage }" name="confirm_password">
 								<label for="confirm_password" class="label">
 									<span class="label-text">Confirm password</span>
 								</label>
@@ -158,9 +124,7 @@
 									:class="{ 'input-error': meta.dirty && !meta.valid }"
 								/>
 								<label :class="{ invisible: !errorMessage }" class="label">
-									<span class="label-text-alt text-error">{{
-										errorMessage
-									}}</span>
+									<span class="label-text-alt text-error">{{ errorMessage }}</span>
 								</label>
 							</Field>
 						</div>
@@ -232,8 +196,7 @@ useHead({
 })
 
 //* FORM VALIDATION (client only)
-interface SignUpFormData
-	extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
+interface SignUpFormData extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
 	confirm_password?: string
 }
 type SignUpFormDataValidated = Required<SignUpFormData>
@@ -274,8 +237,7 @@ async function onSubmit(formData: unknown) {
 		} else {
 			const { authenticatedRoleId } = useRuntimeConfig().public
 			/* eslint-disable camelcase */
-			const { first_name, last_name, email, password } =
-				formData as SignUpFormDataValidated
+			const { first_name, last_name, email, password } = formData as SignUpFormDataValidated
 
 			// nuxt-directus uses a wrong type for registering arg, so we ignore ts errors
 			const success = await register({
@@ -311,9 +273,7 @@ async function onSubmit(formData: unknown) {
 	await navigateTo('/')
 }
 
-function displayErrorMessage(
-	msg: typeof SIGN_IN_ERROR_MESSAGE | typeof SIGN_UP_ERROR_MESSAGE
-) {
+function displayErrorMessage(msg: typeof SIGN_IN_ERROR_MESSAGE | typeof SIGN_UP_ERROR_MESSAGE) {
 	submissionErrorText.value = msg
 	showAlert.value = true
 }

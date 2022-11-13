@@ -1,9 +1,5 @@
 <template>
-	<button
-		v-if="!colorMode.unknown"
-		class="relative btn btn-square btn-ghost"
-		@click="toggleTheme"
-	>
+	<button v-if="!colorMode.unknown" class="relative btn btn-square btn-ghost" @click="toggleTheme">
 		<Icon
 			class="sun optical-size-48 fill text-4xl text-neutral-content"
 			:class="{
@@ -15,8 +11,7 @@
 		<Icon
 			class="optical-size-20 fill text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-neutral-content duration-500 ease-out"
 			:class="{
-				'scale-150 -translate-x-full text-neutral':
-					$colorMode.value === LIGHT_THEME,
+				'scale-150 -translate-x-full text-neutral': $colorMode.value === LIGHT_THEME,
 			}"
 		>
 			circle
@@ -52,7 +47,6 @@ function toggleTheme() {
 /* Have to set differing durations manually is css */
 .sun {
 	/* slow ease-in-bounce on rotate, faster linear o color */
-	transition: transform 700ms cubic-bezier(0.68, 0.11, 0.5, 1.29),
-		color 500ms ease-out;
+	transition: transform 700ms cubic-bezier(0.68, 0.11, 0.5, 1.29), color 500ms ease-out;
 }
 </style>

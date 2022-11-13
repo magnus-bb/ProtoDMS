@@ -11,8 +11,8 @@
 	font-family: 'Material Symbols Rounded'; /* stylelint-disable-line */
 	line-height: 1;
 	user-select: none;
-	font-variation-settings: 'FILL' var(--fill, 0), 'wght' var(--weight, 400),
-		'GRAD' var(--grade, 0), 'opsz' var(--optical-size, 24);
+	font-variation-settings: 'FILL' var(--fill, 0), 'wght' var(--weight, 400), 'GRAD' var(--grade, 0),
+		'opsz' var(--optical-size, 24);
 }
 
 /*

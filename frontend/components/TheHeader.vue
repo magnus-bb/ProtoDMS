@@ -25,11 +25,7 @@
 							/>
 						</svg>
 					</span>
-					<input
-						type="text"
-						placeholder="Search…"
-						class="input input-bordered bg-transparent"
-					/>
+					<input type="text" placeholder="Search…" class="input input-bordered bg-transparent" />
 				</div>
 			</div>
 
@@ -46,14 +42,10 @@
 						height="20"
 						viewBox="0 0 24 24"
 					>
-						<path
-							d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"
-						/>
+						<path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
 					</svg>
 				</button>
-				<ul
-					class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
-				>
+				<ul class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
 					<li><NuxtLink to="/">Home</NuxtLink></li>
 					<li><NuxtLink to="/signin">Sign in</NuxtLink></li>
 				</ul>
@@ -66,9 +58,7 @@
 				</div>
 			</div>
 			<div v-else-if="user" class="avatar placeholder">
-				<div
-					class="bg-secondary text-secondary-content w-14 mask mask-squircle"
-				>
+				<div class="bg-secondary text-secondary-content w-14 mask mask-squircle">
 					<span>{{ initials }}</span>
 				</div>
 			</div>

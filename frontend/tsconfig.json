@@ -3,5 +3,7 @@
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "strictNullChecks": true
-  }
+  },
+  // Include macros for reactivity transform (e.g. $ref, $computed): https://github.com/vuejs/rfcs/discussions/369
+  "files": [".macros.d.ts"]
 }

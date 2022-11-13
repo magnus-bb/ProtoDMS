@@ -259,7 +259,9 @@ async function login() {
     })
   })
 
-  return res.json()
+  const result = await res.json()
+
+  return result
 }
 
 async function get(configName, access_token) {
