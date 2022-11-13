@@ -1,5 +1,5 @@
 version: 1
-directus: 9.18.0
+directus: 9.20.4
 collections:
   - collection: posts
     meta:
@@ -57,13 +57,13 @@ collections:
     schema:
       name: posts_directus_users
       sql: >-
-        CREATE TABLE "posts_directus_users" (`id` integer PRIMARY KEY
-        AUTOINCREMENT NOT NULL, `posts_id` integer NULL, `directus_users_id`
-        char(36) NULL, `last_name` integer NULL, CONSTRAINT
-        `posts_directus_users_directus_users_id_foreign` FOREIGN KEY
-        (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE SET
-        NULL, CONSTRAINT `posts_directus_users_posts_id_foreign` FOREIGN KEY
-        (`posts_id`) REFERENCES `posts` (`id`) ON DELETE SET NULL)
+        CREATE TABLE "posts_directus_users" (`directus_users_id` char(36) NULL
+        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `last_name` integer NULL DEFAULT null, `posts_id` integer NULL DEFAULT
+        null, CONSTRAINT `posts_directus_users_directus_users_id_foreign`
+        FOREIGN KEY (`directus_users_id`) REFERENCES `directus_users` (`id`) ON
+        DELETE SET NULL, CONSTRAINT `posts_directus_users_posts_id_foreign`
+        FOREIGN KEY (`posts_id`) REFERENCES `posts` (`id`) ON DELETE SET NULL)
 fields:
   - collection: directus_users
     field: custom_user_data_divider
