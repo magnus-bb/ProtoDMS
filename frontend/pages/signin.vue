@@ -179,8 +179,7 @@
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
 import { string, object, ref as reference } from 'yup'
-import type { DirectusUsers as User } from '@/types/directus'
-const { login, register } = useDirectusAuth()
+import type { SignInFormDataValidated, SignUpFormDataValidated } from '@/types/auth'
 
 //* PAGE VERSION
 const route = useRoute()
@@ -190,19 +189,12 @@ const routeName = route.name as 'signin' | 'signup' // lets us know whether we a
 const signInPage = computed<boolean>(() => routeName === 'signin')
 
 useHead({
-	titleTemplate(titleChunk) {
+	titleTemplate(titleChunk: string): string {
 		return `${titleChunk} - Sign ${signInPage.value ? 'in' : 'up'}`
 	},
 })
 
 //* FORM VALIDATION (client only)
-interface SignUpFormData extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
-	confirm_password?: string
-}
-type SignUpFormDataValidated = Required<SignUpFormData>
-type SignInFormData = Pick<SignUpFormData, 'email' | 'password'>
-type SignInFormDataValidated = Required<SignInFormData>
-
 const schema = computed(() => {
 	const schema = object({
 		first_name: string().required().label('Your first name'),

@@ -53,11 +53,18 @@
 				</ul>
 			</nav>
 
+			<!-- <NotificationsMenu /> -->
 			<ProfileMenu v-if="user" :user="user" />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const user = useDirectusUser()
+import type { DirectusUsers as User } from '@/types/directus'
+let user: User
+try {
+	user = await me()
+} catch (err) {
+	console.error(err)
+}
 </script>

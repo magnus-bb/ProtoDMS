@@ -1,4 +1,7 @@
 # Frontend
+* VIGTIGT: lav auto-refresh af access tokens, hvis man laver en request med en udløbet token
+  * Kan nuxt/directus gøre det? Tror ikke
+  * Kan det gøres med noget Nuxt-magi, der automatisk tjekker hvis en request fejler med 401 og refresher og så prøver igen?
 * Tilføj view til notifikationer
   * Skal det være en side, modal, sidebar etc?
 

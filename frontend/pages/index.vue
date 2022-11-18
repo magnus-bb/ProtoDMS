@@ -13,8 +13,6 @@
 <script setup lang="ts">
 // Directus collections are plural, so we just rename for ts semantics
 import type { Posts as Post } from '@/types/directus'
-const { login } = useDirectusAuth()
-const { getItems } = useDirectusItems()
 
 const {
 	data: posts,
@@ -22,28 +20,30 @@ const {
 	pending,
 } = await useLazyAsyncData<Post[] | undefined>(
 	async () => {
-		const user = useDirectusUser()
-
-		if (!user.value) {
-			const { userEmail, userPassword } = useRuntimeConfig().public
-			try {
-				await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
-			} catch (err) {
-				setAsyncDataError('Could not log in')
-				return
-			}
+		try {
+			await refreshLogin()
+		} catch (err) {
+			setAsyncDataError('Could not log in')
+			return
 		}
 
-		let posts!: Post[]
+		// if (!user) {
+		// 	const { userEmail, userPassword } = useRuntimeConfig().public
+		// 	try {
+		// 		await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
+		// 	} catch (err) {
+		// 		setAsyncDataError('Could not log in')
+		// 		return
+		// 	}
+		// }
+
 		try {
-			posts = await getItems<Post[]>({
-				collection: 'posts',
-			})
+			const posts = await readByQuery<Post[]>('posts')
+
+			return posts
 		} catch (err) {
 			setAsyncDataError('Could not get posts')
 		}
-
-		return posts
 	},
 	{
 		server: false,

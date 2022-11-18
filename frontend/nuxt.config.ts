@@ -29,7 +29,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	ssr: true,
+	ssr: false,
 
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
@@ -41,7 +41,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	modules: ['@nuxtjs/tailwindcss', 'nuxt-directus', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
+	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
 
 	hooks: {
 		// Route /signup to the signin.vue page file for reuse
@@ -54,7 +54,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	directus: { url: process.env.NUXT_PUBLIC_DIRECTUS_URL },
+	// directus: { url: process.env.NUXT_PUBLIC_DIRECTUS_URL },
 
 	//* Icon font is downloaded manually into @/assets/fonts/
 	googleFonts: {
