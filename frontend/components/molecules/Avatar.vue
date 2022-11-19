@@ -1,7 +1,7 @@
 <template>
 	<div v-if="user && hasAvatar" class="avatar">
 		<div class="w-14 mask mask-squircle">
-			<img :src="getImage(user?.avatar as string)" />
+			<img :src="getThumbnail(user?.avatar as string)" />
 		</div>
 	</div>
 	<div v-else-if="user" class="avatar placeholder">
@@ -13,6 +13,8 @@
 
 <script setup lang="ts">
 import type { DirectusUsers as User } from '@/types/directus'
+
+const { getThumbnail } = useDirectusFiles()
 
 const { user } = defineProps<{
 	user: Partial<User>

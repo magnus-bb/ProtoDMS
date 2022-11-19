@@ -13,25 +13,36 @@
 			</button>
 		</div>
 
-		<ul tabindex="0" class="dropdown-content menu p-2 mt-3 shadow bg-base-100 rounded-box w-max">
-			<li v-for="notification of notifications" :key="notification.id">
-				<NuxtLink>{{ dateStringToRelativeTimestamp(notification.timestamp) }}</NuxtLink>
+		<ul tabindex="0" class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max">
+			<!-- notifications come from directus in the order of latest to newest, so we just reverse them here -->
+			<li v-for="notification of notifications.reverse()" :key="notification.id">
+				<NuxtLink class="flex flex-col items-start gap-1">
+					<span class="text-sm">{{ notification.subject }}</span>
+					<span class="text-xs text-muted">
+						{{ dateStringToRelativeTimestamp(notification.timestamp) }} by
+						<span class="text-xs font-semibold">{{ notification.message }}</span>
+					</span>
+				</NuxtLink>
+			</li>
+			<li v-if="!notifications.length" class="pointer-events-none">
+				<span class="text-sm">No notifications</span>
 			</li>
 		</ul>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { DirectusNotifications as DirectusNotification } from '@/types/directus'
+import type { DirectusNotifications as Notification, DirectusUsers as User } from '@/types/directus'
 
-// const { getNotifications } = useDirectusNotifications()
+const { user } = defineProps<{
+	user: User
+}>()
 
-// let notifications: DirectusNotification[]
-// try {
-// 	notifications = await getNotifications<DirectusNotification>({ params: {} })
-// } catch (err) {
-// 	console.log(err, notifications)
-// }
+let notifications: Notification[] = []
+if (user) {
+	const { getNotifications } = useDirectusNotifications()
+	notifications = (await getNotifications({ params: {} })) as Notification[]
+}
 
 const UNITS: Record<string, number> = {
 	year: 24 * 60 * 60 * 1000 * 365,

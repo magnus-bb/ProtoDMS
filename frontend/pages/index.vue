@@ -20,30 +20,15 @@ const {
 	pending,
 } = await useLazyAsyncData<Post[] | undefined>(
 	async () => {
-		try {
-			await refreshLogin()
-		} catch (err) {
-			setAsyncDataError('Could not log in')
+		const { getItems } = useDirectusItems()
+		const user = $(useDirectusUser())
+
+		if (!user) {
+			setAsyncDataError('Cannot get logged in user')
 			return
 		}
 
-		// if (!user) {
-		// 	const { userEmail, userPassword } = useRuntimeConfig().public
-		// 	try {
-		// 		await login({ email: userEmail, password: userPassword }) // these come from env, which obv. is not what we want going forward
-		// 	} catch (err) {
-		// 		setAsyncDataError('Could not log in')
-		// 		return
-		// 	}
-		// }
-
-		try {
-			const posts = await readByQuery<Post[]>('posts')
-
-			return posts
-		} catch (err) {
-			setAsyncDataError('Could not get posts')
-		}
+		return await getItems<Post[]>({ collection: 'posts' })
 	},
 	{
 		server: false,

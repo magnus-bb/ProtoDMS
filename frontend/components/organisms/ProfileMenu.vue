@@ -1,12 +1,13 @@
 <template>
 	<div class="dropdown dropdown-end">
-		<Avatar :user="user" tabindex="0" class="cursor-pointer" />
+		<Avatar v-if="user" :user="user" tabindex="0" class="cursor-pointer" />
 
 		<ul
 			tabindex="0"
-			class="dropdown-content menu menu-compact p-2 mt-3 shadow bg-base-100 rounded-box w-max"
+			class="dropdown-content menu menu-compact p-2 mt-3 shadow bg-base-200 rounded-box w-max"
 		>
 			<li><NuxtLink>Profile</NuxtLink></li>
+			<li><NuxtLink>Log out</NuxtLink></li>
 		</ul>
 	</div>
 </template>
@@ -16,6 +17,13 @@
 import type { DirectusUsers as User } from '@/types/directus'
 
 const { user } = defineProps<{
-	user: Partial<User>
+	user: User
 }>()
+
+// const user: User | undefined = ref()
+// try {
+// 	user.value = await getUser()
+// } catch (err) {
+// 	console.warn('Not logged in')
+// }
 </script>

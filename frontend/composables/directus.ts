@@ -1,64 +1,65 @@
-import { Directus } from '@directus/sdk'
-import type { DirectusUsers as User } from '@/types/directus'
+// import { Directus } from '@directus/sdk'
+// import type { DirectusUsers as User } from '@/types/directus'
 
-import type { SignInFormDataValidated, SignUpFormDataValidated } from '@/types/auth'
-export function useDirectus() {
-	const url = useRuntimeConfig().public.directusUrl
+// import type { SignInFormDataValidated, SignUpFormDataValidated } from '@/types/auth'
 
-	return useState('directus', () => new Directus(url)).value
-}
+// export function useDirectus() {
+// 	const url = useRuntimeConfig().public.directusUrl
 
-export function login(formData: SignInFormDataValidated) {
-	const directus = useDirectus()
+// 	const directus = $(useState('directus', () => new Directus(url)))
 
-	return directus.auth.login(formData as SignInFormDataValidated)
-}
+// 	return directus
+// }
 
-export function refreshLogin() {
-	const directus = useDirectus()
+// export async function login(formData: SignInFormDataValidated): Promise<User | undefined> {
+// 	const directus = useDirectus()
 
-	return directus.auth.refresh()
-}
+// 	await directus.auth.login(formData as SignInFormDataValidated)
 
-export function register(formData: SignUpFormDataValidated): Promise<User> {
-	const directus = useDirectus()
+// 	useState<boolean>('loggedIn', () => true)
 
-	return directus.users.createOne(formData as SignInFormDataValidated) as Promise<User>
-}
+// 	return getUser()
+// }
 
-export function me(): Promise<User> {
-	const directus = useDirectus()
+// export function refreshLogin() {
+// 	const loggedIn = $(useState<boolean>('loggedIn'))
+// 	if (!loggedIn) return
 
-	return directus.users.me.read() as Promise<User>
-}
+// 	return useDirectus().auth.refresh()
+// }
 
-export async function readByQuery<T>(
-	collection: string,
-	query: Record<string, any> = {}
-): Promise<T> {
-	const directus = useDirectus()
+// export function register(formData: SignUpFormDataValidated): Promise<User> {
+// 	const directus = useDirectus()
 
-	const response = await directus.items(collection).readByQuery(query)
-	return response.data as T
-}
+// 	return directus.users.createOne(formData as SignInFormDataValidated) as Promise<User>
+// }
 
-// Returns file url
-export function getImage(id: string): string {
-	const directus = useDirectus()
+// export async function getUser(): Promise<User | undefined> {
+// 	const directus = useDirectus()
 
-	return `${directus.url}assets/${id}`
-}
-// // Returns file url with transformations
-// export function getThumbnail(id: string): string {
-// 	const url = getImage(id)
+// 	const loggedIn = $(useState<boolean>('loggedIn'))
+// 	if (!loggedIn) return
 
-// 	const thumbnailUrl = new URL(url)
-// 	thumbnailUrl.searchParams.append('height', '30')
-// 	thumbnailUrl.searchParams.append('width', '30')
-// 	thumbnailUrl.searchParams.append('fit', 'cover')
-// 	thumbnailUrl.searchParams.append('quality', '70')
+// 	let user = $(useState<User>('user'))
 
-// 	console.log(thumbnailUrl.toString())
+// 	user = (await directus.users.me.read()) as User
 
-// 	return thumbnailUrl.toString()
+// 	return user
+// }
+
+// export async function readByQuery<T>(
+// 	collection: string,
+// 	query: Record<string, any> = {}
+// ): Promise<T> {
+// 	const directus = useDirectus()
+
+// 	const response = await directus.items(collection).readByQuery(query)
+// 	return response.data as T
+// }
+
+// // Returns file url
+// export function getImage(id: string): string {
+// 	const directus = useDirectus()
+
+// 	return `${directus.url}assets/${id}`
 // }

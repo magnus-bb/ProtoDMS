@@ -186,11 +186,11 @@ const route = useRoute()
 const routeName = route.name as 'signin' | 'signup' // lets us know whether we are signing in or signing up
 
 // Are we on the signin version of the page?
-const signInPage = computed<boolean>(() => routeName === 'signin')
+const signInPage = $computed<boolean>(() => routeName === 'signin')
 
 useHead({
 	titleTemplate(titleChunk: string): string {
-		return `${titleChunk} - Sign ${signInPage.value ? 'in' : 'up'}`
+		return `${titleChunk} - Sign ${signInPage ? 'in' : 'up'}`
 	},
 })
 
@@ -203,7 +203,7 @@ const schema = computed(() => {
 		// The min length is only used for sign up
 		password: string()
 			.required()
-			.min(signInPage.value ? 0 : 8)
+			.min(signInPage ? 0 : 8)
 			.label('Your password'),
 		confirm_password: string()
 			.required()
@@ -211,7 +211,7 @@ const schema = computed(() => {
 			.label('The repeated password'),
 	})
 
-	return signInPage.value ? schema.pick(['email', 'password']) : schema
+	return signInPage ? schema.pick(['email', 'password']) : schema
 })
 
 //* SUBMISSION ERROR
@@ -223,8 +223,10 @@ const showAlert = ref<boolean>(false)
 
 //* SUBMISSION
 async function onSubmit(formData: unknown) {
+	const { login, register } = useDirectusAuth()
+
 	try {
-		if (signInPage.value) {
+		if (signInPage) {
 			await login(formData as SignInFormDataValidated)
 		} else {
 			const { authenticatedRoleId } = useRuntimeConfig().public
@@ -253,7 +255,7 @@ async function onSubmit(formData: unknown) {
 			// TODO: LOGIN AFTER SIGN UP
 		}
 	} catch (err) {
-		if (signInPage.value) {
+		if (signInPage) {
 			displayErrorMessage(SIGN_IN_ERROR_MESSAGE)
 		} else {
 			displayErrorMessage(SIGN_UP_ERROR_MESSAGE)
