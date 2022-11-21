@@ -27,5 +27,13 @@
     "less",
     "postcss",
     "vue"
+  ],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "directus",
+      "database": "/home/magnus/Development/thesis-platform/backend/data.db"
+    }
   ]
 }

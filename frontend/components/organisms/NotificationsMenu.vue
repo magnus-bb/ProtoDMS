@@ -15,17 +15,27 @@
 
 		<ul tabindex="0" class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max">
 			<!-- notifications come from directus in the order of latest to newest, so we just reverse them here -->
-			<li v-for="notification of notifications.reverse()" :key="notification.id">
-				<NuxtLink class="flex flex-col items-start gap-1">
+			<li
+				v-for="notification of notifications.reverse()"
+				:key="notification.id"
+				class="flex flex-row gap-1 items-center"
+			>
+				<NuxtLink class="flex flex-col items-start gap-2">
 					<span class="text-sm">{{ notification.subject }}</span>
 					<span class="text-xs text-muted">
 						{{ dateStringToRelativeTimestamp(notification.timestamp) }} by
 						<span class="text-xs font-semibold">{{ notification.message }}</span>
 					</span>
 				</NuxtLink>
+				<button
+					class="btn btn-sm !btn-circle btn-ghost"
+					@click="deleteNotification(notification.id)"
+				>
+					<Icon class="optical-size-20 weight-600">close</Icon>
+				</button>
 			</li>
 			<li v-if="!notifications.length" class="pointer-events-none">
-				<span class="text-sm">No notifications</span>
+				<span class="text-sm">No new notifications</span>
 			</li>
 		</ul>
 	</div>
@@ -38,7 +48,7 @@ const { user } = defineProps<{
 	user: User
 }>()
 
-let notifications: Notification[] = []
+let notifications = $ref<Notification[]>([])
 if (user) {
 	const { getNotifications } = useDirectusNotifications()
 	notifications = (await getNotifications({ params: {} })) as Notification[]
@@ -73,5 +83,22 @@ function dateStringToRelativeTimestamp(
 	}
 
 	return ''
+}
+
+async function deleteNotification(id: number) {
+	const { deleteNotification } = useDirectusNotifications()
+
+	try {
+		await deleteNotification({ notifications: [id.toString()] })
+
+		// TODO: this might just be removed when websocket update the whole list of notifications on every change
+		// Remove from local array of notifications
+		notifications.splice(
+			notifications.findIndex(not => not.id === id),
+			1
+		)
+	} catch (err) {
+		console.error(err)
+	}
 }
 </script>

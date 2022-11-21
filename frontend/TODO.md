@@ -2,8 +2,25 @@
 * VIGTIGT: lav auto-refresh af access tokens, hvis man laver en request med en udløbet token
   * Kan nuxt/directus gøre det? Tror ikke
   * Kan det gøres med noget Nuxt-magi, der automatisk tjekker hvis en request fejler med 401 og refresher og så prøver igen?
-* Tilføj view til notifikationer
-  * Skal det være en side, modal, sidebar etc?
+* Notifikationer
+  * Clear knap?
+  * Opdatér listen med subscription (så man ikke skal refreshe for at få notifikationer igen)
+    * Se backend-opgaven med websockets
+* Grid til dokumenter
+  * Filtrér og sortér osv vha indbyggede Directus-ting
+* Dokumentviewer / editor
+  * Quill
+  * socket.io til collab, men brug bare alm saves
+  * Knap til at indsætte link til filer / andre docs
+    * Lav en slags modal til at vælge med 2 views: docs og filer
+  * Sidebar i dokumentviewer til at se revisions
+    * Brug directus revisions, men find en måde at vise deltaer og hvem der har lavet dem
+* Profilside
+  * Til visning af andres brugeroplysninger
+  * Til redigering af egne brugeroplysninger
+* Mappe-editor til filer
+  * Basically frontend til Directus' API til mapper og filer så man kan manage filer
+  * Der skal vises et ID til filer, så man kan linke dem direkte fra docs
 
 # Backend
 * Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det
@@ -14,3 +31,6 @@
 * Tilføj så notifikationer understøtter creations
   * Det kan være at man automatisk sættes som subscriber eller at man bliver sat imens en post oprettes, og så skal man også have en notifikation.
   * Bare at ændre til også at lytte på create i update-flowet virker ikke
+* Brug websocket til at opdatere notifikationer
+  * https://github.com/br41nslug/directus-websocket-subscribe
+* Tilføj tlf, stilling og afdeling til brugerdata
