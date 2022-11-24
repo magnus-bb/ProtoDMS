@@ -2,7 +2,7 @@
 	<div class="navbar">
 		<nav class="flex-1" aria-label="Home">
 			<NuxtLink to="/" title="Home" class="btn btn-ghost normal-case text-xl">
-				Should I Use?
+				Thesis project
 			</NuxtLink>
 		</nav>
 
@@ -29,7 +29,7 @@
 				</div>
 			</div>
 
-			<ThemePicker />
+			<!-- <ThemePicker /> -->
 
 			<!-- TODO: keyboard usage for nav (tab and arrow keys) -->
 			<nav aria-label="Main" class="dropdown dropdown-end">

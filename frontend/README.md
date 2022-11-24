@@ -1,4 +1,4 @@
-# Should I use? frontend
+# Thesis frontend
 
 ## Configuration
 ### Environment

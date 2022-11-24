@@ -1,11 +1,11 @@
 <template>
 	<main class="grow xs:grid xs:place-items-center">
-		<div class="mockup-window border dark:border-neutral bg-base-200 dark:bg-base-300 shadow-xl">
+		<div class="mockup-window border border-neutral bg-base-300 shadow-xl">
 			<code class="absolute top-8 left-24 tracking-wider leading-none -translate-y-3.5">
-				shouldiuse.exe
+				thesis.sh
 			</code>
 
-			<div class="bg-base-100 dark:bg-base-200 p-6 w-full">
+			<div class="bg-base-200 p-6 w-full">
 				<div class="mb-8 text-center">
 					<h1 class="mb-3 text-4xl font-bold">Sign {{ signInPage ? 'in' : 'up' }}</h1>
 					<p class="text-sm text-muted">
@@ -130,7 +130,7 @@
 						</div>
 					</div>
 
-					<div class="space-y-2">
+					<div class="space-y-4">
 						<button
 							role="submit"
 							class="btn btn-accent btn-block"
@@ -139,8 +139,8 @@
 							Sign {{ signInPage ? 'in' : 'up' }}
 						</button>
 						<p class="px-6 text-sm text-center text-muted">
-							<span v-if="signInPage">Don't have an account yet? </span>
-							<span v-else>Already have an account? </span>
+							<span v-if="signInPage" class="block">Don't have an account yet? </span>
+							<span v-else class="block">Already have an account? </span>
 							<NuxtLink
 								v-if="signInPage"
 								tabindex="0"

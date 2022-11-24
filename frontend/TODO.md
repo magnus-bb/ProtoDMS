@@ -15,12 +15,26 @@
     * Lav en slags modal til at vælge med 2 views: docs og filer
   * Sidebar i dokumentviewer til at se revisions
     * Brug directus revisions, men find en måde at vise deltaer og hvem der har lavet dem
+    * Brug daisy chat bubbles til revisions
 * Profilside
   * Til visning af andres brugeroplysninger
   * Til redigering af egne brugeroplysninger
 * Mappe-editor til filer
   * Basically frontend til Directus' API til mapper og filer så man kan manage filer
   * Der skal vises et ID til filer, så man kan linke dem direkte fra docs
+* Filside
+  * FIX mobil sidebar
+  * Mappe editing
+    * Opret mappe
+    * Delete mappe
+    * Rename mappe
+    * Flyt mappe?
+  * Filer
+    * Find alle filer hvor mappenavn svarer til den mappes ID man er inde i
+    * Upload filer
+    * Rename filer?
+    * Download filer (også flertal, fuck)
+    * Delete filer
 
 # Backend
 * Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det

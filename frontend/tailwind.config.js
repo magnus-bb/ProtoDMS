@@ -65,18 +65,8 @@ module.exports = {
 		}),
 	],
 	daisyui: {
-		// themes: ['dark', 'light'],
 		themes: [
 			{
-				// dark: {
-				// 	...require('daisyui/src/colors/themes')['[data-theme=dark]'],
-				// 	primary: '#b44150',
-				// 	secondary: '#27E8BC',
-				// 	accent: '#8533e8',
-				// 	'secondary-content': '#191D24', // default 'neutral'
-				// 	// 'accent-content': '#fff',
-				// 	'base-content': '#C2C7D0',
-				// },
 				dark: {
 					// Neutral and base content are the same, and are both dark versions of primary
 					...require('daisyui/src/colors/themes')['[data-theme=dark]'],
@@ -86,18 +76,10 @@ module.exports = {
 					'accent-content': colors.white, // #fff
 					info: colors.indigo[100], // #e0e7ff
 					warning: colors.lime[400], // #a3e635
-					error: colors.rose[600], // #e11d48
-				},
-				light: {
-					...require('daisyui/src/colors/themes')['[data-theme=light]'],
-					primary: '#b44150', // brighten
-					secondary: '#27E8BC', // darken? I hate it, but maybe find another version
-					accent: '#8533e8',
-					// 'secondary-content': '#191D24', // default 'neutral'
-					'accent-content': '#fff', // default '-content' from primary, secondary, accent when it should be light
+					error: colors.rose[600], // #e11d48,
+					'--btn-text-case': 'none',
 				},
 			},
 		],
-		darkTheme: 'dark',
 	},
 }
