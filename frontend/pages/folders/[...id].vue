@@ -19,6 +19,10 @@
 </template>
 
 <script setup lang="ts">
+// TODO: default current folder to root folder
+// TODO: custom context menu for delete, rename, move: https://dev.to/stackfindover/how-to-create-a-custom-right-click-menu-54h2
+// use clickoutside to close menu
+
 import type { DirectusFolders as Folder, DirectusFiles as File } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
 
@@ -98,9 +102,9 @@ const currentFiles = await getFiles<File>({
 
 <style lang="postcss" scoped>
 .file-grid {
-	@apply grid gap-4;
+	@apply grid gap-6 grid-flow-row;
 
-	grid-auto-flow: row;
-	grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+	/* 112px is the height of the mimetype icons and coincidentally fits pretty well */
+	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
 }
 </style>

@@ -1,17 +1,36 @@
 <template>
-	<div>
-		<div class="aspect-square bg-base-200 rounded-daisy-btn shadow-md"></div>
-		<h3>{{ file.filename_download }}</h3>
+	<div class="flex flex-col items-center drop-shadow-lg shadow-sm">
+		<img class="rounded-daisy-btn w-[112px] h-[112px]" :src="fileThumbSrc" />
+		<code class="mt-2 text-center filename">
+			{{ file.filename_download }}
+		</code>
 	</div>
 </template>
 
 <script setup lang="ts">
-// TODO: show icons / previews for different file types. If mimetype contains 'image', get the thumbnail. If not, get an icon matching the mimetype
 import type { DirectusFiles as File } from '@/types/directus'
 
-const { file } = defineProps<{
-	file: File
-}>()
-</script>
+const MIMETYPE_ICON_PATH = '/icons/'
 
-<style lang="postcss" scoped></style>
+// 112px is the height of the mimetype icons and coincidentally fits pretty well
+const { file, sideLength = 112 } = defineProps<{
+	file: File
+	sideLength?: number // in pixels - used to generate thumbnail images
+}>()
+
+const fileIsImage = $computed<boolean>(() => file.type?.includes('image') || false)
+
+// If file is an image, get the thumbnail image to show. If it is not, get an icon matching the file ext.
+const fileThumbSrc = $computed<string>(() => {
+	if (fileIsImage) {
+		const { getThumbnail } = useDirectusFiles()
+
+		return getThumbnail(file.id, { width: sideLength, height: sideLength, fit: 'cover' })
+	}
+
+	// We want an svg icon file that matches the extension of the filename of the file we display
+	const iconFileName = getMimetypeIcon(file.filename_download)
+
+	return MIMETYPE_ICON_PATH + iconFileName
+})
+</script>
