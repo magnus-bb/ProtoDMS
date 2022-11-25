@@ -7,23 +7,30 @@
 		</ul>
 	</Teleport>
 
+	<main class="p-4">
+		<h1 v-if="currentFolder" class="text-4xl font-semibold">{{ currentFolder.name }}</h1>
+		<div v-if="currentFiles?.length" class="file-grid mt-4">
+			<File v-for="file of currentFiles" :key="file.id" :file="file" />
+		</div>
+	</main>
+
 	<!-- BUTTON TO SELECT FOLDER -->
 	<!-- <label for="sidebar" class="btn btn-primary drawer-button lg:hidden">Open sidebar</label> -->
 </template>
 
 <script setup lang="ts">
-import type { DirectusFolders as Folder } from '@/types/directus'
+import type { DirectusFolders as Folder, DirectusFiles as File } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
 
 definePageMeta({
 	layout: 'sidebar',
 })
 
-const folderId = getCurrentFolderId()
+// TODO: move folders out into separate composable (useFolders)
 
-const directus = useDirectus()
-
+//* FOLDER TREE FOR SIDEBAR
 const { directusUrl } = useRuntimeConfig().public
+const directus = useDirectus()
 
 // Do a spinner (nuxt-template style) while getting these with useLazyAsyncData
 // it is important to use useDirectus so we get auth headers
@@ -56,6 +63,14 @@ function createDirectoryTree(folders: TreeFolder[]): TreeFolder {
 	return folders.find(folder => !folder.parent) as TreeFolder // hacky to cast, but we know it will always find a root folder
 }
 
+//* CURRENT FOLDER
+// This be the ID of the selected folder from the URL (if any is selected)
+const folderId = getCurrentFolderId()
+
+const currentFolder = $computed<Folder | undefined>(() =>
+	allFolders.find(folder => folder.id === folderId)
+)
+
 /*
 Since this is a catch-all-route, we might either be in /folders, /folders/:id, or /folders/:id/:whatever
 If we are in /folders, this returns undefined
@@ -68,6 +83,24 @@ function getCurrentFolderId(): string | undefined {
 
 	return folderId[0] // will be undef or the first route param after /folders
 }
+
+//* CURRENT FILES
+const { getFiles } = useDirectusFiles()
+
+const currentFiles = await getFiles<File>({
+	params: {
+		filter: {
+			folder: folderId,
+		},
+	},
+})
 </script>
 
-<style lang="postcss" scoped></style>
+<style lang="postcss" scoped>
+.file-grid {
+	@apply grid gap-4;
+
+	grid-auto-flow: row;
+	grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+</style>

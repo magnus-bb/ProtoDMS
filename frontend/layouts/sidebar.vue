@@ -1,5 +1,4 @@
 <template>
-	<TheHeader />
 	<div class="drawer drawer-mobile">
 		<input id="sidebar" ref="sidebarToggle" type="checkbox" class="drawer-toggle" />
 		<div
@@ -7,6 +6,7 @@
 			id="drawer-content"
 			class="drawer-content flex flex-col min-h-screen overflow-x-hidden"
 		>
+			<TheHeader />
 			<slot />
 		</div>
 
