@@ -1,9 +1,6 @@
 <template>
 	<li>
-		<NuxtLink
-			class="gap-2 btn btn-sm btn-ghost font-medium no-animation"
-			:to="`/folders/${folder.id}`"
-		>
+		<NuxtLink class="gap-2 btn btn-sm btn-ghost no-animation" :to="`/folders/${folder.id}`">
 			<Icon class="folder-icon">folder</Icon><code>{{ folder.name }}</code>
 		</NuxtLink>
 

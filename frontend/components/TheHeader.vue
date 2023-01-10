@@ -50,6 +50,7 @@
 				>
 					<li><NuxtLink to="/">Home</NuxtLink></li>
 					<li><NuxtLink to="/signin">Sign in</NuxtLink></li>
+					<li><NuxtLink to="/folders">Files</NuxtLink></li>
 				</ul>
 			</nav>
 

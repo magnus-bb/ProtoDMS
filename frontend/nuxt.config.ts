@@ -81,6 +81,7 @@ export default defineNuxtConfig({
 			'@/components/organisms',
 			'@/components/molecules',
 			'@/components/atoms',
+			'@/components/inputs',
 			'@/components',
 		],
 	},

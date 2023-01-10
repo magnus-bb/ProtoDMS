@@ -1,4 +1,8 @@
 # Frontend
+* CRUD MAPPER OG FILER
+  * Tjek, at når man sletter en mappe, så flyttes alle filer et niveau op (det gør den, når man slette i adminpanelet)
+  * Sørg for, at man ikke kan slette rodmappen
+  * Alle skal kunne redigere alle filer
 * VIGTIGT: lav auto-refresh af access tokens, hvis man laver en request med en udløbet token
   * Kan nuxt/directus gøre det? Tror ikke
   * Kan det gøres med noget Nuxt-magi, der automatisk tjekker hvis en request fejler med 401 og refresher og så prøver igen?

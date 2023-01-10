@@ -1,10 +1,10 @@
 <template>
-	<div class="flex flex-col items-center drop-shadow-lg shadow-sm">
+	<button class="flex flex-col items-center drop-shadow-lg">
 		<img class="rounded-daisy-btn w-[112px] h-[112px]" :src="fileThumbSrc" />
-		<code class="mt-2 text-center filename">
+		<code class="mt-2 text-center break-all">
 			{{ file.filename_download }}
 		</code>
-	</div>
+	</button>
 </template>
 
 <script setup lang="ts">

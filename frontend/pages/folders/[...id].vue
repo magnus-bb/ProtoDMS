@@ -5,43 +5,116 @@
 		<ul>
 			<Folder :folder="rootFolder" />
 		</ul>
+
+		<button class="flex items-center gap-2 text-sm px-3 text-secondary" @click="createFolder">
+			<Icon class="grade-200 weight-700 optical-size-40">add</Icon>
+			New folder in current directory
+		</button>
 	</Teleport>
 
 	<main class="p-4">
-		<h1 v-if="currentFolder" class="text-4xl font-semibold">{{ currentFolder.name }}</h1>
-		<div v-if="currentFiles?.length" class="file-grid mt-4">
-			<File v-for="file of currentFiles" :key="file.id" :file="file" />
+		<div class="flex items-center gap-x-4 flex-wrap-reverse">
+			<DirectoryBreadcrumbs
+				v-if="currentFolder && allFolders"
+				:all-folders="allFolders"
+				:current-folder="currentFolder"
+			/>
+			<!-- BUTTON TO SELECT FOLDER -->
+			<label for="sidebar" class="btn btn-sm btn-secondary btn-outline drawer-button lg:hidden">
+				Change directory
+			</label>
+		</div>
+
+		<div v-if="currentFiles?.length" class="space-y-8 mt-4">
+			<div class="file-grid">
+				<File v-for="file of currentFiles" :key="file.id" :file="file" />
+			</div>
+
+			<div class="flex">
+				<FileSelector name="upload-files" circle center size="lg" multiple @change="uploadFiles">
+					<Icon class="folder-icon text-4xl optical-size-40 grade-100">upload</Icon>
+				</FileSelector>
+			</div>
+		</div>
+
+		<div v-else class="alert alert-info shadow-lg mt-4 max-w-md">
+			<div class="w-full justify-between">
+				<span class="flex gap-2 items-center">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						class="stroke-current flex-shrink-0 w-6 h-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						></path>
+					</svg>
+					<span>There are no files here yet.</span>
+				</span>
+
+				<div class="flex-none">
+					<FileSelector name="upload-files" multiple @change="uploadFiles">Upload</FileSelector>
+				</div>
+			</div>
 		</div>
 	</main>
-
-	<!-- BUTTON TO SELECT FOLDER -->
-	<!-- <label for="sidebar" class="btn btn-primary drawer-button lg:hidden">Open sidebar</label> -->
 </template>
 
 <script setup lang="ts">
-// TODO: default current folder to root folder
 // TODO: custom context menu for delete, rename, move: https://dev.to/stackfindover/how-to-create-a-custom-right-click-menu-54h2
 // use clickoutside to close menu
 
-import type { DirectusFolders as Folder, DirectusFiles as File } from '@/types/directus'
-import type { TreeFolder } from '@/types/files'
+import { Directus as DirectusSDK } from '@directus/sdk'
 
+import type { Ref } from 'vue'
+import type {
+	DirectusFolders as DirectusFolder,
+	DirectusFiles as DirectusFile,
+} from '@/types/directus'
+import type { TreeFolder } from '@/types/files'
 definePageMeta({
 	layout: 'sidebar',
 })
 
-// TODO: move folders out into separate composable (useFolders)
+const { directusUrl } = useRuntimeConfig().public
+
+//* INIT SDK
+// Cannot see how to use nuxt-directus for internal collections, so we use directus-sdk instead, which requires us to manually send token
+const directusToken: Ref<string> = useDirectusToken()
+
+const directusSDK = new DirectusSDK(directusUrl, {
+	auth: {
+		staticToken: directusToken.value,
+	},
+})
 
 //* FOLDER TREE FOR SIDEBAR
-const { directusUrl } = useRuntimeConfig().public
-const directus = useDirectus()
+// TODO: move folders out into separate composable (useFolders)
+// const directus = useDirectus()
 
-// Do a spinner (nuxt-template style) while getting these with useLazyAsyncData
+// TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
 // it is important to use useDirectus so we get auth headers
-const { data: allFolders } = await directus<{ data: Folder[] }>(directusUrl + 'folders')
+// const { data: allFolders } = await directus<{ data: DirectusFolder[] }>(directusUrl + 'folders')
+let allFolders: DirectusFolder[] = $ref([])
+await refreshFolders()
 
-const rootFolder = $ref<TreeFolder>(createDirectoryTree(allFolders))
+async function refreshFolders() {
+	const folderRes = await directusSDK.folders.readByQuery({ limit: -1 })
+	allFolders = folderRes.data as DirectusFolder[] // This IS a folder array, if undef, something else broke anyway
+}
+const rootFolder = $computed<TreeFolder>(() => createDirectoryTree(allFolders))
 
+// If we are not at a page with a folder id, we redirect to the root folder
+if (!getCurrentFolderId()) {
+	await navigateTo(`/folders/${rootFolder.id}`, {
+		replace: true,
+		redirectCode: 301,
+	})
+}
 // Go through all folders from directus and use the 'parent' id property to attach
 // folders to their parent folders in a 'children' array
 function createDirectoryTree(folders: TreeFolder[]): TreeFolder {
@@ -68,10 +141,10 @@ function createDirectoryTree(folders: TreeFolder[]): TreeFolder {
 }
 
 //* CURRENT FOLDER
-// This be the ID of the selected folder from the URL (if any is selected)
+// This is the ID of the selected folder from the URL (if any is selected)
 const folderId = getCurrentFolderId()
 
-const currentFolder = $computed<Folder | undefined>(() =>
+const currentFolder = $computed<DirectusFolder | undefined>(() =>
 	allFolders.find(folder => folder.id === folderId)
 )
 
@@ -80,7 +153,7 @@ Since this is a catch-all-route, we might either be in /folders, /folders/:id, o
 If we are in /folders, this returns undefined
 If we are in /folders/:id or a subpath, this returns the id, which is the first element of the useRoute().params.id array
 */
-function getCurrentFolderId(): string | undefined {
+function getCurrentFolderId(): string {
 	const {
 		params: { id: folderId },
 	} = useRoute()
@@ -88,16 +161,64 @@ function getCurrentFolderId(): string | undefined {
 	return folderId[0] // will be undef or the first route param after /folders
 }
 
+//* CREATE FOLDER
+/* eslint-disable */
+async function createFolder() {
+	try {
+
+		await directusSDK.folders.createOne({
+			name: 'New folder',
+			parent: folderId || rootFolder.id,
+		})
+		
+		await refreshFolders()
+
+	} catch (err) {
+		alert('There was an error loading directories')
+		console.error(err)
+	}
+}
+
 //* CURRENT FILES
 const { getFiles } = useDirectusFiles()
 
-const currentFiles = await getFiles<File>({
-	params: {
-		filter: {
-			folder: folderId,
+let currentFiles = $ref<DirectusFile[]>([])
+await refreshFiles()
+
+async function refreshFiles() {
+	currentFiles = await getFiles<DirectusFile>({
+		params: {
+			filter: {
+				folder: folderId,
+			},
 		},
-	},
-})
+	})
+}
+
+//* FILE UPLOAD
+async function uploadFiles(event: Event) {
+	const { files } = event.target as HTMLInputElement
+
+	if (!files?.length || !directusToken) return
+
+	const form = new FormData()
+
+	// It is important to add files folder BEFORE the files
+	for (const file of files) {
+		form.append('folder', folderId)
+		form.append('file', file)
+	}
+
+	// Send the upload request
+	try {
+		await directusSDK.files.createOne(form) // createOne works fine when multiple are added to the form
+
+		await refreshFiles()
+	} catch (err) {
+		alert('There was an error uploading files')
+		console.error(err)
+	}
+}
 </script>
 
 <style lang="postcss" scoped>

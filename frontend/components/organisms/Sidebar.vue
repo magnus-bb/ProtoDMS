@@ -1,5 +1,5 @@
 <template>
-	<div ref="swipeContainer" class="relative w-80">
+	<div ref="swipeContainer" class="relative w-80 bg-base-100 lg:bg-base-200">
 		<!-- transition is a hack to make sure element returns to offsetRight = 0px AFTER transitioning with after-leave -->
 		<Transition @leave="hide" @after-leave="afterHide">
 			<!-- transition-all class only when not swiping, so it will only transition when you let go -->
