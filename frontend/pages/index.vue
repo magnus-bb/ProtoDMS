@@ -20,15 +20,14 @@ const {
 	pending,
 } = await useLazyAsyncData<Post[] | undefined>(
 	async () => {
-		const { getItems } = useDirectusItems()
-		const user = $(useDirectusUser())
-
-		if (!user) {
-			setAsyncDataError('Cannot get logged in user')
+		// Here we force refetching user, since we want to make sure we can await the result (which is not possible with useUser)
+		try {
+			await getUser()
+		} catch (err) {
+			setAsyncDataError('Could not get logged in user')
 			return
 		}
-
-		return await getItems<Post[]>({ collection: 'posts' })
+		return await readAll<Post>('posts')
 	},
 	{
 		server: false,

@@ -67,44 +67,27 @@
 <script setup lang="ts">
 // TODO: custom context menu for delete, rename, move: https://dev.to/stackfindover/how-to-create-a-custom-right-click-menu-54h2
 // use clickoutside to close menu
+// TODO: move folders out into separate composable (useFolders)
+// TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
 
-import { Directus as DirectusSDK } from '@directus/sdk'
-
-import type { Ref } from 'vue'
 import type {
 	DirectusFolders as DirectusFolder,
 	DirectusFiles as DirectusFile,
 } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
+
 definePageMeta({
 	layout: 'sidebar',
 })
 
-const { directusUrl } = useRuntimeConfig().public
-
-//* INIT SDK
-// Cannot see how to use nuxt-directus for internal collections, so we use directus-sdk instead, which requires us to manually send token
-const directusToken: Ref<string> = useDirectusToken()
-
-const directusSDK = new DirectusSDK(directusUrl, {
-	auth: {
-		staticToken: directusToken.value,
-	},
-})
-
 //* FOLDER TREE FOR SIDEBAR
-// TODO: move folders out into separate composable (useFolders)
-// const directus = useDirectus()
-
-// TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
-// it is important to use useDirectus so we get auth headers
-// const { data: allFolders } = await directus<{ data: DirectusFolder[] }>(directusUrl + 'folders')
 let allFolders: DirectusFolder[] = $ref([])
 await refreshFolders()
 
 async function refreshFolders() {
-	const folderRes = await directusSDK.folders.readByQuery({ limit: -1 })
-	allFolders = folderRes.data as DirectusFolder[] // This IS a folder array, if undef, something else broke anyway
+	const folderRes = await readAll<DirectusFolder>('directus_folders')
+
+	allFolders = folderRes as DirectusFolder[] // This IS a folder array, if undef, something else broke anyway
 }
 const rootFolder = $computed<TreeFolder>(() => createDirectoryTree(allFolders))
 
@@ -162,17 +145,16 @@ function getCurrentFolderId(): string {
 }
 
 //* CREATE FOLDER
-/* eslint-disable */
 async function createFolder() {
 	try {
+		const directus = useDirectus()
 
-		await directusSDK.folders.createOne({
+		await directus.folders.createOne({
 			name: 'New folder',
 			parent: folderId || rootFolder.id,
 		})
-		
-		await refreshFolders()
 
+		await refreshFolders()
 	} catch (err) {
 		alert('There was an error loading directories')
 		console.error(err)
@@ -180,26 +162,28 @@ async function createFolder() {
 }
 
 //* CURRENT FILES
-const { getFiles } = useDirectusFiles()
-
 let currentFiles = $ref<DirectusFile[]>([])
 await refreshFiles()
 
 async function refreshFiles() {
-	currentFiles = await getFiles<DirectusFile>({
-		params: {
-			filter: {
-				folder: folderId,
+	if (!folderId) return
+
+	currentFiles = await query<DirectusFile>('directus_files', {
+		filter: {
+			folder: {
+				_eq: folderId,
 			},
 		},
+		limit: -1,
 	})
 }
 
 //* FILE UPLOAD
 async function uploadFiles(event: Event) {
 	const { files } = event.target as HTMLInputElement
+	const { accessToken } = useUser()
 
-	if (!files?.length || !directusToken) return
+	if (!files?.length || !accessToken.value) return
 
 	const form = new FormData()
 
@@ -211,7 +195,9 @@ async function uploadFiles(event: Event) {
 
 	// Send the upload request
 	try {
-		await directusSDK.files.createOne(form) // createOne works fine when multiple are added to the form
+		const directus = useDirectus()
+
+		await directus.files.createOne(form) // createOne works fine when multiple are added to the form
 
 		await refreshFiles()
 	} catch (err) {

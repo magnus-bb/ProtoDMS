@@ -23,9 +23,7 @@ const fileIsImage = $computed<boolean>(() => file.type?.includes('image') || fal
 // If file is an image, get the thumbnail image to show. If it is not, get an icon matching the file ext.
 const fileThumbSrc = $computed<string>(() => {
 	if (fileIsImage) {
-		const { getThumbnail } = useDirectusFiles()
-
-		return getThumbnail(file.id, { width: sideLength, height: sideLength, fit: 'cover' })
+		return getAssetUrl(file.id, { width: sideLength, height: sideLength, fit: 'cover' })
 	}
 
 	// We want an svg icon file that matches the extension of the filename of the file we display

@@ -179,7 +179,7 @@
 <script lang="ts" setup>
 import { Form, Field } from 'vee-validate'
 import { string, object, ref as reference } from 'yup'
-import type { SignInFormDataValidated, SignUpFormDataValidated } from '@/types/auth'
+import type { SignInFormData, SignUpFormData } from '@/types/auth'
 
 //* PAGE VERSION
 const route = useRoute()
@@ -189,7 +189,7 @@ const routeName = route.name as 'signin' | 'signup' // lets us know whether we a
 const signInPage = $computed<boolean>(() => routeName === 'signin')
 
 useHead({
-	titleTemplate(titleChunk: string): string {
+	titleTemplate(titleChunk?: string): string {
 		return `${titleChunk} - Sign ${signInPage ? 'in' : 'up'}`
 	},
 })
@@ -223,38 +223,15 @@ const showAlert = ref<boolean>(false)
 
 //* SUBMISSION
 async function onSubmit(formData: unknown) {
-	const { login, register } = useDirectusAuth()
-
 	try {
 		if (signInPage) {
-			await login(formData as SignInFormDataValidated)
+			await login(formData as SignInFormData)
 		} else {
-			const { authenticatedRoleId } = useRuntimeConfig().public
-			/* eslint-disable camelcase */
-			const { first_name, last_name, email, password } = formData as SignUpFormDataValidated
-
-			// nuxt-directus uses a wrong type for registering arg, so we ignore ts errors
-			const success = await register({
-				// @ts-ignore
-				first_name,
-				// @ts-ignore
-				last_name,
-				email,
-				password,
-				role: authenticatedRoleId, // only role that can be set, so this is safe
-			})
-
-			if (!success) {
-				// nuxt-directus does not throw error if register fails (like it does with login),
-				// so we just do it manually to be consistent with handling errors in the catch-block
-				throw new Error(SIGN_UP_ERROR_MESSAGE)
-			}
-
-			/* eslint-enable camelcase */
-
-			// TODO: LOGIN AFTER SIGN UP
+			await signup(formData as SignUpFormData)
 		}
 	} catch (err) {
+		console.error(err)
+
 		if (signInPage) {
 			displayErrorMessage(SIGN_IN_ERROR_MESSAGE)
 		} else {

@@ -1,9 +1,17 @@
-import type { DirectusUsers as User } from '@/types/directus'
+// import type { DirectusUsers as User } from '@/types/directus'
 
-export interface SignUpFormData
-	extends Pick<User, 'first_name' | 'last_name' | 'email' | 'password'> {
-	confirm_password?: string
+export interface SignUpFormData {
+	first_name: string
+	last_name: string
+	email: string
+	password: string
+	confirm_password: string
 }
-export type SignUpFormDataValidated = Required<SignUpFormData>
-export type SignInFormData = Pick<SignUpFormData, 'email' | 'password'>
-export type SignInFormDataValidated = Required<SignInFormData>
+export type SignUpFormDataPartial = Partial<SignUpFormData>
+
+export interface SignInFormData {
+	email: string
+	password: string
+}
+
+export type SignInFormDataPartial = Partial<SignInFormData>

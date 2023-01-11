@@ -42,16 +42,18 @@
 </template>
 
 <script setup lang="ts">
-import type { DirectusNotifications as Notification, DirectusUsers as User } from '@/types/directus'
+import type {
+	DirectusNotifications as DirectusNotification,
+	DirectusUsers as DirectusUser,
+} from '@/types/directus'
 
 const { user } = defineProps<{
-	user: User
+	user: DirectusUser
 }>()
 
-let notifications = $ref<Notification[]>([])
+let notifications = $ref<DirectusNotification[]>([])
 if (user) {
-	const { getNotifications } = useDirectusNotifications()
-	notifications = (await getNotifications({ params: {} })) as Notification[]
+	notifications = await readAll<DirectusNotification>('directus_notifications')
 }
 
 const UNITS: Record<string, number> = {
@@ -64,7 +66,7 @@ const UNITS: Record<string, number> = {
 }
 
 function dateStringToRelativeTimestamp(
-	dateString: string | undefined,
+	dateString?: string | null,
 	relativeTo: number = Date.now()
 ): string {
 	if (!dateString) return ''
@@ -86,12 +88,12 @@ function dateStringToRelativeTimestamp(
 }
 
 async function deleteNotification(id: number) {
-	const { deleteNotification } = useDirectusNotifications()
+	const directus = useDirectus()
 
 	try {
-		await deleteNotification({ notifications: [id.toString()] })
+		await directus.items('directus_notifications').deleteOne(id.toString())
 
-		// TODO: this might just be removed when websocket update the whole list of notifications on every change
+		// TODO: this might just be removed when websocket updates the whole list of notifications on every change
 		// Remove from local array of notifications
 		notifications.splice(
 			notifications.findIndex(not => not.id === id),

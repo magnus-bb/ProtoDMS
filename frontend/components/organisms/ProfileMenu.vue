@@ -14,16 +14,9 @@
 
 <script setup lang="ts">
 // TODO: outline on focus (mask seems like it removes it)
-import type { DirectusUsers as User } from '@/types/directus'
+import type { DirectusUsers as DirectusUser } from '@/types/directus'
 
 const { user } = defineProps<{
-	user: User
+	user: DirectusUser
 }>()
-
-// const user: User | undefined = ref()
-// try {
-// 	user.value = await getUser()
-// } catch (err) {
-// 	console.warn('Not logged in')
-// }
 </script>
