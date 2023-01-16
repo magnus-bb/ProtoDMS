@@ -9,7 +9,7 @@
 			<slot />
 		</div>
 
-		<div v-else class="w-full flex items-center" @click="showInput">
+		<div v-else class="w-full flex items-center" tabindex="0" @click="showInput">
 			<slot name="display" />
 		</div>
 	</div>
@@ -35,5 +35,3 @@ function showInput() {
 	emit('showInput')
 }
 </script>
-
-<style lang="postcss" scoped></style>

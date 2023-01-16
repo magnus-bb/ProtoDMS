@@ -3,13 +3,13 @@
 
 	<Teleport to="#sidebarContent">
 		<ul>
-			<Folder :folder="rootFolder" />
+			<Folder navigation :folder="rootFolder" />
 		</ul>
 
 		<InputToggle class="px-3">
-			<label for="newFolder" class="sr-only">Create new folder</label>
+			<label for="new-folder" class="sr-only">Create new folder</label>
 			<input
-				id="newFolder"
+				id="new-folder"
 				ref="createFolderInput"
 				class="input input-xs w-full placeholder:text-muted"
 				placeholder="Folder name"
@@ -66,9 +66,9 @@
 
 			<div class="btn-group no-animation">
 				<InputToggle class="btn items-center text-2xl border-none">
-					<label for="newFolderAlt" class="sr-only">Create new folder</label>
+					<label for="new-folder-alt" class="sr-only">Create new folder</label>
 					<input
-						id="newFolderAlt"
+						id="new-folder-alt"
 						ref="createFolderInputAlt"
 						class="input input-ghost input-sm w-full placeholder:text-muted border-none"
 						placeholder="Folder name"
@@ -80,14 +80,15 @@
 					</template>
 				</InputToggle>
 
-				<button
+				<label
 					v-if="currentFolder !== rootFolder"
+					tabindex="0"
 					title="Move folder"
 					class="items-center text-2xl btn"
-					@click="moveCurrentFolder"
+					for="move-folder-modal"
 				>
 					<Icon class="grade-200 weight-700 fill optical-size-40">drive_file_move</Icon>
-				</button>
+				</label>
 
 				<button
 					v-if="currentFolder !== rootFolder"
@@ -137,6 +138,22 @@
 			</div>
 		</div>
 	</main>
+
+	<!-- MOVE FOLDER MODAL -->
+	<input id="move-folder-modal" ref="modeFolderModal" type="checkbox" class="modal-toggle" />
+	<label for="move-folder-modal" class="modal cursor-pointer">
+		<label class="modal-box relative">
+			<label for="move-folder-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
+				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
+			</label>
+
+			<h3 class="text-lg font-bold mb-4">Select where to move '{{ currentFolder?.name }}'</h3>
+
+			<ul>
+				<Folder :folder="rootFolder" @select="moveCurrentFolder" />
+			</ul>
+		</label>
+	</label>
 </template>
 
 <script setup lang="ts">
@@ -375,8 +392,30 @@ async function deleteFolder(id: string): Promise<boolean> {
 }
 
 //* MOVE FOLDER
-function moveCurrentFolder() {
-	console.log('moving')
+const moveFolderModal = ref<HTMLInputElement>()
+
+async function moveCurrentFolder(targetFolder: TreeFolder) {
+	if (!currentFolder?.id) {
+		console.error('currentFolder is undefined')
+		return
+	}
+
+	const directus = useDirectus()
+
+	try {
+		await directus.folders.updateOne(currentFolder?.id, {
+			parent: targetFolder.id,
+		})
+	} catch (err) {
+		alert(
+			`There was an error moving the folder '${currentFolder.name}' into '${targetFolder.name}'`
+		)
+		console.error(err)
+	}
+
+	moveFolderModal.value?.click() // close modal
+
+	refreshFolders()
 }
 
 //* FILE UPLOAD
