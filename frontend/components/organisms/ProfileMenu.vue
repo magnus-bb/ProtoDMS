@@ -7,7 +7,7 @@
 			class="dropdown-content menu menu-compact p-2 mt-3 shadow bg-base-200 rounded-box w-max"
 		>
 			<li><NuxtLink>Profile</NuxtLink></li>
-			<li><NuxtLink>Log out</NuxtLink></li>
+			<li><button @click="signout">Log out</button></li>
 		</ul>
 	</div>
 
@@ -21,4 +21,15 @@ import type { DirectusUsers as DirectusUser } from '@/types/directus'
 const { user = null } = defineProps<{
 	user: DirectusUser | null
 }>()
+
+async function signout() {
+	try {
+		await logout()
+
+		await navigateTo('/signin')
+	} catch (err) {
+		alert('Could not log out')
+		console.error(err)
+	}
+}
 </script>

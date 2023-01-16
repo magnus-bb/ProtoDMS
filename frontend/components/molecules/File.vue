@@ -1,7 +1,7 @@
 <template>
 	<button class="flex flex-col items-center drop-shadow-lg">
 		<img class="rounded-daisy-btn w-[112px] h-[112px]" :src="fileThumbSrc" />
-		<code class="mt-2 text-center break-all">
+		<code class="mt-2 text-center break-all line-clamp-2" :title="file.filename_download">
 			{{ file.filename_download }}
 		</code>
 	</button>

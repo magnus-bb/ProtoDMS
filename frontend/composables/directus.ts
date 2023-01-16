@@ -36,7 +36,7 @@ export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<st
 			.then(authedUser => {
 				if (authedUser) user.value = authedUser
 			})
-			.catch(() => console.warn('Could not get logged in user'))
+			.catch(() => console.error('Could not get logged in user'))
 	}
 
 	return {
@@ -45,14 +45,8 @@ export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<st
 	}
 }
 
-export async function getUser(): Promise<DirectusUser> {
+export function getUser(): Promise<DirectusUser> {
 	const directus = useDirectus()
-
-	try {
-		await directus.auth.refresh()
-	} catch (err) {
-		console.warn('Could not refresh access token')
-	}
 
 	return directus.users.me.read() as Promise<DirectusUser>
 }
@@ -61,16 +55,27 @@ export async function login(formData: SignInFormData) {
 	const directus = useDirectus()
 
 	// These automatically set the auth_token in localstorage and refresh in cookie
-	try {
-		await directus.auth.refresh()
-	} catch (err) {
-		await directus.auth.login(formData as SignInFormData)
-	}
+	await directus.auth.login(formData as SignInFormData)
 
-	const user = useState('user')
+	const user = useState<DirectusUser | null>('user')
 
 	user.value = await getUser()
 }
+
+export async function logout() {
+	const directus = useDirectus()
+
+	try {
+		await directus.auth.logout()
+		const user = useState<DirectusUser | null>('user')
+
+		user.value = null
+	} catch (err) {
+		console.warn('Could not log out')
+		alert('Could not log out')
+	}
+}
+
 export async function signup(formData: SignUpFormData) {
 	const directus = useDirectus()
 

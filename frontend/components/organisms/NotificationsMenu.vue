@@ -16,11 +16,11 @@
 		<ul tabindex="0" class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max">
 			<!-- notifications come from directus in the order of latest to newest, so we just reverse them here -->
 			<li
-				v-for="notification of notifications.reverse()"
+				v-for="notification of notifications"
 				:key="notification.id"
-				class="flex flex-row gap-1 items-center"
+				class="flex flex-row gap-1 items-center justify-between pr-2"
 			>
-				<NuxtLink class="flex flex-col items-start gap-2">
+				<NuxtLink class="flex flex-col items-start gap-2 grow">
 					<span class="text-sm">{{ notification.subject }}</span>
 					<span class="text-xs text-muted">
 						{{ dateStringToRelativeTimestamp(notification.timestamp) }} by
@@ -51,11 +51,6 @@ const { user } = defineProps<{
 	user: DirectusUser
 }>()
 
-let notifications = $ref<DirectusNotification[]>([])
-if (user) {
-	notifications = await readAll<DirectusNotification>('directus_notifications')
-}
-
 const UNITS: Record<string, number> = {
 	year: 24 * 60 * 60 * 1000 * 365,
 	month: (24 * 60 * 60 * 1000 * 365) / 12,
@@ -65,6 +60,25 @@ const UNITS: Record<string, number> = {
 	second: 1000,
 }
 
+//* GETTING NOTIFICATIONS
+let notifications = $ref<DirectusNotification[]>([])
+
+async function getNotifications() {
+	if (!user) return
+
+	const rawNotifications = await readAll<DirectusNotification>('directus_notifications')
+
+	rawNotifications.reverse() // Directus returns notifications in the order of oldest to newest, so we reverse them here
+	notifications = rawNotifications
+}
+
+getNotifications() // get initial notifications
+const notificationLoop = setInterval(getNotifications, 30 * UNITS.second) // after 30 secs, get nots and keep doing it every 30s
+onBeforeUnmount(() => {
+	clearInterval(notificationLoop) // make sure we only ever have one loop running
+})
+
+//* FORMATTING NOTIFICATIONS
 function dateStringToRelativeTimestamp(
 	dateString?: string | null,
 	relativeTo: number = Date.now()
@@ -87,6 +101,7 @@ function dateStringToRelativeTimestamp(
 	return ''
 }
 
+//* DELETING NOTIFICATIONS
 async function deleteNotification(id: number) {
 	const directus = useDirectus()
 

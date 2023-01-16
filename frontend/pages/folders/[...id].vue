@@ -103,7 +103,7 @@
 
 		<div v-if="currentFiles?.length" class="space-y-8">
 			<div class="file-grid">
-				<File v-for="file of currentFiles" :key="file.id" :file="file" />
+				<File v-for="file of currentFiles" :key="file.id" :file="file" @contextmenu="test" />
 			</div>
 
 			<div class="flex">
@@ -444,6 +444,13 @@ async function uploadFiles(event: Event) {
 		alert('There was an error uploading files')
 		console.error(err)
 	}
+}
+
+//* FILE CONTEXT MENU
+function test(event: PointerEvent) {
+	event.preventDefault()
+
+	console.log(event)
 }
 </script>
 
