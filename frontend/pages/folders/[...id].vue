@@ -6,13 +6,26 @@
 			<Folder :folder="rootFolder" />
 		</ul>
 
-		<button class="flex items-center gap-2 text-sm px-3 text-secondary" @click="createFolder">
-			<Icon class="grade-200 weight-700 optical-size-40">add</Icon>
-			New folder in current directory
-		</button>
+		<InputToggle class="px-3">
+			<label for="newFolder" class="sr-only">Create new folder</label>
+			<input
+				id="newFolder"
+				ref="createFolderInput"
+				class="input input-xs w-full placeholder:text-muted"
+				placeholder="Folder name"
+				@keydown.enter="createFolder(($event.target as HTMLInputElement).value)"
+			/>
+
+			<template #display>
+				<button class="flex items-center gap-2 text-sm btn-xs text-secondary">
+					<Icon class="grade-200 weight-700 optical-size-40">add</Icon>
+					New folder in current directory
+				</button>
+			</template>
+		</InputToggle>
 	</Teleport>
 
-	<main class="p-4">
+	<main class="p-4 flex flex-col gap-y-4">
 		<div class="flex items-center gap-x-4 flex-wrap-reverse">
 			<DirectoryBreadcrumbs
 				v-if="currentFolder && allFolders"
@@ -20,12 +33,35 @@
 				:current-folder="currentFolder"
 			/>
 			<!-- BUTTON TO SELECT FOLDER -->
-			<label for="sidebar" class="btn btn-sm btn-secondary btn-outline drawer-button lg:hidden">
+			<label for="sidebar" class="btn btn-xs btn-secondary btn-outline drawer-button lg:hidden">
 				Change directory
 			</label>
 		</div>
 
-		<div v-if="currentFiles?.length" class="space-y-8 mt-4">
+		<InputToggle
+			class="mb-4 h-12"
+			@show-input="initRenameFolderInputValue"
+			@hide-input="renameFolderInputValue = ''"
+		>
+			<label for="renameFolder" class="sr-only">Rename folder</label>
+			<input
+				id="renameFolder"
+				ref="renameFolderInput"
+				v-model="renameFolderInputValue"
+				class="input w-full max-w-lg placeholder:text-muted text-3xl"
+				placeholder="Folder name"
+				@keydown.enter="renameCurrentFolder"
+			/>
+
+			<template #display>
+				<button class="flex items-center gap-2 px-0 text-3xl font-semibold tracking-wide">
+					<h1>{{ currentFolder?.name }}</h1>
+					<Icon class="grade-200 weight-700 fill optical-size-40">edit</Icon>
+				</button>
+			</template>
+		</InputToggle>
+
+		<div v-if="currentFiles?.length" class="space-y-8">
 			<div class="file-grid">
 				<File v-for="file of currentFiles" :key="file.id" :file="file" />
 			</div>
@@ -37,7 +73,7 @@
 			</div>
 		</div>
 
-		<div v-else class="alert alert-info shadow-lg mt-4 max-w-md">
+		<div v-else class="alert alert-info shadow-lg max-w-md">
 			<div class="w-full justify-between">
 				<span class="flex gap-2 items-center">
 					<svg
@@ -70,6 +106,7 @@
 // TODO: move folders out into separate composable (useFolders)
 // TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
 
+import { useFocus } from '@vueuse/core'
 import type {
 	DirectusFolders as DirectusFolder,
 	DirectusFiles as DirectusFile,
@@ -145,12 +182,12 @@ function getCurrentFolderId(): string {
 }
 
 //* CREATE FOLDER
-async function createFolder() {
+async function createFolder(name: string) {
 	try {
 		const directus = useDirectus()
 
 		await directus.folders.createOne({
-			name: 'New folder',
+			name,
 			parent: folderId || rootFolder.id,
 		})
 
@@ -159,6 +196,40 @@ async function createFolder() {
 		alert('There was an error loading directories')
 		console.error(err)
 	}
+}
+// Auto-focus the create folder input when it is shown
+const createFolderInput = ref<HTMLInputElement>()
+useFocus(createFolderInput, { initialValue: true })
+
+//* RENAME FOLDER
+const renameFolderInput = ref<HTMLInputElement>()
+useFocus(renameFolderInput, { initialValue: true })
+
+let renameFolderInputValue = $ref<string>('')
+
+function initRenameFolderInputValue() {
+	renameFolderInputValue = currentFolder?.name || ''
+}
+
+async function renameCurrentFolder() {
+	try {
+		const directus = useDirectus()
+
+		if (!currentFolder?.id) {
+			throw new Error('No current folder to rename')
+		}
+
+		await directus.folders.updateOne(currentFolder.id, {
+			name: renameFolderInputValue,
+		})
+
+		await refreshFolders()
+	} catch (err) {
+		alert('There was an error renaming folder')
+		console.error(err)
+	}
+
+	refreshFolders()
 }
 
 //* CURRENT FILES
