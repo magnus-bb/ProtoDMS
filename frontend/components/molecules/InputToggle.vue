@@ -1,10 +1,15 @@
 <template>
-	<div>
-		<div v-if="inputShown" v-on-click-outside="hideInput" @keydown.enter.esc="hideInput">
+	<div class="flex items-center">
+		<div
+			v-if="inputShown"
+			v-on-click-outside="hideInput"
+			class="w-full flex items-center"
+			@keydown.enter.esc="hideInput"
+		>
 			<slot />
 		</div>
 
-		<div v-else @click="showInput">
+		<div v-else class="w-full flex items-center" @click="showInput">
 			<slot name="display" />
 		</div>
 	</div>

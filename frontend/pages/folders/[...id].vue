@@ -38,28 +38,67 @@
 			</label>
 		</div>
 
-		<InputToggle
-			class="mb-4 h-12"
-			@show-input="initRenameFolderInputValue"
-			@hide-input="renameFolderInputValue = ''"
-		>
-			<label for="renameFolder" class="sr-only">Rename folder</label>
-			<input
-				id="renameFolder"
-				ref="renameFolderInput"
-				v-model="renameFolderInputValue"
-				class="input w-full max-w-lg placeholder:text-muted text-3xl"
-				placeholder="Folder name"
-				@keydown.enter="renameCurrentFolder"
-			/>
+		<div class="mb-4 flex justify-between">
+			<InputToggle
+				@show-input="initRenameFolderInputValue"
+				@hide-input="renameFolderInputValue = ''"
+			>
+				<label for="renameFolder" class="sr-only">Rename folder</label>
+				<input
+					id="renameFolder"
+					ref="renameFolderInput"
+					v-model="renameFolderInputValue"
+					class="input w-full max-w-lg placeholder:text-muted text-3xl"
+					placeholder="Folder name"
+					@keydown.enter="renameCurrentFolder"
+				/>
 
-			<template #display>
-				<button class="flex items-center gap-2 px-0 text-3xl font-semibold tracking-wide">
-					<h1>{{ currentFolder?.name }}</h1>
-					<Icon class="grade-200 weight-700 fill optical-size-40">edit</Icon>
+				<template #display>
+					<button
+						title="Rename folder"
+						class="flex items-center gap-4 px-0 text-3xl font-semibold tracking-wide h-12"
+					>
+						<h1>{{ currentFolder?.name }}</h1>
+						<Icon class="grade-200 weight-700 fill optical-size-40">edit</Icon>
+					</button>
+				</template>
+			</InputToggle>
+
+			<div class="btn-group no-animation">
+				<InputToggle class="btn items-center text-2xl border-none">
+					<label for="newFolderAlt" class="sr-only">Create new folder</label>
+					<input
+						id="newFolderAlt"
+						ref="createFolderInputAlt"
+						class="input input-ghost input-sm w-full placeholder:text-muted border-none"
+						placeholder="Folder name"
+						@keydown.enter="createFolder(($event.target as HTMLInputElement).value)"
+					/>
+
+					<template #display>
+						<Icon class="grade-200 weight-700 fill optical-size-40">create_new_folder</Icon>
+					</template>
+				</InputToggle>
+
+				<button
+					v-if="currentFolder !== rootFolder"
+					title="Move folder"
+					class="items-center text-2xl btn"
+					@click="moveCurrentFolder"
+				>
+					<Icon class="grade-200 weight-700 fill optical-size-40">drive_file_move</Icon>
 				</button>
-			</template>
-		</InputToggle>
+
+				<button
+					v-if="currentFolder !== rootFolder"
+					class="items-center text-2xl btn"
+					title="Delete folder"
+					@click="deleteCurrentFolder"
+				>
+					<Icon class="grade-200 weight-700 fill optical-size-40 text-error">delete</Icon>
+				</button>
+			</div>
+		</div>
 
 		<div v-if="currentFiles?.length" class="space-y-8">
 			<div class="file-grid">
@@ -181,6 +220,23 @@ function getCurrentFolderId(): string {
 	return folderId[0] // will be undef or the first route param after /folders
 }
 
+//* CURRENT FILES
+let currentFiles = $ref<DirectusFile[]>([])
+await refreshFiles()
+
+async function refreshFiles() {
+	if (!folderId) return
+
+	currentFiles = await query<DirectusFile>('directus_files', {
+		filter: {
+			folder: {
+				_eq: folderId,
+			},
+		},
+		limit: -1,
+	})
+}
+
 //* CREATE FOLDER
 async function createFolder(name: string) {
 	try {
@@ -201,6 +257,9 @@ async function createFolder(name: string) {
 const createFolderInput = ref<HTMLInputElement>()
 useFocus(createFolderInput, { initialValue: true })
 
+const createFolderInputAlt = ref<HTMLInputElement>()
+useFocus(createFolderInputAlt, { initialValue: true })
+
 //* RENAME FOLDER
 const renameFolderInput = ref<HTMLInputElement>()
 useFocus(renameFolderInput, { initialValue: true })
@@ -216,14 +275,12 @@ async function renameCurrentFolder() {
 		const directus = useDirectus()
 
 		if (!currentFolder?.id) {
-			throw new Error('No current folder to rename')
+			throw new Error('currentFolder is undefined')
 		}
 
 		await directus.folders.updateOne(currentFolder.id, {
 			name: renameFolderInputValue,
 		})
-
-		await refreshFolders()
 	} catch (err) {
 		alert('There was an error renaming folder')
 		console.error(err)
@@ -232,21 +289,94 @@ async function renameCurrentFolder() {
 	refreshFolders()
 }
 
-//* CURRENT FILES
-let currentFiles = $ref<DirectusFile[]>([])
-await refreshFiles()
+//* DELETE FOLDER
+async function deleteCurrentFolder() {
+	if (!currentFolder?.id) {
+		console.error('currentFolder is undefined')
+		return
+	}
 
-async function refreshFiles() {
-	if (!folderId) return
+	if (
+		!window.confirm(
+			`Are you sure you want to delete the folder '${currentFolder?.name}' and everything inside?`
+		)
+	) {
+		return
+	}
 
-	currentFiles = await query<DirectusFile>('directus_files', {
-		filter: {
-			folder: {
-				_eq: folderId,
+	try {
+		const success = await deleteFolder(currentFolder.id)
+
+		if (success) return await navigateTo('/folders')
+	} catch (err) {
+		console.error(err)
+	}
+
+	// If something goes wrong, show the files and folders that did not get deleted
+	refreshFiles()
+	refreshFolders()
+}
+
+// Recursively delete all folders and files in a folder and returns true if succesful
+async function deleteFolder(id: string): Promise<boolean> {
+	const directus = useDirectus()
+
+	try {
+		const childFolders = await query<DirectusFolder>('directus_folders', {
+			filter: {
+				parent: {
+					_eq: id,
+				},
 			},
-		},
-		limit: -1,
-	})
+			limit: -1,
+		})
+
+		if (childFolders.length) {
+			for (const folder of childFolders) {
+				const success = await deleteFolder(folder.id)
+
+				if (!success) return false
+			}
+		}
+	} catch (err) {
+		alert('There was an error deleting the current folder and all contents')
+		console.error(err)
+		return false
+	}
+
+	try {
+		const filesInFolder = await query<DirectusFile>('directus_files', {
+			filter: {
+				folder: {
+					_eq: id,
+				},
+			},
+			limit: -1,
+		})
+
+		if (filesInFolder.length) {
+			await directus.files.deleteMany(filesInFolder.map(file => file.id))
+		}
+	} catch (err) {
+		alert('There was an error deleting files in folder with id: ' + id)
+		console.error(err)
+		return false
+	}
+
+	try {
+		await directus.folders.deleteOne(id)
+	} catch (err) {
+		alert('There was an error deleting current folder')
+		console.error(err)
+		return false
+	}
+
+	return true
+}
+
+//* MOVE FOLDER
+function moveCurrentFolder() {
+	console.log('moving')
 }
 
 //* FILE UPLOAD

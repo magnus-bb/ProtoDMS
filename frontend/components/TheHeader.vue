@@ -7,7 +7,7 @@
 		</nav>
 
 		<div class="flex-none gap-6">
-			<div class="form-control">
+			<!-- <div class="form-control">
 				<div class="input-group">
 					<span>
 						<svg
@@ -27,7 +27,7 @@
 					</span>
 					<input type="text" placeholder="Search…" class="input input-bordered bg-transparent" />
 				</div>
-			</div>
+			</div> -->
 
 			<!-- <ThemePicker /> -->
 
@@ -46,16 +46,16 @@
 					</svg>
 				</button>
 				<ul
-					class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-max"
+					class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-200 rounded-box w-max"
 				>
 					<li><NuxtLink to="/">Home</NuxtLink></li>
-					<li><NuxtLink to="/signin">Sign in</NuxtLink></li>
-					<li><NuxtLink to="/folders">Files</NuxtLink></li>
+					<li v-if="!user"><NuxtLink to="/signup">Sign in</NuxtLink></li>
+					<li v-if="user"><NuxtLink to="/folders">Files</NuxtLink></li>
 				</ul>
 			</nav>
 
 			<NotificationsMenu v-if="user" :user="user" />
-			<ProfileMenu v-if="user" :user="user" />
+			<ProfileMenu :user="user" />
 		</div>
 	</div>
 </template>
