@@ -13,7 +13,7 @@
 				ref="createFolderInput"
 				class="input input-xs w-full placeholder:text-muted"
 				placeholder="Folder name"
-				@keydown.enter="createFolder(($event.target as HTMLInputElement).value)"
+				@keydown.enter="createFolderWithName(($event.target as HTMLInputElement).value)"
 			/>
 
 			<template #display>
@@ -31,6 +31,7 @@
 				v-if="currentFolder && allFolders"
 				:all-folders="allFolders"
 				:current-folder="currentFolder"
+				class="hidden sm:block"
 			/>
 			<!-- BUTTON TO SELECT FOLDER -->
 			<label for="sidebar" class="btn btn-xs btn-secondary btn-outline drawer-button lg:hidden">
@@ -38,7 +39,7 @@
 			</label>
 		</div>
 
-		<div class="mb-4 flex justify-between">
+		<div class="mb-4 flex justify-between gap-x-4">
 			<InputToggle
 				@show-input="initRenameFolderInputValue"
 				@hide-input="renameFolderInputValue = ''"
@@ -56,54 +57,113 @@
 				<template #display>
 					<button
 						title="Rename folder"
-						class="flex items-center gap-4 px-0 text-3xl font-semibold tracking-wide h-12"
+						class="flex items-center gap-4 px-0 text-xl sm:text-3xl font-semibold tracking-wide h-12"
 					>
 						<h1>{{ currentFolder?.name }}</h1>
-						<Icon class="grade-200 weight-700 fill optical-size-40">edit</Icon>
+						<Icon class="grade-200 weight-700 fill optical-size-40">drive_file_rename_outline</Icon>
 					</button>
 				</template>
 			</InputToggle>
 
-			<div class="btn-group no-animation">
-				<InputToggle class="btn items-center text-2xl border-none">
-					<label for="new-folder-alt" class="sr-only">Create new folder</label>
-					<input
-						id="new-folder-alt"
-						ref="createFolderInputAlt"
-						class="input input-ghost input-sm w-full placeholder:text-muted border-none"
-						placeholder="Folder name"
-						@keydown.enter="createFolder(($event.target as HTMLInputElement).value)"
-					/>
+			<div class="flex gap-x-2">
+				<!-- FILE ACTIONS -->
+				<div v-if="selectedFiles.length" class="dropdown dropdown-hover">
+					<button class="btn btn-secondary bg-secondary/50 border-none text-xl sm:text-2xl gap-x-1">
+						<Icon class="weight-700 fill optical-size-40">{{
+							selectedFiles.length === 1 ? 'draft' : 'file_copy'
+						}}</Icon>
+						<Icon class="weight-700 fill optical-size-40">arrow_drop_down</Icon>
+					</button>
 
-					<template #display>
-						<Icon class="grade-200 weight-700 fill optical-size-40">create_new_folder</Icon>
-					</template>
-				</InputToggle>
+					<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-full">
+						<!-- download file -->
+						<li
+							v-if="selectedFiles.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Download file(s)"
+						>
+							<NuxtLink
+								target="_blank"
+								:download="selectedFiles[0].filename_download"
+								:to="fileDownloadUrl"
+							>
+								<Icon class="weight-700 fill optical-size-40">download</Icon>
+							</NuxtLink>
+						</li>
+						<!-- rename file -->
+						<li
+							v-if="selectedFiles.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Rename file"
+						>
+							<span tabindex="0" @click="renameSelectedFile">
+								<Icon class="weight-700 fill optical-size-40">edit_document</Icon>
+							</span>
+						</li>
+						<!-- move files -->
+						<li class="items-center text-xl sm:text-2xl">
+							<label tabindex="0" title="Move file(s)" for="move-file-modal">
+								<Icon class="weight-700 fill optical-size-40">drive_file_move</Icon>
+							</label>
+						</li>
+						<!-- delete files -->
+						<li class="items-center text-xl sm:text-2xl" title="Delete file(s)">
+							<span tabindex="0" @click="deleteSelectedFiles">
+								<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
+							</span>
+						</li>
+					</ul>
+				</div>
 
-				<label
-					v-if="currentFolder !== rootFolder"
-					tabindex="0"
-					title="Move folder"
-					class="items-center text-2xl btn"
-					for="move-folder-modal"
-				>
-					<Icon class="grade-200 weight-700 fill optical-size-40">drive_file_move</Icon>
-				</label>
+				<!-- FOLDER ACTIONS -->
+				<div class="dropdown dropdown-hover">
+					<button class="btn text-xl sm:text-2xl gap-x-1">
+						<Icon class="weight-700 fill optical-size-40">folder</Icon>
+						<Icon class="weight-700 fill optical-size-40">arrow_drop_down</Icon>
+					</button>
 
-				<button
-					v-if="currentFolder !== rootFolder"
-					class="items-center text-2xl btn"
-					title="Delete folder"
-					@click="deleteCurrentFolder"
-				>
-					<Icon class="grade-200 weight-700 fill optical-size-40 text-error">delete</Icon>
-				</button>
+					<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-full">
+						<!-- create folder -->
+						<li
+							class="items-center text-xl sm:text-2xl"
+							title="Create folder"
+							@click="createFolder"
+						>
+							<span tabindex="0">
+								<Icon class="weight-700 fill optical-size-40">create_new_folder</Icon>
+							</span>
+						</li>
+						<!-- move folder -->
+						<li v-if="currentFolder !== rootFolder" class="items-center text-xl sm:text-2xl">
+							<label tabindex="0" title="Move folder" for="move-folder-modal">
+								<Icon class="weight-700 fill optical-size-40">drive_file_move</Icon>
+							</label>
+						</li>
+						<!-- delete folder -->
+						<li
+							v-if="currentFolder !== rootFolder"
+							class="items-center text-xl sm:text-2xl"
+							title="Delete folder"
+							@click="deleteCurrentFolder"
+						>
+							<span tabindex="0">
+								<Icon class="weight-700 fill optical-size-40 text-error">folder_delete</Icon>
+							</span>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 
 		<div v-if="currentFiles?.length" class="space-y-8">
 			<div class="file-grid">
-				<File v-for="file of currentFiles" :key="file.id" :file="file" @contextmenu="test" />
+				<File
+					v-for="file of currentFiles"
+					:key="file.id"
+					:file="file"
+					:selected="selectedFiles.includes(file)"
+					@click="selectFile(file)"
+				/>
 			</div>
 
 			<div class="flex">
@@ -139,8 +199,26 @@
 		</div>
 	</main>
 
+	<!-- Hacky to have two modals, but it is the easiest way when daisy's modals are all html and css -->
+	<!-- TODO: rewrite so there is a single controller that reuses same modal but passes context of file / folder with js -->
+	<!-- MOVE FILE MODAL -->
+	<input id="move-file-modal" ref="moveFilesModal" type="checkbox" class="modal-toggle" />
+	<label for="move-file-modal" class="modal cursor-pointer">
+		<label class="modal-box relative">
+			<label for="move-file-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
+				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
+			</label>
+
+			<h3 class="text-lg font-bold mb-4">Select where to move the selected files</h3>
+
+			<ul>
+				<Folder :folder="rootFolder" :disable-folder="currentFolder" @select="moveSelectedFiles" />
+			</ul>
+		</label>
+	</label>
+
 	<!-- MOVE FOLDER MODAL -->
-	<input id="move-folder-modal" ref="modeFolderModal" type="checkbox" class="modal-toggle" />
+	<input id="move-folder-modal" ref="moveFolderModal" type="checkbox" class="modal-toggle" />
 	<label for="move-folder-modal" class="modal cursor-pointer">
 		<label class="modal-box relative">
 			<label for="move-folder-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
@@ -150,7 +228,7 @@
 			<h3 class="text-lg font-bold mb-4">Select where to move '{{ currentFolder?.name }}'</h3>
 
 			<ul>
-				<Folder :folder="rootFolder" @select="moveCurrentFolder" />
+				<Folder :folder="rootFolder" :disable-folder="currentFolder" @select="moveCurrentFolder" />
 			</ul>
 		</label>
 	</label>
@@ -162,7 +240,8 @@
 // TODO: move folders out into separate composable (useFolders)
 // TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
 
-import { useFocus } from '@vueuse/core'
+import { useFocus, useKeyModifier } from '@vueuse/core'
+
 import type {
 	DirectusFolders as DirectusFolder,
 	DirectusFiles as DirectusFile,
@@ -255,7 +334,15 @@ async function refreshFiles() {
 }
 
 //* CREATE FOLDER
-async function createFolder(name: string) {
+function createFolder() {
+	const name: string | null = prompt('Enter a name for the new folder')
+
+	if (!name) return
+
+	createFolderWithName(name)
+}
+
+async function createFolderWithName(name: string) {
 	try {
 		const directus = useDirectus()
 
@@ -273,9 +360,6 @@ async function createFolder(name: string) {
 // Auto-focus the create folder input when it is shown
 const createFolderInput = ref<HTMLInputElement>()
 useFocus(createFolderInput, { initialValue: true })
-
-const createFolderInputAlt = ref<HTMLInputElement>()
-useFocus(createFolderInputAlt, { initialValue: true })
 
 //* RENAME FOLDER
 const renameFolderInput = ref<HTMLInputElement>()
@@ -400,6 +484,11 @@ async function moveCurrentFolder(targetFolder: TreeFolder) {
 		return
 	}
 
+	if (targetFolder === currentFolder) {
+		alert('You cannot move a folder into itself')
+		return
+	}
+
 	const directus = useDirectus()
 
 	try {
@@ -446,11 +535,116 @@ async function uploadFiles(event: Event) {
 	}
 }
 
-//* FILE CONTEXT MENU
-function test(event: PointerEvent) {
-	event.preventDefault()
+//* FILE SELECTION
+let selectedFiles = $ref<DirectusFile[]>([])
 
-	console.log(event)
+const ctrlPressed = $(useKeyModifier('Control', { initial: false }))
+
+function selectFile(file: DirectusFile) {
+	// On ctrl + click (select multiple files)
+	if (ctrlPressed) {
+		if (selectedFiles.includes(file)) {
+			// If the file is already selected, deselect it
+			selectedFiles = selectedFiles.filter(f => f !== file)
+			return
+		}
+
+		// If the file is not selected, select it
+		selectedFiles.push(file)
+		return
+	}
+
+	// On regular click (only select 1 file)
+	if (selectedFiles.length === 1 && selectedFiles[0] === file) {
+		// If one file is selected, and it's the one clicked, deselect it
+		selectedFiles = []
+		return
+	}
+
+	// If one file is selected, and it's not the one clicked, change selection to the clicked file
+	selectedFiles = [file]
+}
+
+//* RENAME FILE
+async function renameSelectedFile() {
+	if (selectedFiles.length !== 1) return
+
+	const file = selectedFiles[0]
+
+	const name: string | null = prompt('Rename file', file.filename_download)
+
+	if (!name) return
+
+	try {
+		const directus = useDirectus()
+
+		await directus.files.updateOne(file.id, {
+			filename_download: name,
+		})
+	} catch (err) {
+		alert(`There was an error renaming the file '${file.filename_download}'`)
+		console.error(err)
+	}
+
+	refreshFiles()
+}
+
+//* DELETE FILES
+async function deleteSelectedFiles() {
+	if (!selectedFiles.length) return
+
+	const msg =
+		selectedFiles.length > 1
+			? `Are you sure you want to delete multiple files?`
+			: `Are you sure you want to delete the file '${selectedFiles[0].filename_download}'?`
+	if (!window.confirm(msg)) {
+		return
+	}
+
+	try {
+		const directus = useDirectus()
+
+		await directus.files.deleteMany(selectedFiles.map(file => file.id))
+	} catch (err) {
+		alert(`There was an error deleting files`)
+		console.error(err)
+	}
+
+	refreshFiles()
+}
+
+//* DOWNLOAD FILE
+const fileDownloadUrl = $computed<string>(() => {
+	if (selectedFiles.length !== 1) return ''
+
+	const file = selectedFiles[0]
+
+	return getAssetUrl(file.id, { download: true })
+})
+
+//* MOVE FILES
+const moveFilesModal = ref<HTMLInputElement>()
+
+async function moveSelectedFiles(targetFolder: TreeFolder) {
+	if (!selectedFiles.length) return
+
+	const directus = useDirectus()
+
+	try {
+		await directus.files.updateMany(
+			selectedFiles.map(file => file.id),
+			{
+				folder: targetFolder.id,
+			}
+		)
+	} catch (err) {
+		alert(`There was an error moving the selected files into '${targetFolder.name}'`)
+		console.error(err)
+	}
+
+	moveFilesModal.value?.click() // close modal
+
+	refreshFiles()
 }
 </script>
 
@@ -458,7 +652,12 @@ function test(event: PointerEvent) {
 .file-grid {
 	@apply grid gap-6 grid-flow-row;
 
-	/* 112px is the height of the mimetype icons and coincidentally fits pretty well */
-	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+	--file-width: 80px;
+	@screen sm {
+		/* 112px is the height of the mimetype icons and coincidentally fits pretty well */
+		--file-width: 112px;
+	}
+
+	grid-template-columns: repeat(auto-fill, minmax(var(--file-width), 1fr));
 }
 </style>

@@ -7,7 +7,12 @@
 		>
 			<Icon class="folder-icon">folder</Icon><code>{{ folder.name }}</code>
 		</NuxtLink>
-		<span v-else class="gap-2 btn btn-sm btn-ghost no-animation" @click="emit('select', folder)">
+		<span
+			v-else
+			class="gap-2 btn btn-sm btn-ghost no-animation"
+			:class="{ 'btn-disabled': folder === disableFolder }"
+			@click="emit('select', folder)"
+		>
 			<Icon class="folder-icon">folder</Icon><code>{{ folder.name }}</code>
 		</span>
 
@@ -17,6 +22,7 @@
 				:key="child.id"
 				:navigation="navigation"
 				:folder="child"
+				:disable-folder="disableFolder"
 				@select="emit('select', $event)"
 			/>
 		</ul>
@@ -26,9 +32,14 @@
 <script setup lang="ts">
 import type { TreeFolder } from '@/types/files'
 
-const { folder, navigation = false } = defineProps<{
+const {
+	folder,
+	navigation = false,
+	disableFolder = null,
+} = defineProps<{
 	folder: TreeFolder
 	navigation?: boolean // turn on to display as navigable links, off to just emit selected folder
+	disableFolder?: TreeFolder | null // pass this in if you want to disable and mute a specific folder (e.g. the current folder, so you can't select it)
 }>()
 
 const emit = defineEmits<{
@@ -37,7 +48,8 @@ const emit = defineEmits<{
 </script>
 
 <style lang="postcss" scoped>
-.router-link-exact-active {
+.router-link-exact-active,
+.btn-disabled {
 	@apply text-primary;
 
 	.folder-icon {

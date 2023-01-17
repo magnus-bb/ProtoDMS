@@ -109,6 +109,7 @@ interface DirectusImageOptions {
 	format?: DirectusImageFormat
 	withoutEnlargement?: boolean
 	key?: string
+	download?: boolean
 }
 
 export function getAssetUrl(assetId: string, options?: DirectusImageOptions): string {
@@ -142,6 +143,9 @@ export function getAssetUrl(assetId: string, options?: DirectusImageOptions): st
 		}
 		if (options.key) {
 			url.searchParams.append('key', options.key)
+		}
+		if (options.download) {
+			url.searchParams.append('download', 'true')
 		}
 	}
 
