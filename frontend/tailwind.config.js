@@ -80,6 +80,7 @@ module.exports = {
 					'--btn-text-case': 'none',
 				},
 			},
+			'winter',
 		],
 	},
 }

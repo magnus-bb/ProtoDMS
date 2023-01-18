@@ -34,12 +34,22 @@ export default defineNuxtConfig({
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
 		public: {
+			/* @ts-ignore */
 			directusUrl: 'http://localhost:8055',
 			authenticatedRoleId: '', // get field presets to work for new users instead of this
 		},
 	},
 
-	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
+	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', 'nuxt-socket-io'],
+
+	io: {
+		sockets: [
+			{
+				name: 'document-sync',
+				default: true,
+			},
+		],
+	},
 
 	hooks: {
 		// Route /signup to the signin.vue page file for reuse

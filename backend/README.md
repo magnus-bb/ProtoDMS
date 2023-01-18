@@ -11,13 +11,13 @@ And these should be used for the initial schema import see [Migrate environments
 ```
 DB_CLIENT=sqlite3
 DB_FILENAME=./data.db
-ADMIN_EMAIL=admin@user.email
-ADMIN_PASSWORD=adminuserpassword
+ADMIN_EMAIL=admin@admin.com
+ADMIN_PASSWORD=password
 ```
 
 If needed, recreate the database file in production with:
 ```sh
-npx directus bootstrap
+ADMIN_EMAIL=admin@admin.com ADMIN_PASSWORD=password npx directus bootstrap
 ```
 
 Follow this by running the server with:

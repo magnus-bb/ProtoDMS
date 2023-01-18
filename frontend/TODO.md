@@ -46,7 +46,7 @@
   * Det kræver en blocking action, så det skal måske være et separat flow, så andre opdateringer etc ikke er blocking
     * Også fordi, man sandsynligvis ikke har adgang til dataene INDEN ændringen, og det derfor er to separate flows
 * Tilføj så notifikationer understøtter creations
-  * Det kan være at man automatisk sættes som subscriber eller at man bliver sat imens en post oprettes, og så skal man også have en notifikation.
+  * Det kan være at man automatisk sættes som subscriber eller at man bliver sat imens et dokument oprettes, og så skal man også have en notifikation.
   * Bare at ændre til også at lytte på create i update-flowet virker ikke
 * Brug websocket til at opdatere notifikationer
   * https://github.com/br41nslug/directus-websocket-subscribe
