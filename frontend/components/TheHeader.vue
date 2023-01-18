@@ -49,7 +49,8 @@
 					class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-200 rounded-box w-max"
 				>
 					<li><NuxtLink to="/">Home</NuxtLink></li>
-					<li v-if="!user"><NuxtLink to="/signup">Sign in</NuxtLink></li>
+					<li v-if="!user"><NuxtLink to="/signup">Sign up</NuxtLink></li>
+					<li v-if="user"><NuxtLink to="/documents">Documents</NuxtLink></li>
 					<li v-if="user"><NuxtLink to="/folders">Files</NuxtLink></li>
 				</ul>
 			</nav>

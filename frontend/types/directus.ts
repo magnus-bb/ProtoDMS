@@ -292,7 +292,7 @@ export type DirectusUsers = {
   provider: string;
   role?: string | DirectusRoles | null;
   status: string;
-  subscriptions: string | PostsDirectusUsers[];
+  subscriptions: string | DocumentsDirectusUsers[];
   tags?: unknown | null;
   tfa_secret?: string | null;
   theme?: string | null;
@@ -312,24 +312,24 @@ export type DirectusWebhooks = {
   url: string;
 };
 
-export type Posts = {
+export type Documents = {
   content?: string | null;
   date_created?: string | null;
   date_updated?: string | null;
   id: number;
   sort?: number | null;
   status: string;
-  subscribers: string | PostsDirectusUsers[];
+  subscribers: string | DocumentsDirectusUsers[];
   title?: string | null;
   user_created?: string | DirectusUsers | null;
   user_updated?: string | DirectusUsers | null;
 };
 
-export type PostsDirectusUsers = {
+export type DocumentsDirectusUsers = {
   directus_users_id?: string | DirectusUsers | null;
+  documents_id?: number | Documents | null;
   id: number;
   last_name?: number | null;
-  posts_id?: number | Posts | null;
 };
 
 export type CustomDirectusTypes = {
@@ -354,6 +354,6 @@ export type CustomDirectusTypes = {
   directus_shares: DirectusShares;
   directus_users: DirectusUsers;
   directus_webhooks: DirectusWebhooks;
-  posts: Posts;
-  posts_directus_users: PostsDirectusUsers;
+  documents: Documents;
+  documents_directus_users: DocumentsDirectusUsers;
 };

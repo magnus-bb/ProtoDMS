@@ -7,7 +7,7 @@ import type { SignInFormData, SignUpFormData } from '@/types/auth'
 export function useDirectus() {
 	const url = useRuntimeConfig().public.directusUrl
 
-	const directus = $(useState('directus', () => new Directus(url)))
+	const directus = $(useState('directus', () => new Directus<CustomDirectusTypes>(url)))
 
 	return directus
 }
