@@ -10,7 +10,7 @@
 
 import { QuillEditor } from '@vueup/vue-quill'
 import type { Quill, Delta, Sources } from '@/types/quill'
-import type { JoinRoomData, EditorEventData } from '@/types/document-sync'
+import type { JoinRoomData, EditorEventData, JoinRoomResponse } from '@/types/document-sync'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 //* SETUP SOCKET.IO
@@ -34,7 +34,15 @@ const userId = user.value?.id
 const documentId = getDocumentId()
 
 // Join room and wait until room is joined
-await socket.emitP('join-document', { documentId, userId } as JoinRoomData)
+const { ok } = (await socket.emitP('join-document', {
+	documentId,
+	userId,
+} as JoinRoomData)) as JoinRoomResponse
+
+if (!ok) {
+	alert('Could not join document')
+	await navigateTo('/documents')
+}
 
 function getDocumentId(): string {
 	const {

@@ -24,12 +24,12 @@ collections:
     schema:
       name: documents
       sql: >-
-        CREATE TABLE "documents" (`content` text NULL DEFAULT null, `date_created`
-        datetime NULL DEFAULT null, `date_updated` datetime NULL DEFAULT null,
-        `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `sort` integer NULL
-        DEFAULT null, `status` varchar(255) NOT NULL DEFAULT 'draft', `title`
-        varchar(255) NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
-        null, `user_updated` char(36) NULL DEFAULT null, CONSTRAINT
+        CREATE TABLE "documents" (`date_created` datetime NULL DEFAULT null,
+        `date_updated` datetime NULL DEFAULT null, `id` integer PRIMARY KEY
+        AUTOINCREMENT NOT NULL, `sort` integer NULL DEFAULT null, `status`
+        varchar(255) NOT NULL DEFAULT 'draft', `title` varchar(255) NULL DEFAULT
+        null, `user_created` char(36) NULL DEFAULT null, `user_updated` char(36)
+        NULL DEFAULT null, `content` json null, CONSTRAINT
         `documents_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
         `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
         `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
@@ -57,13 +57,14 @@ collections:
     schema:
       name: documents_directus_users
       sql: >-
-        CREATE TABLE "documents_directus_users" (`directus_users_id` char(36) NULL
-        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `last_name` integer NULL DEFAULT null, `documents_id` integer NULL DEFAULT
-        null, CONSTRAINT `documents_directus_users_documents_id_foreign` FOREIGN KEY
-        (`documents_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE, CONSTRAINT
+        CREATE TABLE "documents_directus_users" (`directus_users_id` char(36)
+        NULL DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `last_name` integer NULL DEFAULT null, `documents_id` integer NULL
+        DEFAULT null, CONSTRAINT
         `documents_directus_users_directus_users_id_foreign` FOREIGN KEY
         (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE
+        CASCADE, CONSTRAINT `documents_directus_users_documents_id_foreign`
+        FOREIGN KEY (`documents_id`) REFERENCES `documents` (`id`) ON DELETE
         CASCADE)
 fields:
   - collection: directus_users
@@ -124,69 +125,25 @@ fields:
     meta:
       collection: documents
       conditions: null
-      display: null
+      display: formatted-json-value
       display_options: null
       field: content
       group: null
       hidden: false
-      interface: input-rich-text-html
+      interface: input-code
       note: null
-      options:
-        toolbar:
-          - aligncenter
-          - alignjustify
-          - alignleft
-          - alignnone
-          - alignright
-          - backcolor
-          - blockquote
-          - bold
-          - bullist
-          - code
-          - copy
-          - customImage
-          - customLink
-          - customMedia
-          - cut
-          - fontselect
-          - fontsizeselect
-          - forecolor
-          - fullscreen
-          - h1
-          - h2
-          - h3
-          - h4
-          - h5
-          - h6
-          - hr
-          - indent
-          - italic
-          - ltr rtl
-          - numlist
-          - outdent
-          - paste
-          - redo
-          - remove
-          - removeformat
-          - selectall
-          - strikethrough
-          - subscript
-          - superscript
-          - table
-          - underline
-          - undo
-          - unlink
-          - visualaid
+      options: null
       readonly: false
       required: false
       sort: 9
-      special: null
+      special:
+        - cast-json
       translations: null
       validation: null
       validation_message: null
       width: full
     schema:
-      data_type: text
+      data_type: json
       default_value: null
       foreign_key_column: null
       foreign_key_table: null
@@ -201,7 +158,7 @@ fields:
       numeric_precision: null
       numeric_scale: null
       table: documents
-    type: text
+    type: json
   - collection: documents
     field: date_created
     meta:
@@ -430,12 +387,14 @@ fields:
       group: null
       hidden: false
       interface: list-m2m
-      note: These are the users that are notified when changes are made to this document
+      note: >-
+        These are the users that are notified when changes are made to this
+        document
       options:
         template: "{{directus_users_id.first_name}}\_{{directus_users_id.last_name}}"
       readonly: false
       required: false
-      sort: null
+      sort: 10
       special:
         - m2m
       translations: null
@@ -601,6 +560,44 @@ fields:
       table: documents_directus_users
     type: string
   - collection: documents_directus_users
+    field: documents_id
+    meta:
+      collection: documents_directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: documents_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_table: documents
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: documents_id
+      numeric_precision: null
+      numeric_scale: null
+      table: documents_directus_users
+    type: integer
+  - collection: documents_directus_users
     field: id
     meta:
       collection: documents_directus_users
@@ -672,44 +669,6 @@ fields:
       is_unique: false
       max_length: null
       name: last_name
-      numeric_precision: null
-      numeric_scale: null
-      table: documents_directus_users
-    type: integer
-  - collection: documents_directus_users
-    field: documents_id
-    meta:
-      collection: documents_directus_users
-      conditions: null
-      display: null
-      display_options: null
-      field: documents_id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      data_type: integer
-      default_value: null
-      foreign_key_column: id
-      foreign_key_table: documents
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: documents_id
       numeric_precision: null
       numeric_scale: null
       table: documents_directus_users

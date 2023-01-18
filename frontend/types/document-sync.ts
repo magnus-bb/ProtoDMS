@@ -5,6 +5,11 @@ export interface JoinRoomData {
 	userId: string
 }
 
+export interface JoinRoomResponse {
+	message: string
+	ok: boolean
+}
+
 export interface EditorEventData {
 	documentId: string
 	delta: Delta
