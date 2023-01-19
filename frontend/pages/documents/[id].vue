@@ -16,7 +16,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 //* SETUP SOCKET.IO
 const nuxt = useNuxtApp()
 
-// ? recommended here for teardown to work properly: https://nuxt-socket-io.netlify.app/usage#composition-api
+// Recommended here for teardown to work properly: https://nuxt-socket-io.netlify.app/usage#composition-api
 // Check the link if I need to use watchers, do stuff after sockets are torn down ($destroy), or if I need socket namespaces
 nuxt.onUnmounted = onUnmounted
 await getUser() // make sure user is ready when loading document
@@ -34,15 +34,12 @@ const userId = user.value?.id
 const documentId = getDocumentId()
 
 // Join room and wait until room is joined
-const { ok } = (await socket.emitP('join-document', {
+const { ok, message, document } = (await socket.emitP('join-document', {
 	documentId,
 	userId,
 } as JoinRoomData)) as JoinRoomResponse
 
-if (!ok) {
-	alert('Could not join document')
-	await navigateTo('/documents')
-}
+if (!ok) await goBack(message)
 
 function getDocumentId(): string {
 	const {
@@ -53,7 +50,12 @@ function getDocumentId(): string {
 }
 
 //* SETUP QUILL
-function editorReady(quill: Quill) {
+async function editorReady(quill: Quill) {
+	if (!document) return await goBack('Could not get document') // we should not be able to get here with no doc
+
+	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
+	quill.setContents(document.content as unknown as Delta)
+
 	quill.on('text-change', (delta: Delta, _, source: Sources) => {
 		if (source === 'api') {
 			console.log('An API call triggered this change.')
@@ -67,6 +69,11 @@ function editorReady(quill: Quill) {
 	socket.on('editor-update', (delta: Delta) => {
 		quill.updateContents(delta, 'silent')
 	})
+}
+
+function goBack(message: string) {
+	alert(message)
+	return navigateTo('/documents')
 }
 </script>
 

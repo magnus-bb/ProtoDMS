@@ -1,9 +1,11 @@
 // Appropriated from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/a4a4b34c7a082fcd2435a8eaa5acec89cd3e0fd6/types/quill/index.d.ts
 
 import { Blot } from 'parchment/dist/src/blot/abstract/blot'
-import DeltaClass from 'quill-delta'
+import { Op } from 'quill-delta'
 
-export type Delta = typeof DeltaClass
+export interface Delta {
+	ops: Op[]
+}
 /**
  * A stricter type definition would be:
  *
