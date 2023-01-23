@@ -9,7 +9,7 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
-import type { Quill, Delta, Sources } from '@/types/quill'
+import type { Quill, DeltaObject, Sources } from '@/types/quill'
 import type { JoinRoomData, EditorEventData, JoinRoomResponse } from '@/types/document-sync'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
@@ -54,9 +54,9 @@ async function editorReady(quill: Quill) {
 	if (!document) return await goBack('Could not get document') // we should not be able to get here with no doc
 
 	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
-	quill.setContents(document.content as unknown as Delta)
+	quill.setContents(document.content as unknown as DeltaObject)
 
-	quill.on('text-change', (delta: Delta, _, source: Sources) => {
+	quill.on('text-change', (delta: DeltaObject, _, source: Sources) => {
 		if (source === 'api') {
 			console.log('An API call triggered this change.')
 		} else if (source === 'user') {
@@ -66,8 +66,12 @@ async function editorReady(quill: Quill) {
 		socket.emit('editor-change', { documentId, delta } as EditorEventData)
 	})
 
-	socket.on('editor-update', (delta: Delta) => {
+	socket.on('editor-update', (delta: DeltaObject) => {
 		quill.updateContents(delta, 'silent')
+	})
+
+	socket.on('user-joined', (joinedUserId: string) => {
+		console.log('User joined the collaboration:', joinedUserId)
 	})
 }
 
@@ -75,6 +79,10 @@ function goBack(message: string) {
 	alert(message)
 	return navigateTo('/documents')
 }
+
+onUnmounted(() => {
+	socket.disconnect()
+})
 </script>
 
 <style scoped lang="postcss">

@@ -1,9 +1,14 @@
 // Appropriated from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/a4a4b34c7a082fcd2435a8eaa5acec89cd3e0fd6/types/quill/index.d.ts
 
-import { Blot } from 'parchment/dist/src/blot/abstract/blot'
-import { Op } from 'quill-delta'
+import type { Blot } from 'parchment/dist/src/blot/abstract/blot'
+import type { Op } from 'quill-delta'
+import type { Documents as Document } from '@/types/directus'
 
-export interface Delta {
+export interface DeltaDocument extends Omit<Document, 'content'> {
+	content: DeltaObject
+}
+
+export interface DeltaObject {
 	ops: Op[]
 }
 /**
@@ -38,14 +43,18 @@ export interface OptionalAttributes {
 	attributes?: StringMap | undefined
 }
 
-export type TextChangeHandler = (delta: Delta, oldContents: Delta, source: Sources) => any
+export type TextChangeHandler = (
+	delta: DeltaObject,
+	oldContents: DeltaObject,
+	source: Sources
+) => any
 export type SelectionChangeHandler = (
 	range: RangeStatic,
 	oldRange: RangeStatic,
 	source: Sources
 ) => any
 export type EditorChangeHandler =
-	| ((name: 'text-change', delta: Delta, oldContents: Delta, source: Sources) => any)
+	| ((name: 'text-change', delta: DeltaObject, oldContents: DeltaObject, source: Sources) => any)
 	| ((name: 'selection-change', range: RangeStatic, oldRange: RangeStatic, source: Sources) => any)
 
 export interface KeyboardStatic {
@@ -53,7 +62,7 @@ export interface KeyboardStatic {
 	addBinding(key: Key, context: any, callback: (range: RangeStatic, context: any) => void): void
 }
 
-export type ClipboardMatcherCallback = (node: any, delta: Delta) => Delta
+export type ClipboardMatcherCallback = (node: any, delta: DeltaObject) => DeltaObject
 export type ClipboardMatcherNode = string | number
 
 export interface ClipboardStatic {
@@ -61,7 +70,7 @@ export interface ClipboardStatic {
 	convert(
 		content?: { html?: string | undefined; text?: string | undefined },
 		formats?: StringMap
-	): Delta
+	): DeltaObject
 	addMatcher(selectorOrNodeType: ClipboardMatcherNode, callback: ClipboardMatcherCallback): void
 	dangerouslyPasteHTML(html: string, source?: Sources): void
 	dangerouslyPasteHTML(index: number, html: string, source?: Sources): void
@@ -121,17 +130,17 @@ export interface Quill {
 	scroll: Blot
 	keyboard: KeyboardStatic
 	history: History
-	deleteText(index: number, length: number, source?: Sources): Delta
+	deleteText(index: number, length: number, source?: Sources): DeltaObject
 	disable(): void
 	enable(enabled?: boolean): void
 	isEnabled(): boolean
-	getContents(index?: number, length?: number): Delta
+	getContents(index?: number, length?: number): DeltaObject
 	getLength(): number
 	getText(index?: number, length?: number): string
-	insertEmbed(index: number, type: string, value: any, source?: Sources): Delta
-	insertText(index: number, text: string, source?: Sources): Delta
-	insertText(index: number, text: string, format: string, value: any, source?: Sources): Delta
-	insertText(index: number, text: string, formats: StringMap, source?: Sources): Delta
+	insertEmbed(index: number, type: string, value: any, source?: Sources): DeltaObject
+	insertText(index: number, text: string, source?: Sources): DeltaObject
+	insertText(index: number, text: string, format: string, value: any, source?: Sources): DeltaObject
+	insertText(index: number, text: string, formats: StringMap, source?: Sources): DeltaObject
 	/**
 	 * @deprecated Remove in 2.0. Use clipboard.dangerouslyPasteHTML(index: number, html: string, source: Sources)
 	 */
@@ -140,23 +149,35 @@ export interface Quill {
 	 * @deprecated Remove in 2.0. Use clipboard.dangerouslyPasteHTML(html: string, source: Sources): void;
 	 */
 	pasteHTML(html: string, source?: Sources): string
-	setContents(delta: Delta, source?: Sources): Delta
-	setText(text: string, source?: Sources): Delta
+	setContents(delta: DeltaObject, source?: Sources): DeltaObject
+	setText(text: string, source?: Sources): DeltaObject
 	update(source?: Sources): void
-	updateContents(delta: Delta, source?: Sources): Delta
+	updateContents(delta: DeltaObject, source?: Sources): DeltaObject
 
-	format(name: string, value: any, source?: Sources): Delta
-	formatLine(index: number, length: number, source?: Sources): Delta
-	formatLine(index: number, length: number, format: string, value: any, source?: Sources): Delta
-	formatLine(index: number, length: number, formats: StringMap, source?: Sources): Delta
-	formatText(index: number, length: number, source?: Sources): Delta
-	formatText(index: number, length: number, format: string, value: any, source?: Sources): Delta
-	formatText(index: number, length: number, formats: StringMap, source?: Sources): Delta
-	formatText(range: RangeStatic, format: string, value: any, source?: Sources): Delta
-	formatText(range: RangeStatic, formats: StringMap, source?: Sources): Delta
+	format(name: string, value: any, source?: Sources): DeltaObject
+	formatLine(index: number, length: number, source?: Sources): DeltaObject
+	formatLine(
+		index: number,
+		length: number,
+		format: string,
+		value: any,
+		source?: Sources
+	): DeltaObject
+	formatLine(index: number, length: number, formats: StringMap, source?: Sources): DeltaObject
+	formatText(index: number, length: number, source?: Sources): DeltaObject
+	formatText(
+		index: number,
+		length: number,
+		format: string,
+		value: any,
+		source?: Sources
+	): DeltaObject
+	formatText(index: number, length: number, formats: StringMap, source?: Sources): DeltaObject
+	formatText(range: RangeStatic, format: string, value: any, source?: Sources): DeltaObject
+	formatText(range: RangeStatic, formats: StringMap, source?: Sources): DeltaObject
 	getFormat(range?: RangeStatic): StringMap
 	getFormat(index: number, length?: number): StringMap
-	removeFormat(index: number, length: number, source?: Sources): Delta
+	removeFormat(index: number, length: number, source?: Sources): DeltaObject
 
 	blur(): void
 	focus(): void

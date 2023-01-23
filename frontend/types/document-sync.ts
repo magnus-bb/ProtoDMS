@@ -1,4 +1,4 @@
-import type { Delta } from '@/types/quill'
+import type { DeltaObject } from '@/types/quill'
 import type { Documents as Document } from '@/types/directus'
 
 export interface JoinRoomData {
@@ -14,5 +14,5 @@ export interface JoinRoomResponse {
 
 export interface EditorEventData {
 	documentId: string
-	delta: Delta
+	delta: DeltaObject
 }

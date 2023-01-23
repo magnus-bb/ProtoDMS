@@ -17,6 +17,7 @@ module.exports = {
 				typedefs: false,
 				enums: false,
 				functions: false,
+				classes: false,
 			},
 		],
 		'import/no-named-as-default': 0, // with ts declarations, non-default exports can function as default, which this doesn't like
