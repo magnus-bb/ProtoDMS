@@ -133,14 +133,17 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			for (const session of sessions) {
 				if (!session.isEmpty) continue
 
-				session.fetchDocument(DocumentSession.directusToken).then(document => {
-					if (!document) {
-						// If it seems like there is no doc in Directus (but there should be) just go directly to saving it to make sure
-						session.saveDocument()
-					} else {
-						// TODO: If document exists, check if it differs from cached version, if so, save it
-					}
-				})
+				session.saveDocument()
+
+				// session.fetchDocument(DocumentSession.directusToken).then(document => {
+
+				// 	// If it seems like there is no doc in Directus (but there should be) just go directly to saving it to make sure
+				// 	if (!document) {
+				// 	} else {
+				// 		// TODO: If document exists, check if it differs from cached version, if so, save it
+
+				// 	}
+				// })
 			}
 
 			console.log('----->', socket.rooms)
@@ -168,8 +171,9 @@ class DocumentSession {
 	static directusToken = process.env.NUXT_COLLABORATIVE_DIRECTUS_TOKEN as string
 
 	static fetchDocument(documentId: string, accessToken: string): Promise<DeltaDocument | null> {
-		try {
-			return this.directus.items('documents').readOne(
+		return this.directus
+			.items('documents')
+			.readOne(
 				documentId,
 				{},
 				{
@@ -179,11 +183,11 @@ class DocumentSession {
 						},
 					},
 				}
-			) as unknown as Promise<DeltaDocument> // SDK automatically turns .content from json string into an object, so we can cast it here
-		} catch (err) {
-			console.error(err)
-			return new Promise(resolve => resolve(null))
-		}
+			)
+			.catch(err => {
+				console.error(err)
+				return null
+			}) as unknown as Promise<DeltaDocument> // SDK automatically turns .content from json string into an object, so we can cast it here
 	}
 
 	documentId: string
@@ -233,8 +237,9 @@ class DocumentSession {
 	saveDocument(): Promise<Document | null> {
 		const accessToken = DocumentSession.directusToken
 
-		try {
-			return DocumentSession.directus.items('documents').updateOne(
+		return DocumentSession.directus
+			.items('documents')
+			.updateOne(
 				this.document.id,
 				{
 					title: this.document.title,
@@ -248,11 +253,8 @@ class DocumentSession {
 						},
 					},
 				}
-			) as Promise<Document>
-		} catch (err) {
-			console.error(err)
-			return new Promise(resolve => resolve(null))
-		}
+			)
+			.catch(_ => null) as Promise<Document> // mute the error, this it to be expected, when there is no actual changes to the document
 	}
 
 	// setDocument(document: Document): Document {
