@@ -1,7 +1,11 @@
 <template>
-	<div class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
-		<QuillEditor toolbar="full" class="!border-none" theme="snow" @ready="editorReady" />
-	</div>
+	<main>
+		<button @click="saveDocument">Save</button>
+		<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
+		<div class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
+			<QuillEditor toolbar="full" class="!border-none" theme="snow" @ready="editorReady" />
+		</div>
+	</main>
 </template>
 
 <script setup lang="ts">
@@ -9,8 +13,13 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
-import type { Quill, DeltaObject, Sources } from '@/types/quill'
-import type { JoinRoomData, EditorEventData, JoinRoomResponse } from '@/types/document-sync'
+import type { Quill, DeltaObject } from '@/types/quill'
+import type {
+	JoinRoomData,
+	EditorEventData,
+	JoinRoomResponse,
+	DocumentSavedEventData,
+} from '@/types/document-sync'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 //* SETUP SOCKET.IO
@@ -34,12 +43,23 @@ const userId = user.value?.id
 const documentId = getDocumentId()
 
 // Join room and wait until room is joined
-const { ok, message, document } = (await socket.emitP('join-document', {
+let { ok, message, document } = (await socket.emitP('join-document', {
 	documentId,
 	userId,
 } as JoinRoomData)) as JoinRoomResponse
 
 if (!ok) await goBack(message)
+
+socket.io.on('reconnect', async () => {
+	const joinRes = (await socket.emitP('join-document', {
+		documentId,
+		userId,
+	} as JoinRoomData)) as JoinRoomResponse
+
+	;({ ok, message, document } = joinRes)
+
+	if (!ok) await goBack(message)
+})
 
 function getDocumentId(): string {
 	const {
@@ -56,13 +76,7 @@ async function editorReady(quill: Quill) {
 	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
 	quill.setContents(document.content as unknown as DeltaObject)
 
-	quill.on('text-change', (delta: DeltaObject, _, source: Sources) => {
-		if (source === 'api') {
-			console.log('An API call triggered this change.')
-		} else if (source === 'user') {
-			console.log('A user action triggered this change.')
-		}
-
+	quill.on('text-change', (delta: DeltaObject) => {
 		socket.emit('editor-change', { documentId, delta } as EditorEventData)
 	})
 
@@ -79,6 +93,39 @@ function goBack(message: string) {
 	alert(message)
 	return navigateTo('/documents')
 }
+
+//* SAVING DOCUMENT
+let lastSave: DocumentSavedEventData | null = null
+// let lastSave = $ref<DocumentSavedEventData | null>(null)
+let relativeSaveTimeString = $ref<string>('')
+
+// Updating the string that shows last time doc was saved
+function setRelativeSaveTimeString() {
+	if (!lastSave) return
+
+	const relativeTime = dateToRelativeTimestamp(lastSave.timestamp)
+
+	relativeSaveTimeString = `Saved ${relativeTime} by ${lastSave.userId}`
+}
+
+// Every 20s update the save time string
+setInterval(() => {
+	setRelativeSaveTimeString()
+}, 20_000)
+
+function saveDocument() {
+	// TODO: show error if save fails
+	return socket.emitP('save-document', documentId)
+}
+
+// When the document is saved by anyone (self included), update the last save time and user
+socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
+	// TODO: get the user name from userId and save that instead of ID (check directus notification flow for example on how to get)
+
+	lastSave = saveEventData
+
+	setRelativeSaveTimeString()
+})
 
 onUnmounted(() => {
 	socket.disconnect()

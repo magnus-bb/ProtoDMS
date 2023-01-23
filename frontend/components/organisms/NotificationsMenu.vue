@@ -13,7 +13,10 @@
 			</button>
 		</div>
 
-		<ul tabindex="0" class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max">
+		<ul
+			tabindex="0"
+			class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max max-h-96 overflow-y-auto flex-nowrap"
+		>
 			<!-- notifications come from directus in the order of latest to newest, so we just reverse them here -->
 			<li
 				v-for="notification of notifications"
@@ -47,18 +50,11 @@ import type {
 	DirectusUsers as DirectusUser,
 } from '@/types/directus'
 
+import { TIME_UNITS, dateStringToRelativeTimestamp } from '@/utils/time'
+
 const { user } = defineProps<{
 	user: DirectusUser
 }>()
-
-const UNITS: Record<string, number> = {
-	year: 24 * 60 * 60 * 1000 * 365,
-	month: (24 * 60 * 60 * 1000 * 365) / 12,
-	day: 24 * 60 * 60 * 1000,
-	hour: 60 * 60 * 1000,
-	minute: 60 * 1000,
-	second: 1000,
-}
 
 //* GETTING NOTIFICATIONS
 let notifications = $ref<DirectusNotification[]>([])
@@ -73,34 +69,10 @@ async function getNotifications() {
 }
 
 getNotifications() // get initial notifications
-const notificationLoop = setInterval(getNotifications, 30 * UNITS.second) // after 30 secs, get nots and keep doing it every 30s
+const notificationLoop = setInterval(getNotifications, 30 * TIME_UNITS.second) // after 30 secs, get nots and keep doing it every 30s
 onBeforeUnmount(() => {
 	clearInterval(notificationLoop) // make sure we only ever have one loop running
 })
-
-//* FORMATTING NOTIFICATIONS
-function dateStringToRelativeTimestamp(
-	dateString?: string | null,
-	relativeTo: number = Date.now()
-): string {
-	if (!dateString) return ''
-
-	const rtf = new Intl.RelativeTimeFormat()
-
-	const date = Date.parse(dateString)
-
-	const elapsed = date - relativeTo
-
-	// "Math.abs" accounts for both "past" & "future" scenarios
-	for (const unit in UNITS) {
-		if (Math.abs(elapsed) > UNITS[unit] || unit === 'second') {
-			return rtf.format(Math.round(elapsed / UNITS[unit]), unit as Intl.RelativeTimeFormatUnit)
-		}
-	}
-
-	return ''
-}
-
 //* DELETING NOTIFICATIONS
 async function deleteNotification(id: number) {
 	const directus = useDirectus()

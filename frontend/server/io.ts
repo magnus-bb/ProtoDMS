@@ -1,7 +1,13 @@
 import { Directus } from '@directus/sdk'
 import Delta from 'quill-delta'
 import type { Socket, BroadcastOperator } from 'socket.io'
-import type { JoinRoomData, JoinRoomResponse, EditorEventData } from '@/types/document-sync'
+import type {
+	JoinRoomData,
+	JoinRoomResponse,
+	EditorEventData,
+	SocketUser,
+	DocumentSavedEventData,
+} from '@/types/document-sync'
 import type { DeltaObject, DeltaDocument } from '@/types/quill'
 import type { Documents as Document, CustomDirectusTypes } from '@/types/directus'
 
@@ -16,28 +22,7 @@ const rooms = new Map<string, DocumentSession>()
 
 export default function (socket: Socket, io: BroadcastOperator<{ [event: string]: any }>) {
 	return Object.freeze({
-		// TODO 1: joining and syncing ('join-document' and 'editor-change' events)
-		/*
-		1. X Auth user
-		2. X Check if user is first in room
-		3. X If so, get document Delta from directus and save it in a global map of rooms => Deltas
-		4. X If not, get document Delta from global map of rooms => Deltas
-		5. X Let all other users know that a new user joined the document room
-		6. X When a Delta is received, apply it to the global map of rooms => Deltas and broadcast Delta (not full doc) to everyone
-		7. X When a user disconnects from room, broadcast to everyone that a user left the document and check if user was the last in room
-		8. If user was last in room, server uses static static token called 'Collaborative session' to check if cached version matches saved version, if not, use token to save cached version in Directus and clean up room from global map
-		*/
-
-		// TODO 2: saving ('save-document' event)
-		/*
-		Event takes 2 args: documentId and accessToken
-		1. Use access token to save server cached document to directus
-		2. If access token fails, server uses static token called 'Collaborative session' to save document to directus
-		3. Broadcast save timestamp to everyone in room
-		4. Frontends show when the document was last saved next to save button
-		*/
-
-		// TODO 3: sync errors ('synchronize')
+		// TODO 3: sync errors ('synchronize') JUST SYNC WHEN SOMEONE SAVES -> overwrites clients' editor contents
 		/*
 		Event takes 1 arg: documentId
 		1. Every 15s the frontend should ping this event
@@ -53,7 +38,7 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			const documentPromise = DocumentSession.fetchDocument(documentId, accessToken) // all users have access to all docs, so as long as they are authenticated, they are also authorized to see documents
 
 			// If user is not authed, don't let them join a room
-			if (!(await checkUser(userId, accessToken))) {
+			if (!(await checkUserAuth(userId, accessToken))) {
 				return { message: 'User is not authenticated', ok: false, document: null }
 			}
 
@@ -70,10 +55,14 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 					return { message: 'There was an error getting document', ok: false, document: null }
 				}
 
-				rooms.set(documentId, new DocumentSession(documentId, document, userId))
+				// Create session with document from Directus and this socket / user as the first user
+				rooms.set(
+					documentId,
+					new DocumentSession(documentId, document, { socketId: socket.id, userId })
+				)
 			} else {
 				// User is not first in room, so we can just add them to the room
-				documentSession.addUser(userId)
+				documentSession.addUser(socket.id, userId)
 
 				// We then get the document from the existing room instead of going to Directus
 				document = documentSession.document
@@ -92,7 +81,7 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 		},
 
 		'editor-change'({ documentId, delta }: EditorEventData) {
-			if (!socket.rooms.has(documentId)) {
+			if (!socketInRoom(socket, documentId)) {
 				console.warn('User has not been authorized to change the document:', documentId)
 				// TODO: something that can undo a specific delta in the frontend?
 				return
@@ -111,6 +100,45 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			}
 		},
 
+		// TODO: WHEN SAVING, ALSO SEND OUT WHOLE DOCUMENT AND REPLACE CLIENT DOCUMENTS WITH THAT TO SYNC
+		/* Takes a client's access token and saves the document of the user's session under the client's name.
+		If user save fails, the server will try with a static token called 'Collaborative session' instead.
+		Returns whether the save was successful regardless of whether it was by user or server. */
+		async 'save-document'(documentId: string): Promise<boolean> {
+			if (!socketInRoom(socket, documentId)) {
+				console.warn('User has not been authorized to save the document:', documentId)
+
+				return false
+			}
+
+			// Used to try and save document as user first, then as server if user fails
+			const accessToken = socket.handshake.auth.token
+
+			const session = rooms.get(documentId)
+
+			if (!session) return false
+
+			// Try with the user's access token...
+			let savedDocument = await session.saveDocument(accessToken)
+			if (!savedDocument) {
+				// ... if user attempt failed, try with static token (no arg)
+				savedDocument = await session.saveDocument()
+
+				if (!savedDocument) {
+					console.warn(`Saving document ${documentId} with static token failed`)
+					return false
+				}
+			}
+
+			// Broadcast to everyone in room that document was saved
+			io.to(documentId).emit('document-saved', {
+				userId: socket.data.userId,
+				timestamp: Date.now(),
+			} as DocumentSavedEventData)
+
+			return true
+		},
+
 		disconnecting() {
 			const socketRooms = Array.from(socket.rooms).filter(room => room !== socket.id)
 
@@ -119,41 +147,28 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			// Get all document sessions that this socket was in
 			const sessions = socketRooms
 				.map(roomId => rooms.get(roomId))
-				.filter(session => session) as DocumentSession[]
+				.filter(session => session) as DocumentSession[] // can be undef, so we filter them out
 
 			// Sign user out of document sessions that this socket was in
 			for (const session of sessions) {
-				session.removeUser(userId)
+				session.removeUser(socket.id)
 			}
 
 			// Let everyone know that a user left the document(s)
 			socket.to(socketRooms).emit('user-left', userId)
 
-			// Check if last user in room and save document if so using static token, then close the session
+			// Check if last user in room and if so, save document using static token and close session
 			for (const session of sessions) {
 				if (!session.isEmpty) continue
 
-				session.saveDocument()
-
-				// session.fetchDocument(DocumentSession.directusToken).then(document => {
-
-				// 	// If it seems like there is no doc in Directus (but there should be) just go directly to saving it to make sure
-				// 	if (!document) {
-				// 	} else {
-				// 		// TODO: If document exists, check if it differs from cached version, if so, save it
-
-				// 	}
-				// })
+				// No arg to saveDocument means it will use the static token
+				session.saveDocument().then(() => rooms.delete(session.documentId))
 			}
-
-			console.log('----->', socket.rooms)
-
-			// TODO 1 step 8
 		},
 	})
 }
 
-async function checkUser(userId: string, accessToken: string) {
+async function checkUserAuth(userId: string, accessToken: string) {
 	try {
 		// Request user data with the given access token
 		const res = await fetch(`${directusUrl}users/${userId}?access_token=${accessToken}`)
@@ -166,6 +181,16 @@ async function checkUser(userId: string, accessToken: string) {
 		return false
 	}
 }
+
+// Takes a socket and a document/room ID and returns whether the socket has access to the document / room
+function socketInRoom(socket: Socket, roomId: string): boolean {
+	if (socket.rooms.has(roomId)) {
+		return true
+	}
+
+	return false
+}
+
 class DocumentSession {
 	static directus = new Directus<CustomDirectusTypes>(directusUrl)
 	static directusToken = process.env.NUXT_COLLABORATIVE_DIRECTUS_TOKEN as string
@@ -191,15 +216,16 @@ class DocumentSession {
 	}
 
 	documentId: string
-	users: Set<string>
+	users: Map<string, string> // map of socket IDs to user IDs
 	document: DeltaDocument
 
-	constructor(documentId: string, document: DeltaDocument, firstUser: string) {
+	constructor(documentId: string, document: DeltaDocument, { socketId, userId }: SocketUser) {
 		this.documentId = documentId
-		this.users = new Set()
+		this.users = new Map()
 		this.document = document
 
-		this.addUser(firstUser)
+		// Add initial user
+		this.addUser(socketId, userId)
 	}
 
 	// Returns whether any users are left in this session
@@ -207,12 +233,12 @@ class DocumentSession {
 		return this.users.size === 0
 	}
 
-	addUser(userId: string): Set<string> {
-		return this.users.add(userId)
+	addUser(socketId: string, userId: string): Map<string, string> {
+		return this.users.set(socketId, userId)
 	}
 
-	removeUser(userId: string): boolean {
-		return this.users.delete(userId)
+	removeUser(socketId: string): boolean {
+		return this.users.delete(socketId)
 	}
 
 	// Takes a delta and applies it to the session version of the document
@@ -234,8 +260,8 @@ class DocumentSession {
 	}
 
 	// Persists the session cached document in Directus
-	saveDocument(): Promise<Document | null> {
-		const accessToken = DocumentSession.directusToken
+	saveDocument(userAccessToken?: string): Promise<Document | null> {
+		const accessToken = userAccessToken || DocumentSession.directusToken
 
 		return DocumentSession.directus
 			.items('documents')
@@ -254,11 +280,9 @@ class DocumentSession {
 					},
 				}
 			)
-			.catch(_ => null) as Promise<Document> // mute the error, this it to be expected, when there is no actual changes to the document
+			.catch(err => {
+				console.warn(err)
+				return null
+			}) as Promise<Document> // mute the error, this it to be expected, when there is no actual changes to the document
 	}
-
-	// setDocument(document: Document): Document {
-	// 	this.document = document
-	// 	return this.document
-	// }
 }

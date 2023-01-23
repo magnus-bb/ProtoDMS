@@ -1,5 +1,10 @@
-import type { DeltaObject } from '@/types/quill'
-import type { Documents as Document } from '@/types/directus'
+import type { DeltaObject, DeltaDocument } from '@/types/quill'
+
+// Used to map between sockets and directus users
+export interface SocketUser {
+	socketId: string
+	userId: string
+}
 
 export interface JoinRoomData {
 	documentId: string
@@ -9,10 +14,14 @@ export interface JoinRoomData {
 export interface JoinRoomResponse {
 	message: string
 	ok: boolean
-	document: Document | null
+	document: DeltaDocument | null
 }
-
 export interface EditorEventData {
 	documentId: string
 	delta: DeltaObject
+}
+
+export interface DocumentSavedEventData {
+	userId: string
+	timestamp: number // Result of Date.now()
 }
