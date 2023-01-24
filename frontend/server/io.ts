@@ -9,7 +9,7 @@ import type {
 	DocumentSavedEventData,
 } from '@/types/document-sync'
 import type { DeltaObject, DeltaDocument } from '@/types/quill'
-import type { Documents as Document, CustomDirectusTypes } from '@/types/directus'
+// import type { Documents as Document, CustomDirectusTypes } from '@/types/directus'
 
 // Annoying that we can't get nuxt context from here, since env var could be undef and we need to duplicate the fallback value
 const directusUrl = process.env.NUXT_PUBLIC_DIRECTUS_URL || 'http://localhost:8055'
@@ -100,7 +100,6 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			}
 		},
 
-		// TODO: WHEN SAVING, ALSO SEND OUT WHOLE DOCUMENT AND REPLACE CLIENT DOCUMENTS WITH THAT TO SYNC
 		/* Takes a client's access token and saves the document of the user's session under the client's name.
 		If user save fails, the server will try with a static token called 'Collaborative session' instead.
 		Returns whether the save was successful regardless of whether it was by user or server. */
@@ -134,6 +133,7 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			io.to(documentId).emit('document-saved', {
 				userId: socket.data.userId,
 				timestamp: Date.now(),
+				document: savedDocument,
 			} as DocumentSavedEventData)
 
 			return true
@@ -260,7 +260,7 @@ class DocumentSession {
 	}
 
 	// Persists the session cached document in Directus
-	saveDocument(userAccessToken?: string): Promise<Document | null> {
+	saveDocument(userAccessToken?: string): Promise<DeltaDocument | null> {
 		const accessToken = userAccessToken || DocumentSession.directusToken
 
 		return DocumentSession.directus
@@ -283,6 +283,6 @@ class DocumentSession {
 			.catch(err => {
 				console.warn(err)
 				return null
-			}) as Promise<Document> // mute the error, this it to be expected, when there is no actual changes to the document
+			}) as Promise<DeltaDocument> // mute the error, this it to be expected, when there is no actual changes to the document
 	}
 }

@@ -24,4 +24,5 @@ export interface EditorEventData {
 export interface DocumentSavedEventData {
 	userId: string
 	timestamp: number // Result of Date.now()
+	document: DeltaDocument
 }

@@ -39,8 +39,17 @@ const socket = nuxt.$nuxtSocket({
 	},
 })
 
+//* GETTING INITIAL IDS AND JOINING COLLAB SESSION
 const userId = user.value?.id
 const documentId = getDocumentId()
+
+function getDocumentId(): string {
+	const {
+		params: { id: documentId },
+	} = useRoute()
+
+	return documentId as string
+}
 
 // Join room and wait until room is joined
 let { ok, message, document } = (await socket.emitP('join-document', {
@@ -61,39 +70,6 @@ socket.io.on('reconnect', async () => {
 	if (!ok) await goBack(message)
 })
 
-function getDocumentId(): string {
-	const {
-		params: { id: documentId },
-	} = useRoute()
-
-	return documentId as string
-}
-
-//* SETUP QUILL
-async function editorReady(quill: Quill) {
-	if (!document) return await goBack('Could not get document') // we should not be able to get here with no doc
-
-	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
-	quill.setContents(document.content as unknown as DeltaObject)
-
-	quill.on('text-change', (delta: DeltaObject) => {
-		socket.emit('editor-change', { documentId, delta } as EditorEventData)
-	})
-
-	socket.on('editor-update', (delta: DeltaObject) => {
-		quill.updateContents(delta, 'silent')
-	})
-
-	socket.on('user-joined', (joinedUserId: string) => {
-		console.log('User joined the collaboration:', joinedUserId)
-	})
-}
-
-function goBack(message: string) {
-	alert(message)
-	return navigateTo('/documents')
-}
-
 //* SAVING DOCUMENT
 let lastSave: DocumentSavedEventData | null = null
 // let lastSave = $ref<DocumentSavedEventData | null>(null)
@@ -108,26 +84,53 @@ function setRelativeSaveTimeString() {
 	relativeSaveTimeString = `Saved ${relativeTime} by ${lastSave.userId}`
 }
 
-// Every 20s update the save time string
-setInterval(() => {
-	setRelativeSaveTimeString()
-}, 20_000)
+// Every 15s update last save string
+const saveStringInterval = setInterval(setRelativeSaveTimeString, 15_000)
 
 function saveDocument() {
 	// TODO: show error if save fails
 	return socket.emitP('save-document', documentId)
 }
 
-// When the document is saved by anyone (self included), update the last save time and user
-socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
-	// TODO: get the user name from userId and save that instead of ID (check directus notification flow for example on how to get)
+//* THINGS THAT NEED QUILL
+async function editorReady(quill: Quill) {
+	if (!document) return await goBack('Could not get document') // we should not be able to get here with no doc
 
-	lastSave = saveEventData
+	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
+	quill.setContents(document.content)
 
-	setRelativeSaveTimeString()
+	quill.on('text-change', (delta: DeltaObject) => {
+		socket.emit('editor-change', { documentId, delta } as EditorEventData)
+	})
+
+	socket.on('editor-update', (delta: DeltaObject) => {
+		quill.updateContents(delta, 'silent')
+	})
+
+	// When the document is saved by anyone (self included), update the last save time and user
+	socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
+		// TODO: get the user name from userId and save that instead of ID (check directus notification flow for example on how to get)
+
+		lastSave = saveEventData
+
+		// Sync so everyone has the same content after a save
+		quill.setContents(saveEventData.document.content)
+
+		setRelativeSaveTimeString()
+	})
+}
+
+socket.on('user-joined', (joinedUserId: string) => {
+	console.log('User joined the collaboration:', joinedUserId)
 })
 
+function goBack(message: string) {
+	alert(message)
+	return navigateTo('/documents')
+}
+
 onUnmounted(() => {
+	clearInterval(saveStringInterval)
 	socket.disconnect()
 })
 </script>

@@ -28,7 +28,7 @@ export function dateToRelativeTimestamp(
 
 	const elapsed = date - relativeTo
 
-	if (elapsed < 5000) return 'just now'
+	if (elapsed > -5000) return 'just now' // negative numbers because we are formatting something in the past
 
 	// "Math.abs" accounts for both "past" & "future" scenarios
 	for (const unit in TIME_UNITS) {
