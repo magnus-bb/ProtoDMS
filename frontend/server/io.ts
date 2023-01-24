@@ -5,11 +5,12 @@ import type {
 	JoinRoomData,
 	JoinRoomResponse,
 	EditorEventData,
+	TitleEventData,
 	SocketUser,
 	DocumentSavedEventData,
 } from '@/types/document-sync'
 import type { DeltaObject, DeltaDocument } from '@/types/quill'
-// import type { Documents as Document, CustomDirectusTypes } from '@/types/directus'
+import type { CustomDirectusTypes } from '@/types/directus'
 
 // Annoying that we can't get nuxt context from here, since env var could be undef and we need to duplicate the fallback value
 const directusUrl = process.env.NUXT_PUBLIC_DIRECTUS_URL || 'http://localhost:8055'
@@ -22,15 +23,6 @@ const rooms = new Map<string, DocumentSession>()
 
 export default function (socket: Socket, io: BroadcastOperator<{ [event: string]: any }>) {
 	return Object.freeze({
-		// TODO 3: sync errors ('synchronize') JUST SYNC WHEN SOMEONE SAVES -> overwrites clients' editor contents
-		/*
-		Event takes 1 arg: documentId
-		1. Every 15s the frontend should ping this event
-		2. Server checks if user is in the room of documentId
-		3. If so, server returns the cached document to frontend
-		4. Frontend applies cached version to editor in UI to overwrite
-		*/
-
 		async 'join-document'({ documentId, userId }: JoinRoomData): Promise<JoinRoomResponse> {
 			const accessToken = socket.handshake.auth.token
 
@@ -39,11 +31,16 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 
 			// If user is not authed, don't let them join a room
 			if (!(await checkUserAuth(userId, accessToken))) {
-				return { message: 'User is not authenticated', ok: false, document: null }
+				return {
+					message: 'User is not authenticated',
+					ok: false,
+					document: null,
+					usersInDocument: [],
+				}
 			}
 
 			// Check if room already exists
-			const documentSession = rooms.get(documentId)
+			let documentSession = rooms.get(documentId)
 
 			let document: DeltaDocument | undefined | null
 
@@ -52,14 +49,17 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 				// Now that user is authed, we can wait for the document to be ready
 				document = await documentPromise
 				if (!document) {
-					return { message: 'There was an error getting document', ok: false, document: null }
+					return {
+						message: 'There was an error getting document',
+						ok: false,
+						document: null,
+						usersInDocument: [],
+					}
 				}
 
 				// Create session with document from Directus and this socket / user as the first user
-				rooms.set(
-					documentId,
-					new DocumentSession(documentId, document, { socketId: socket.id, userId })
-				)
+				documentSession = new DocumentSession(documentId, document, { socketId: socket.id, userId })
+				rooms.set(documentId, documentSession)
 			} else {
 				// User is not first in room, so we can just add them to the room
 				documentSession.addUser(socket.id, userId)
@@ -77,10 +77,16 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			// Let everyone know that a user joined the document
 			io.to(documentId).emit('user-joined', userId)
 
-			return { message: `user: ${userId} joined the document: ${documentId}`, ok: true, document }
+			return {
+				message: `user: ${userId} joined the document: ${documentId}`,
+				ok: true,
+				document,
+				usersInDocument: Array.from(documentSession.users.values()),
+			}
 		},
 
-		'editor-change'({ documentId, delta }: EditorEventData) {
+		// Synchronizes content deltas between clients
+		'change-content'({ documentId, delta }: EditorEventData) {
 			if (!socketInRoom(socket, documentId)) {
 				console.warn('User has not been authorized to change the document:', documentId)
 				// TODO: something that can undo a specific delta in the frontend?
@@ -93,10 +99,31 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 				session?.applyDelta(delta)
 
 				// Broadcast to all others in the document's room
-				socket.to(documentId).emit('editor-update', delta)
+				socket.to(documentId).emit('content-changed', delta)
 			} catch (err) {
 				console.error(err)
 				// TODO: something that can undo a specific delta in the frontend?
+			}
+		},
+
+		// Synchronizes document titles between clients
+		'change-title'({ documentId, title }: TitleEventData) {
+			if (!socketInRoom(socket, documentId)) {
+				console.warn('User has not been authorized to change the document:', documentId)
+				// TODO: something that can undo the title change in the frontend?
+				return
+			}
+
+			const session = rooms.get(documentId)
+
+			try {
+				session?.renameDocument(title)
+
+				// Broadcast to all others in the document's room
+				socket.to(documentId).emit('title-changed', title)
+			} catch (err) {
+				console.error(err)
+				// TODO: something that can undo the title change in the frontend?
 			}
 		},
 
@@ -254,6 +281,13 @@ class DocumentSession {
 		return this.document
 	}
 
+	// Takes a new title and rename document
+	renameDocument(title: string): string {
+		this.document.title = title
+
+		return this.document.title
+	}
+
 	// Gets the persisted Directus version of this session's document
 	fetchDocument(accessToken: string): Promise<DeltaDocument | null> {
 		return DocumentSession.fetchDocument(this.documentId, accessToken)
@@ -283,6 +317,6 @@ class DocumentSession {
 			.catch(err => {
 				console.warn(err)
 				return null
-			}) as Promise<DeltaDocument> // mute the error, this it to be expected, when there is no actual changes to the document
+			}) as unknown as Promise<DeltaDocument> // mute the error, this it to be expected, when there is no actual changes to the document
 	}
 }

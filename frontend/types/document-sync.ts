@@ -15,10 +15,15 @@ export interface JoinRoomResponse {
 	message: string
 	ok: boolean
 	document: DeltaDocument | null
+	usersInDocument: string[]
 }
 export interface EditorEventData {
 	documentId: string
 	delta: DeltaObject
+}
+export interface TitleEventData {
+	documentId: string
+	title: string
 }
 
 export interface DocumentSavedEventData {

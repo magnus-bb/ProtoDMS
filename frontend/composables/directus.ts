@@ -45,8 +45,10 @@ export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<st
 	}
 }
 
-export function getUser(): Promise<DirectusUser> {
+export async function getUser(): Promise<DirectusUser> {
 	const directus = useDirectus()
+
+	await directus.auth.refresh()
 
 	return directus.users.me.read() as Promise<DirectusUser>
 }
@@ -81,7 +83,6 @@ export async function signup(formData: SignUpFormData) {
 
 	const { authenticatedRoleId } = useRuntimeConfig().public
 
-	/* eslint-disable camelcase */
 	// It is important that we remove the 'confirm_password' field, as it is not a valid field for the API
 	const { first_name, last_name, email, password } = formData as SignUpFormData
 
@@ -92,7 +93,6 @@ export async function signup(formData: SignUpFormData) {
 		password,
 		role: authenticatedRoleId,
 	})
-	/* eslint-enable camelcase */
 
 	await login({ email, password })
 }
@@ -101,7 +101,7 @@ export async function signup(formData: SignUpFormData) {
 // Based on nuxt-directus
 type DirectusImageFormat = 'jpg' | 'png' | 'webp' | 'tiff'
 type DirectusImageFit = 'cover' | 'contain' | 'inside' | 'outside'
-interface DirectusImageOptions {
+export interface DirectusImageOptions {
 	width?: number
 	height?: number
 	quality?: number

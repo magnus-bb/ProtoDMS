@@ -1,11 +1,11 @@
 <template>
 	<div v-if="user && avatarUrl" class="avatar">
-		<div class="w-14 mask mask-squircle">
+		<div v-bind="$attrs">
 			<img :src="avatarUrl" />
 		</div>
 	</div>
 	<div v-else-if="user" class="avatar placeholder">
-		<div class="bg-secondary text-secondary-content w-14 mask mask-squircle">
+		<div class="bg-secondary text-secondary-content" v-bind="$attrs">
 			<span>{{ initials }}</span>
 		</div>
 	</div>
@@ -13,9 +13,11 @@
 
 <script setup lang="ts">
 import type { DirectusUsers as DirectusUser } from '@/types/directus'
+import type { DirectusImageOptions } from '@/composables/directus'
 
-const { user } = defineProps<{
+const { user, avatarOptions } = defineProps<{
 	user: Partial<DirectusUser>
+	avatarOptions?: DirectusImageOptions
 }>()
 
 const avatarUrl = $computed<string | void>(() => {
@@ -23,7 +25,7 @@ const avatarUrl = $computed<string | void>(() => {
 		return
 	}
 
-	return getAssetUrl(user.avatar as string)
+	return getAssetUrl(user.avatar as string, avatarOptions)
 })
 
 const initials = $computed<string>(() => {
@@ -38,4 +40,10 @@ const initials = $computed<string>(() => {
 
 	return user.first_name![0].toUpperCase()
 })
+</script>
+
+<script lang="ts">
+export default {
+	inheritAttrs: false,
+}
 </script>

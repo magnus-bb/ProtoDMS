@@ -1,6 +1,12 @@
 <template>
 	<div v-if="user" class="dropdown dropdown-end">
-		<Avatar v-if="user" :user="user" tabindex="0" class="cursor-pointer" />
+		<Avatar
+			v-if="user"
+			:user="user"
+			tabindex="0"
+			class="cursor-pointer w-14 rounded-xl"
+			:avatar-options="{ key: 'user-avatar' }"
+		/>
 
 		<ul
 			tabindex="0"

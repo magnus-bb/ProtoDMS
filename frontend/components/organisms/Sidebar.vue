@@ -16,7 +16,6 @@
 
 <script setup>
 // TODO: add prop for left / right mode that inverts everything
-import { useSwipe } from '@vueuse/core'
 
 // How far you have to swipe to close the sidebar
 const SWIPE_CUTOFF_FRACTION = 0.5 // halfway

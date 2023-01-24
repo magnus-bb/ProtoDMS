@@ -38,5 +38,11 @@ module.exports = {
 		'vue/no-setup-props-destructure': 0, // reactivity transform allows us to destructure props
 		'no-multiple-empty-lines': 'warn',
 		'no-labels': ['error', { allowLoop: true }],
+		camelcase: [
+			'warn',
+			{
+				allow: ['first_name', 'last_name'],
+			},
+		],
 	},
 }

@@ -40,7 +40,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', 'nuxt-socket-io'],
+	modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', 'nuxt-socket-io', '@vueuse/nuxt'],
 
 	io: {
 		sockets: [
@@ -62,8 +62,6 @@ export default defineNuxtConfig({
 		},
 	},
 
-	// directus: { url: process.env.NUXT_PUBLIC_DIRECTUS_URL },
-
 	//* Icon font is downloaded manually into @/assets/fonts/
 	googleFonts: {
 		families: {
@@ -73,8 +71,6 @@ export default defineNuxtConfig({
 		prefetch: true,
 		preconnect: true,
 		preload: true,
-		// download: true,
-		// inject: true,
 	},
 
 	colorMode: {

@@ -26,8 +26,6 @@
 </template>
 
 <script setup lang="ts">
-import { useVModel } from '@vueuse/core'
-
 const props = defineProps<{
 	name: string
 	modelValue: File[]

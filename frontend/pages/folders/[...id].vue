@@ -240,8 +240,6 @@
 // TODO: move folders out into separate composable (useFolders)
 // TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
 
-import { useFocus, useKeyModifier } from '@vueuse/core'
-
 import type {
 	DirectusFolders as DirectusFolder,
 	DirectusFiles as DirectusFile,
