@@ -313,14 +313,15 @@ export type DirectusWebhooks = {
 };
 
 export type Documents = {
-  content?: string | null;
+  content?: unknown | null;
   date_created?: string | null;
   date_updated?: string | null;
   id: number;
   sort?: number | null;
   status: string;
   subscribers: string | DocumentsDirectusUsers[];
-  title?: string | null;
+  tags: string | DocumentsTags[];
+  title: string;
   user_created?: string | DirectusUsers | null;
   user_updated?: string | DirectusUsers | null;
 };
@@ -330,6 +331,23 @@ export type DocumentsDirectusUsers = {
   documents_id?: number | Documents | null;
   id: number;
   last_name?: number | null;
+};
+
+export type DocumentsTags = {
+  documents_id?: number | Documents | null;
+  id: number;
+  tags_id?: number | Tags | null;
+};
+
+export type Tags = {
+  date_created?: string | null;
+  date_updated?: string | null;
+  documents: string | DocumentsTags[];
+  id: number;
+  name?: string | null;
+  sort?: number | null;
+  user_created?: string | DirectusUsers | null;
+  user_updated?: string | DirectusUsers | null;
 };
 
 export type CustomDirectusTypes = {
@@ -356,4 +374,6 @@ export type CustomDirectusTypes = {
   directus_webhooks: DirectusWebhooks;
   documents: Documents;
   documents_directus_users: DocumentsDirectusUsers;
+  documents_tags: DocumentsTags;
+  tags: Tags;
 };

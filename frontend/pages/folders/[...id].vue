@@ -25,7 +25,7 @@
 		</InputToggle>
 	</Teleport>
 
-	<main class="p-4 flex flex-col gap-y-4">
+	<div class="p-4 flex flex-col">
 		<div class="flex items-center gap-x-4 flex-wrap-reverse">
 			<DirectoryBreadcrumbs
 				v-if="currentFolder && allFolders"
@@ -39,7 +39,7 @@
 			</label>
 		</div>
 
-		<div class="mb-4 flex justify-between gap-x-4">
+		<div class="flex justify-between gap-x-4">
 			<InputToggle
 				@show-input="initRenameFolderInputValue"
 				@hide-input="renameFolderInputValue = ''"
@@ -155,7 +155,9 @@
 			</div>
 		</div>
 
-		<div v-if="currentFiles?.length" class="space-y-8">
+		<div class="divider mb-8" />
+
+		<main v-if="currentFiles?.length" class="space-y-8">
 			<div class="file-grid">
 				<File
 					v-for="file of currentFiles"
@@ -168,10 +170,10 @@
 
 			<div class="flex">
 				<FileSelector name="upload-files" circle center size="lg" multiple @change="uploadFiles">
-					<Icon class="folder-icon text-4xl optical-size-40 grade-100">upload</Icon>
+					<Icon class="text-4xl fill optical-size-40 grade-100">upload</Icon>
 				</FileSelector>
 			</div>
-		</div>
+		</main>
 
 		<div v-else class="alert alert-info shadow-lg max-w-md">
 			<div class="w-full justify-between">
@@ -197,13 +199,13 @@
 				</div>
 			</div>
 		</div>
-	</main>
+	</div>
 
 	<!-- Hacky to have two modals, but it is the easiest way when daisy's modals are all html and css -->
 	<!-- TODO: rewrite so there is a single controller that reuses same modal but passes context of file / folder with js -->
 	<!-- MOVE FILE MODAL -->
 	<input id="move-file-modal" ref="moveFilesModal" type="checkbox" class="modal-toggle" />
-	<label for="move-file-modal" class="modal cursor-pointer">
+	<label for="move-file-modal" class="modal">
 		<label class="modal-box relative">
 			<label for="move-file-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
@@ -219,7 +221,7 @@
 
 	<!-- MOVE FOLDER MODAL -->
 	<input id="move-folder-modal" ref="moveFolderModal" type="checkbox" class="modal-toggle" />
-	<label for="move-folder-modal" class="modal cursor-pointer">
+	<label for="move-folder-modal" class="modal">
 		<label class="modal-box relative">
 			<label for="move-folder-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
@@ -534,40 +536,13 @@ async function uploadFiles(event: Event) {
 }
 
 //* FILE SELECTION
-let selectedFiles = $ref<DirectusFile[]>([])
-
-const ctrlPressed = $(useKeyModifier('Control', { initial: false }))
-
-function selectFile(file: DirectusFile) {
-	// On ctrl + click (select multiple files)
-	if (ctrlPressed) {
-		if (selectedFiles.includes(file)) {
-			// If the file is already selected, deselect it
-			selectedFiles = selectedFiles.filter(f => f !== file)
-			return
-		}
-
-		// If the file is not selected, select it
-		selectedFiles.push(file)
-		return
-	}
-
-	// On regular click (only select 1 file)
-	if (selectedFiles.length === 1 && selectedFiles[0] === file) {
-		// If one file is selected, and it's the one clicked, deselect it
-		selectedFiles = []
-		return
-	}
-
-	// If one file is selected, and it's not the one clicked, change selection to the clicked file
-	selectedFiles = [file]
-}
+const { selected: selectedFiles, select: selectFile } = useSelection<DirectusFile>()
 
 //* RENAME FILE
 async function renameSelectedFile() {
-	if (selectedFiles.length !== 1) return
+	if (selectedFiles.value.length !== 1) return
 
-	const file = selectedFiles[0]
+	const file = selectedFiles.value[0]
 
 	const name: string | null = prompt('Rename file', file.filename_download)
 
@@ -589,12 +564,12 @@ async function renameSelectedFile() {
 
 //* DELETE FILES
 async function deleteSelectedFiles() {
-	if (!selectedFiles.length) return
+	if (!selectedFiles.value.length) return
 
 	const msg =
-		selectedFiles.length > 1
+		selectedFiles.value.length > 1
 			? `Are you sure you want to delete multiple files?`
-			: `Are you sure you want to delete the file '${selectedFiles[0].filename_download}'?`
+			: `Are you sure you want to delete the file '${selectedFiles.value[0].filename_download}'?`
 	if (!window.confirm(msg)) {
 		return
 	}
@@ -602,7 +577,7 @@ async function deleteSelectedFiles() {
 	try {
 		const directus = useDirectus()
 
-		await directus.files.deleteMany(selectedFiles.map(file => file.id))
+		await directus.files.deleteMany(selectedFiles.value.map(file => file.id))
 	} catch (err) {
 		alert(`There was an error deleting files`)
 		console.error(err)
@@ -613,9 +588,9 @@ async function deleteSelectedFiles() {
 
 //* DOWNLOAD FILE
 const fileDownloadUrl = $computed<string>(() => {
-	if (selectedFiles.length !== 1) return ''
+	if (selectedFiles.value.length !== 1) return ''
 
-	const file = selectedFiles[0]
+	const file = selectedFiles.value[0]
 
 	return getAssetUrl(file.id, { download: true })
 })
@@ -624,13 +599,13 @@ const fileDownloadUrl = $computed<string>(() => {
 const moveFilesModal = ref<HTMLInputElement>()
 
 async function moveSelectedFiles(targetFolder: TreeFolder) {
-	if (!selectedFiles.length) return
+	if (!selectedFiles.value.length) return
 
 	const directus = useDirectus()
 
 	try {
 		await directus.files.updateMany(
-			selectedFiles.map(file => file.id),
+			selectedFiles.value.map(file => file.id),
 			{
 				folder: targetFolder.id,
 			}
@@ -648,7 +623,7 @@ async function moveSelectedFiles(targetFolder: TreeFolder) {
 
 <style lang="postcss" scoped>
 .file-grid {
-	@apply grid gap-6 grid-flow-row;
+	@apply grid gap-6;
 
 	--file-width: 80px;
 	@screen sm {

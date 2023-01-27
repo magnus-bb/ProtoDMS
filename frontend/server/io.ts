@@ -90,6 +90,7 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			if (!socketInRoom(socket, documentId)) {
 				console.warn('User has not been authorized to change the document:', documentId)
 				// TODO: something that can undo a specific delta in the frontend?
+				// delta inversion can do this: https://github.com/quilljs/delta#invert
 				return
 			}
 
@@ -103,6 +104,7 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 			} catch (err) {
 				console.error(err)
 				// TODO: something that can undo a specific delta in the frontend?
+				// delta inversion can do this: https://github.com/quilljs/delta#invert
 			}
 		},
 

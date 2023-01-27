@@ -44,7 +44,7 @@
 
 		<!-- save button and save message -->
 		<div class="space-y-2 mt-2">
-			<button class="btn btn-accent gap-2" @click="saveDocument">
+			<button class="btn btn-accent gap-2" :disabled="!changeSinceSave" @click="saveDocument">
 				<Icon class="fill text-3xl">save</Icon>Save changes
 			</button>
 			<p class="text-muted text-sm">{{ relativeSaveTimeString }}</p>
@@ -101,6 +101,7 @@ function getDocumentId(): string {
 //* JOINING COLLABORATION ROOM
 // Array of user IDs in the session
 let editingUserIds = $ref<string[]>([])
+let changeSinceSave = $ref<boolean>(false) // This is manipulated when joining document
 
 // Array of DirectusUsers with names and avatars in the session
 const editingUsers = computedAsync<DirectusUser[]>(
@@ -141,15 +142,11 @@ socket.io.on('reconnect', async () => {
 
 // When a user joins the doc, add them to the list of users so we can show their avatar
 socket.on('user-joined', (joinedUserId: string) => {
-	console.log('User joined the collaboration:', joinedUserId)
-
 	editingUserIds.push(joinedUserId)
 })
 
 // When a user leaves the doc, remove them from the list of users so we can remove their avatar
 socket.on('user-left', (leftUserId: string) => {
-	console.log('User left the collaboration:', leftUserId)
-
 	editingUserIds.splice(editingUserIds.indexOf(leftUserId), 1)
 })
 
@@ -164,6 +161,11 @@ async function joinDocument(): Promise<JoinRoomResponse> {
 	// Set initial users that are already in doc
 	editingUserIds = res.usersInDocument
 
+	/* We assume, that if there are other users than this user in the document, then the document has been changed since it was last saved,
+	 and we enable the save button. It is not perfect, but it is the best we can do without diffing with the db,
+	 and the backend will still not error if trying to save with no changes */
+	if (res.usersInDocument.length > 1) changeSinceSave = true
+
 	return res
 }
 
@@ -176,15 +178,18 @@ async function editorReady(quillElement: Quill) {
 	quill = quillElement
 
 	// Looks hacky, but the directus sdk and socket.io actually turns the content json string (of a Delta) into an object, so our Document type fails us here
-	quillElement.setContents(initialDocument.content)
+	quillElement.setContents(initialDocument.content, 'silent')
 
 	quillElement.on('text-change', (delta: DeltaObject) => {
 		socket.emit('change-content', { documentId, delta } as EditorEventData)
+
+		changeSinceSave = true // when changing content, make save button active
 	})
 }
 
 socket.on('content-changed', (delta: DeltaObject) => {
 	quill.updateContents(delta, 'silent')
+	changeSinceSave = true // when changing content, make save button active
 })
 
 function goBack(message: string) {
@@ -208,6 +213,8 @@ const { ignoreUpdates: ignoreTitleChange } = watchIgnorable(renameDocumentInputV
 			documentId,
 			title: newTitle,
 		})
+
+		changeSinceSave = true // when changing title, make save button active
 	} catch (err) {
 		alert('There was an error renaming document')
 		console.error(err)
@@ -218,6 +225,7 @@ const { ignoreUpdates: ignoreTitleChange } = watchIgnorable(renameDocumentInputV
 socket.on('title-changed', (title: string) => {
 	ignoreTitleChange(() => {
 		renameDocumentInputValue.value = title
+		changeSinceSave = true // when title was changed, make save button active
 	})
 })
 
@@ -231,6 +239,8 @@ whenever(lastSave, async (newSave, oldSave) => {
 	if (newSave?.userId !== oldSave?.userId) {
 		lastSaveBy.value = (await directus.users.readOne(newSave.userId)) as DirectusUser
 	}
+
+	changeSinceSave = false // when content is saved, make save button disabled
 
 	setRelativeSaveTimeString()
 })
@@ -271,7 +281,7 @@ socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
 	lastSave.value = saveEventData
 
 	// Sync so everyone has the same content after a save
-	quill.setContents(saveEventData.document.content)
+	quill.setContents(saveEventData.document.content, 'silent')
 
 	ignoreTitleChange(() => {
 		renameDocumentInputValue.value = saveEventData.document.title as string

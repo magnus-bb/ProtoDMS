@@ -1,0 +1,24 @@
+@layer components {
+	.scrollbar {
+		/* edge, chrome, safari, opera, iOS versions of all browsers */
+		::-webkit-scrollbar {
+			@apply w-1.5 h-1.5;
+		}
+
+		::-webkit-scrollbar-track {
+			@apply rounded-sm my-3;
+		}
+
+		::-webkit-scrollbar-thumb {
+			@apply rounded-sm bg-neutral;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			@apply bg-neutral-focus;
+		}
+
+		/* firefox */
+		scrollbar-width: thin;
+		scrollbar-color: theme('colors.neutral') transparent;
+	}
+}

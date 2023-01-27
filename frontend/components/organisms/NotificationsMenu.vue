@@ -1,5 +1,5 @@
 <template>
-	<div class="dropdown dropdown-end">
+	<div class="dropdown dropdown-end scrollbar">
 		<div class="indicator">
 			<span
 				v-if="notifications?.length"

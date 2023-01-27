@@ -65,8 +65,7 @@ export default defineNuxtConfig({
 	//* Icon font is downloaded manually into @/assets/fonts/
 	googleFonts: {
 		families: {
-			// 'Kantumruy Pro': true,
-			'Ubuntu Mono': [400, 600],
+			'Ubuntu Mono': [100, 200, 300, 400, 500, 600, 700, 800, 900],
 		},
 		prefetch: true,
 		preconnect: true,

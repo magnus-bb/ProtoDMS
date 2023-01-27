@@ -1,11 +1,11 @@
 <template>
-	<div v-if="user && avatarUrl" class="avatar">
+	<div v-if="user && avatarUrl" class="avatar" :class="avatarClass">
 		<div v-bind="$attrs">
 			<img :src="avatarUrl" />
 		</div>
 	</div>
-	<div v-else-if="user" class="avatar placeholder">
-		<div class="bg-secondary text-secondary-content" v-bind="$attrs">
+	<div v-else-if="user" class="avatar placeholder" :class="avatarClass">
+		<div class="glass text-secondary-content" v-bind="$attrs">
 			<span>{{ initials }}</span>
 		</div>
 	</div>
@@ -13,11 +13,16 @@
 
 <script setup lang="ts">
 import type { DirectusUsers as DirectusUser } from '@/types/directus'
-import type { DirectusImageOptions } from '@/composables/directus'
+import type { DirectusImageOptions } from '@/composables/useDirectus'
 
-const { user, avatarOptions } = defineProps<{
+const {
+	user,
+	avatarOptions,
+	avatarClass = '',
+} = defineProps<{
 	user: Partial<DirectusUser>
 	avatarOptions?: DirectusImageOptions
+	avatarClass?: string // another place to put classes than default
 }>()
 
 const avatarUrl = $computed<string | void>(() => {
