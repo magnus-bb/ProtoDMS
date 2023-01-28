@@ -54,12 +54,10 @@
 					<div class="card-body">
 						<h2 class="card-title">{{ doc.title }}</h2>
 						<div class="divider my-0" />
-						<QuillEditor
-							v-cloak
-							class="!border-none"
-							:options="options"
-							:content="new Delta(doc.content as any)"
-						/>
+
+						<!-- MUST use a wrapper to get v-once working correctly with :content so quill does not keep failing updates
+						when searching which calls a diff check that fails -->
+						<QuillReadOnly :content="new Delta(doc.content as any)" />
 
 						<div class="card-actions grid items-center grid-cols-[1fr_auto]">
 							<!-- TAGS -->
@@ -129,10 +127,10 @@
 </template>
 
 <script setup lang="ts">
-// TODO: FIX VUE QUILL ERROR WHEN SEARCHING
 // try wrapping in an async component that waits for the quill editor to load and then use that comp with v-once (can this be functional comp?)
 import { QuillEditor, Delta } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+// import { h } from 'vue'
 import type {
 	Documents as Document,
 	Tags as Tag,
@@ -213,24 +211,13 @@ watch($$(tags), executeSearch)
 
 //* DOCUMENT SELECTION
 const { selected: selectedDocs, select: selectDoc } = useSelection<Document>()
-
-//* QUILL OPTIONS
-const options = {
-	modules: {
-		toolbar: [],
-	},
-	readOnly: true,
-	enable: false,
-	theme: 'snow',
-	placeholder: 'No content yet...',
-}
 </script>
 
 <style scoped lang="postcss">
 .document-grid {
 	@apply grid gap-6;
 
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
 :deep() {
