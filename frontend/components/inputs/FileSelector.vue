@@ -1,14 +1,16 @@
 <template>
 	<label
 		:for="name"
-		class="btn btn-accent"
-		:class="[circle ? 'btn-circle' : '', center ? 'mx-auto' : '', `btn-${size}`]"
+		:class="[
+			circle ? 'btn-circle' : '',
+			center ? 'mx-auto' : '',
+			`btn-${size}`,
+			{ 'btn btn-accent': button },
+		]"
 		tabindex="0"
 		@keydown.enter="fileInput?.click()"
 	>
-		<span>
-			<slot />
-		</span>
+		<slot />
 		<input
 			v-bind="$attrs"
 			:id="name"
@@ -28,12 +30,14 @@ const {
 	name,
 	modelValue,
 	size = 'md',
+	button = false,
 	circle,
 	center,
 } = defineProps<{
 	name: string
 	// if modelValue is omitted, you will have to handle native input element files manually with @change from parent
 	modelValue?: File[]
+	button?: boolean
 	circle?: boolean
 	center?: boolean // must be in flexbox
 	size?: 'sm' | 'md' | 'lg'

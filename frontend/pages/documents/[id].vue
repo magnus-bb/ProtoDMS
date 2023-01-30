@@ -32,6 +32,7 @@
 						:user="editingUser"
 						:avatar-options="{ key: 'user-badge' }"
 						class="w-8 text-sm"
+						avatar-class="border-2 border-secondary"
 					/>
 				</div>
 			</div>

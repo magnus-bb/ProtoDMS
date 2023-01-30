@@ -26,20 +26,20 @@
 	</Teleport>
 
 	<div class="p-4 flex flex-col">
-		<div class="flex items-center gap-x-4 flex-wrap-reverse">
-			<DirectoryBreadcrumbs
-				v-if="currentFolder && allFolders"
-				:all-folders="allFolders"
-				:current-folder="currentFolder"
-				class="hidden sm:block"
-			/>
-			<!-- BUTTON TO SELECT FOLDER -->
-			<label for="sidebar" class="btn btn-xs btn-secondary btn-outline drawer-button lg:hidden">
-				Change directory
-			</label>
-		</div>
+		<div class="grid gap-x-4 gap-y-2 items-center grid-flow-col grid-rows-4 md:grid-rows-2">
+			<div class="flex items-center gap-x-4 flex-wrap-reverse scrollbar">
+				<DirectoryBreadcrumbs
+					v-if="currentFolder && allFolders"
+					:all-folders="allFolders"
+					:current-folder="currentFolder"
+					class="hidden sm:block"
+				/>
+				<!-- BUTTON TO SELECT FOLDER -->
+				<label for="sidebar" class="btn btn-xs btn-secondary btn-outline drawer-button lg:hidden">
+					Change directory
+				</label>
+			</div>
 
-		<div class="flex justify-between gap-x-4">
 			<InputToggle
 				@show-input="initRenameFolderInputValue"
 				@hide-input="renameFolderInputValue = ''"
@@ -65,12 +65,22 @@
 				</template>
 			</InputToggle>
 
-			<div class="flex gap-x-2">
-				<!-- FILE ACTIONS -->
-				<div v-if="selectedFiles.length" class="dropdown dropdown-hover">
-					<button class="btn btn-secondary bg-secondary/50 border-none text-xl sm:text-2xl gap-x-1">
+			<div class="md:justify-self-end">
+				<kbd class="kbd kbd-sm">ctrl</kbd>
+				+
+				<kbd class="kbd kbd-sm">click</kbd>
+				to select multiple files
+			</div>
+
+			<!-- FILE ACTIONS -->
+			<div class="flex gap-x-2 md:justify-self-end">
+				<div class="dropdown dropdown-hover">
+					<button
+						:class="{ 'btn-secondary bg-secondary/50': selectedFiles.length }"
+						class="btn border-none text-xl sm:text-2xl gap-x-1"
+					>
 						<Icon class="weight-700 fill optical-size-40">{{
-							selectedFiles.length === 1 ? 'draft' : 'file_copy'
+							selectedFiles.length > 1 ? 'file_copy' : 'draft'
 						}}</Icon>
 						<Icon class="weight-700 fill optical-size-40">arrow_drop_down</Icon>
 					</button>
@@ -80,7 +90,7 @@
 						<li
 							v-if="selectedFiles.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Download file(s)"
+							title="Download file"
 						>
 							<NuxtLink
 								target="_blank"
@@ -90,27 +100,41 @@
 								<Icon class="weight-700 fill optical-size-40">download</Icon>
 							</NuxtLink>
 						</li>
+						<!-- upload files -->
+						<li class="items-center text-xl sm:text-2xl" title="Upload files">
+							<FileSelector name="upload-files" multiple @change="uploadFiles">
+								<Icon class="weight-700 fill optical-size-40">upload_file</Icon>
+							</FileSelector>
+						</li>
 						<!-- rename file -->
 						<li
 							v-if="selectedFiles.length === 1"
 							class="items-center text-xl sm:text-2xl"
 							title="Rename file"
 						>
-							<span tabindex="0" @click="renameSelectedFile">
+							<button @click="renameSelectedFile">
 								<Icon class="weight-700 fill optical-size-40">edit_document</Icon>
-							</span>
+							</button>
 						</li>
 						<!-- move files -->
-						<li class="items-center text-xl sm:text-2xl">
+						<li
+							v-if="selectedFiles.length"
+							class="items-center text-xl sm:text-2xl"
+							title="Move file(s)"
+						>
 							<label tabindex="0" title="Move file(s)" for="move-file-modal">
 								<Icon class="weight-700 fill optical-size-40">drive_file_move</Icon>
 							</label>
 						</li>
 						<!-- delete files -->
-						<li class="items-center text-xl sm:text-2xl" title="Delete file(s)">
-							<span tabindex="0" @click="deleteSelectedFiles">
+						<li
+							v-if="selectedFiles.length"
+							class="items-center text-xl sm:text-2xl"
+							title="Delete file(s)"
+						>
+							<button @click="deleteSelectedFiles">
 								<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
-							</span>
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -169,7 +193,15 @@
 			</div>
 
 			<div class="flex">
-				<FileSelector name="upload-files" circle center size="lg" multiple @change="uploadFiles">
+				<FileSelector
+					name="upload-files"
+					button
+					circle
+					center
+					size="lg"
+					multiple
+					@change="uploadFiles"
+				>
 					<Icon class="text-4xl fill optical-size-40 grade-100">upload</Icon>
 				</FileSelector>
 			</div>
@@ -195,7 +227,9 @@
 				</span>
 
 				<div class="flex-none">
-					<FileSelector name="upload-files" multiple @change="uploadFiles">Upload</FileSelector>
+					<FileSelector name="upload-files" button multiple @change="uploadFiles">
+						Upload
+					</FileSelector>
 				</div>
 			</div>
 		</div>

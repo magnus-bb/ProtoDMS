@@ -8,13 +8,13 @@
 			open: menuOpen,
 		}"
 	>
-		<label :id="props.name" class="sr-only" :for="props.name + 'Button'">
+		<label class="sr-only" :for="props.name">
 			<slot />
 		</label>
 		<!-- h-auto is important so button can grow if selected values start wrapping -->
 		<button
 			v-bind="$attrs"
-			:id="props.name + 'Button'"
+			:id="props.name"
 			tabindex="0"
 			class="btn btn-block h-fit py-2 pr-7 relative no-animation"
 			:class="{ 'btn-sm': props.small }"
@@ -243,6 +243,7 @@ const selectedLabels = computed(() => {
 	}
 
 	if (props.multiple) {
+		console.log(props.modelValue)
 		return props.modelValue.map(selectedOption => {
 			if (!props.emitProp) {
 				// If no particular prop is used for emitting (or the options are just strings),
@@ -414,5 +415,3 @@ export default {
 	inheritAttrs: false,
 }
 </script>
-
-<style scoped></style>

@@ -1,0 +1,63 @@
+@layer components {
+	/*
+  Based on DaisyUI's dropdown,
+  should be used as a replacement for .dropdown, and use .open to toggle menu state
+
+  Custom dropdown classes for Select and FilterSelect components, that uses display: none instead of visibility: hidden.
+  It also uses an .open class to fully control the display of the .dropdown-content instead of hover/focus/focus-within
+  */
+
+	/* Default state */
+	.toggleable-dropdown {
+		@apply relative inline-block;
+	}
+
+	.toggleable-dropdown > *:focus {
+		@apply outline-none;
+	}
+
+	.toggleable-dropdown .dropdown-content {
+		@apply hidden absolute z-50 origin-top transform;
+	}
+
+	.toggleable-dropdown-end .dropdown-content {
+		@apply right-0;
+	}
+
+	.togleable-dropdown-left .dropdown-content {
+		@apply top-0 right-full bottom-auto origin-right;
+	}
+
+	.toggleable-dropdown-right .dropdown-content {
+		@apply left-full top-0 bottom-auto origin-left;
+	}
+
+	.toggleable-dropdown-top .dropdown-content {
+		@apply bottom-full top-auto origin-bottom;
+	}
+
+	.toggleable-dropdown-end.toggleable-dropdown-right .dropdown-content {
+		@apply bottom-0 top-auto;
+	}
+
+	.toggleable-dropdown-end.toggleable-dropdown-left .dropdown-content {
+		@apply bottom-0 top-auto;
+	}
+
+	/* Toggled-on state */
+	.toggleable-dropdown.open .dropdown-content {
+		@apply flex animate-[dropdown-fade_200ms_ease-in-out_forwards];
+	}
+
+	@keyframes dropdown-fade {
+		from {
+			transform: scale(0.95);
+			opacity: 0;
+		}
+
+		to {
+			transform: scale(1);
+			opacity: 100;
+		}
+	}
+}

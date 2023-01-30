@@ -24,6 +24,23 @@ export function readAll<T>(collection: keyof CustomDirectusTypes): Promise<T[]> 
 	return query(collection, { limit: -1 })
 }
 
+export function deleteMany(collection: keyof CustomDirectusTypes, ids: number[]) {
+	const directus = useDirectus()
+
+	return directus.items(collection).deleteMany(ids)
+}
+
+export function readAllUsers(): Promise<DirectusUser[]> {
+	const { authenticatedRoleId } = useRuntimeConfig().public
+
+	return query<DirectusUser>('directus_users', {
+		filter: {
+			role: authenticatedRoleId,
+		},
+		limit: -1,
+	})
+}
+
 //* AUTH
 export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<string | null> } {
 	const user = useState<DirectusUser | null>('user', () => null)
