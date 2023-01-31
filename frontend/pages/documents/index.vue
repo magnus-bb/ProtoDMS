@@ -163,6 +163,7 @@
 						:options="allTags"
 						multiple
 						label-prop="name"
+						emit-prop="id"
 						class="border-0"
 					>
 						Tags
@@ -174,11 +175,35 @@
 					</label>
 					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2" />
 				</div>
-				<div>
-					<!-- SUBMIT BUTTON -->
-					<!-- TODO: when creating new, only enable button when title is not empty -->
+				<div class="mt-4">
+					<button
+						v-if="creatingDocument"
+						class="btn btn-block btn-accent gap-x-2"
+						:disabled="!editTitleValue.length"
+						@click="newDocument"
+					>
+						<Icon class="weight-700 fill optical-size-40 text-lg">note_add</Icon>
+						<span>Create document</span>
+					</button>
+					<button
+						v-else-if="editingTags"
+						class="btn btn-block btn-accent gap-x-2"
+						:disabled="!editTagsValueChanged"
+						@click="updateSelectedDocumentTags"
+					>
+						<Icon class="weight-700 fill optical-size-40 text-lg">sell</Icon>
+						<span>Set tags</span>
+					</button>
+					<button
+						v-else-if="editingSubs"
+						class="btn btn-block btn-accent gap-x-2"
+						:disabled="!editSubsValueChanged"
+						@click="updateSelectedDocumentSubs"
+					>
+						<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
+						<span>Set subscribers</span>
+					</button>
 					<!-- TODO: when updating tags or subs, only enable button when the values are not the same as selectedDocs.value[0] -->
-					<!-- TODO: use try catch in controller and just show alert with error message without hiding modal if something goes wrong -->
 				</div>
 			</div>
 		</div>
@@ -235,6 +260,7 @@ async function executeSearch() {
 			: null,
 		fields: [
 			'*',
+			'subscribers.directus_users_id.id',
 			'subscribers.directus_users_id.avatar',
 			'subscribers.directus_users_id.first_name',
 			'subscribers.directus_users_id.last_name',
@@ -280,17 +306,14 @@ let editingSubs = $ref<boolean>(false) // toggled on when modal needs input for 
 
 function hideModal() {
 	documentModalShown = false
-	// creatingDocument = false
-	// editingTags = false
-	// editingSubs = false
 }
 
 //* EDIT TAGS
-let editTagsValue = $ref<Tag[]>([])
+let editTagsValue = $ref<Number[]>([])
 
 function showTagsModal() {
 	// tags is a junction type that has a tags_id field which is populated as the actual tag
-	editTagsValue = (selectedDocs.value[0].tags as DocumentTag[]).map(tag => tag.tags_id as Tag)
+	editTagsValue = (selectedDocs.value[0].tags as DocumentTag[]).map(tag => (tag.tags_id as Tag).id)
 
 	documentModalShown = true
 	creatingDocument = false
@@ -298,10 +321,42 @@ function showTagsModal() {
 	editingSubs = false
 }
 
-function editSelectedDocumentTags() {
+// Returns whether the the array of tags (to update doc with) has the same elements as the current doc's tags or not, so we can disable submit btn
+const editTagsValueChanged = $computed<boolean>(() => {
+	const selectedDoc = selectedDocs.value[0]
+
+	if (!selectedDoc) return false
+	const sameLength = editTagsValue.length === selectedDoc.tags.length
+	if (!sameLength) return true // If the length is different, the arrays are different
+
+	// If the length is the same, every tag in the input must exist in the selected doc's tags for the arrays to be the same, so we return the inverse
+	return !editTagsValue.every(tag => {
+		return (selectedDoc.tags as DocumentTag[]).some(
+			currentTag => (currentTag.tags_id as Tag).id === tag
+		)
+	})
+})
+
+async function updateSelectedDocumentTags() {
 	const doc = selectedDocs.value[0]
-	// TODO: show modal with tag input (like search) prepopulated with existing tags
-	console.log(doc)
+
+	try {
+		const updates: Pick<Document, 'tags'> = {
+			tags: editTagsValue.map(tag => ({
+				tags_id: tag,
+			})) as DocumentTag[],
+		}
+
+		await updateDocument(doc.id, updates)
+
+		// Refresh list of docs with new update
+		executeSearch()
+
+		hideModal()
+	} catch (err) {
+		alert(`There was an error updating the document '${doc.title}'`)
+		console.error(err)
+	}
 }
 
 //* EDIT SUBSCRIBERS
@@ -319,10 +374,43 @@ function showSubsModal() {
 	editingSubs = true
 }
 
-function editSelectedDocumentSubs() {
+// Returns whether the the array of subs (to update doc with) has the same elements as the current doc's subs or not, so we can disable submit btn
+const editSubsValueChanged = $computed<boolean>(() => {
+	const selectedDoc = selectedDocs.value[0]
+
+	if (!selectedDoc) return false
+
+	const sameLength = editSubsValue.length === selectedDoc.subscribers.length
+	if (!sameLength) return true // If the length is different, the arrays are different
+
+	// If the length is the same, every user in the input must exist in the selected doc's subs for the arrays to be the same, so we return the inverse
+	return !editSubsValue.every(user => {
+		return (selectedDoc.subscribers as DocumentSubscriber[]).some(
+			currentSub => (currentSub.directus_users_id as DirectusUser).id === user.id
+		)
+	})
+})
+
+async function updateSelectedDocumentSubs() {
 	const doc = selectedDocs.value[0]
-	// TODO: show modal with existing subscribers (avatar group, like on card) and dropdown with checkboxes to add / remove, then bind avatar group to the selected
-	console.log(doc)
+
+	try {
+		const updates: Pick<Document, 'subscribers'> = {
+			subscribers: editSubsValue.map(user => ({
+				directus_users_id: user.id,
+			})) as DocumentSubscriber[],
+		}
+
+		await updateDocument(doc.id, updates)
+
+		// Refresh list of docs with new update
+		executeSearch()
+
+		hideModal()
+	} catch (err) {
+		alert(`There was an error updating the document '${doc.title}'`)
+		console.error(err)
+	}
 }
 
 //* CREATE DOCUMENT
@@ -339,8 +427,25 @@ function showCreateModal() {
 	editingSubs = true
 }
 
-function createDocument() {
-	// TODO: show prompt with title input, create doc (will automatically get empty delta as content), then show tags modal, then show subsciber modal, then redirect to edit page
+async function newDocument() {
+	try {
+		const newDoc: Partial<Document> = {
+			title: editTitleValue,
+			tags: editTagsValue.map(tag => ({ tags_id: tag.id })) as DocumentTag[],
+			subscribers: editSubsValue.map(user => ({
+				directus_users_id: user.id,
+			})) as DocumentSubscriber[],
+		}
+
+		const createdDoc = await createDocument(newDoc)
+
+		hideModal()
+
+		if (createdDoc?.id) return navigateTo('/documents/' + createdDoc.id)
+	} catch (err) {
+		alert('There was an error creating document')
+		console.error(err)
+	}
 }
 
 //* DELETE DOCUMENTS

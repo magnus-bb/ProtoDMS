@@ -1,7 +1,11 @@
 import { Directus } from '@directus/sdk'
 
 import type { Ref } from 'vue'
-import type { CustomDirectusTypes, DirectusUsers as DirectusUser } from '@/types/directus'
+import type {
+	CustomDirectusTypes,
+	DirectusUsers as DirectusUser,
+	Documents as Document,
+} from '@/types/directus'
 import type { SignInFormData, SignUpFormData } from '@/types/auth'
 
 export function useDirectus() {
@@ -12,6 +16,7 @@ export function useDirectus() {
 	return directus
 }
 
+//* READ
 export async function query<T>(collection: keyof CustomDirectusTypes, query: any): Promise<T[]> {
 	const directus = useDirectus()
 
@@ -22,12 +27,6 @@ export async function query<T>(collection: keyof CustomDirectusTypes, query: any
 
 export function readAll<T>(collection: keyof CustomDirectusTypes): Promise<T[]> {
 	return query(collection, { limit: -1 })
-}
-
-export function deleteMany(collection: keyof CustomDirectusTypes, ids: number[]) {
-	const directus = useDirectus()
-
-	return directus.items(collection).deleteMany(ids)
 }
 
 export function readAllUsers(): Promise<DirectusUser[]> {
@@ -41,6 +40,26 @@ export function readAllUsers(): Promise<DirectusUser[]> {
 	})
 }
 
+//* DELETE
+export function deleteMany(collection: keyof CustomDirectusTypes, ids: number[]) {
+	const directus = useDirectus()
+
+	return directus.items(collection).deleteMany(ids)
+}
+
+//* CREATE
+export function createDocument(doc: Partial<Document>) {
+	const directus = useDirectus()
+
+	return directus.items('documents').createOne(doc)
+}
+
+//* UPDATE
+export function updateDocument(id: number, doc: Partial<Document>) {
+	const directus = useDirectus()
+
+	return directus.items('documents').updateOne(id, doc)
+}
 //* AUTH
 export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<string | null> } {
 	const user = useState<DirectusUser | null>('user', () => null)

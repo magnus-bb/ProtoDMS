@@ -14,6 +14,7 @@
   * Eks. søgning i tags og content
 * Søgning i filer og filtrering efter hvilke docs de tilhører
   * Husk at nulstille selections ved søgning / filtrering
+* CRUD tags
 
 # Backend
 * Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det

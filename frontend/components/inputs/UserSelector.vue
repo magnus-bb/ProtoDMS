@@ -25,7 +25,7 @@
 					<button class="w-full" @click="toggleSelectedUser(user)">
 						<input
 							type="checkbox"
-							:checked="selectedUsers.includes(user)"
+							:checked="selectedUsers.some(selUser => selUser.id === user.id)"
 							class="checkbox checkbox-primary p-0"
 							tabindex="-1"
 						/>
@@ -58,8 +58,10 @@ const emit = defineEmits<{
 const selectedUsers = useVModel(props, 'modelValue', emit)
 
 function toggleSelectedUser(user: DirectusUser) {
-	if (selectedUsers.value.includes(user)) {
-		selectedUsers.value.splice(selectedUsers.value.indexOf(user), 1)
+	const userInSelectedUsersIndex = selectedUsers.value.findIndex(selUser => selUser.id === user.id)
+
+	if (userInSelectedUsersIndex !== -1) {
+		selectedUsers.value.splice(userInSelectedUsersIndex, 1)
 	} else {
 		selectedUsers.value.push(user)
 	}

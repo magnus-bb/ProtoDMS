@@ -41,7 +41,14 @@ module.exports = {
 		camelcase: [
 			'warn',
 			{
-				allow: ['first_name', 'last_name', 'filename_download', 'tags_id', 'confirm_password'],
+				allow: [
+					'first_name',
+					'last_name',
+					'filename_download',
+					'tags_id',
+					'confirm_password',
+					'directus_users_id',
+				],
 			},
 		],
 	},
