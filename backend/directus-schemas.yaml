@@ -9,11 +9,11 @@ collections:
       archive_value: archived
       collapse: open
       collection: documents
-      color: null
+      color: '#4BC38F'
       display_template: null
       group: null
       hidden: false
-      icon: null
+      icon: text_snippet
       item_duplication_fields: null
       note: null
       singleton: false
@@ -27,11 +27,11 @@ collections:
         CREATE TABLE "documents" (`date_created` datetime NULL DEFAULT null,
         `date_updated` datetime NULL DEFAULT null, `id` integer PRIMARY KEY
         AUTOINCREMENT NOT NULL, `sort` integer NULL DEFAULT null, `status`
-        varchar(255) NOT NULL DEFAULT 'draft', `title` varchar(255) NULL DEFAULT
-        null, `user_created` char(36) NULL DEFAULT null, `user_updated` char(36)
-        NULL DEFAULT null, `content` json null, CONSTRAINT
-        `documents_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
-        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        varchar(255) NOT NULL DEFAULT 'draft', `title` varchar(255) NOT NULL
+        DEFAULT null, `user_created` char(36) NULL DEFAULT null, `user_updated`
+        char(36) NULL DEFAULT null, `content` json NULL DEFAULT '{"ops":[]}',
+        CONSTRAINT `documents_user_created_foreign` FOREIGN KEY (`user_created`)
+        REFERENCES `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
         `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
         `directus_users` (`id`) ON DELETE NO ACTION)
   - collection: documents_directus_users
@@ -50,7 +50,7 @@ collections:
       item_duplication_fields: null
       note: null
       singleton: false
-      sort: 1
+      sort: 2
       sort_field: null
       translations: null
       unarchive_value: null
@@ -66,6 +66,65 @@ collections:
         CASCADE, CONSTRAINT `documents_directus_users_documents_id_foreign`
         FOREIGN KEY (`documents_id`) REFERENCES `documents` (`id`) ON DELETE
         CASCADE)
+  - collection: documents_tags
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: documents_tags
+      color: null
+      display_template: null
+      group: documents
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations: null
+      unarchive_value: null
+    schema:
+      name: documents_tags
+      sql: >-
+        CREATE TABLE "documents_tags" (`id` integer PRIMARY KEY AUTOINCREMENT
+        NOT NULL, `documents_id` integer NULL, `tags_id` integer NULL,
+        CONSTRAINT `documents_tags_documents_id_foreign` FOREIGN KEY
+        (`documents_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
+        CONSTRAINT `documents_tags_tags_id_foreign` FOREIGN KEY (`tags_id`)
+        REFERENCES `tags` (`id`) ON DELETE CASCADE)
+  - collection: tags
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: tags
+      color: '#456CBA'
+      display_template: null
+      group: null
+      hidden: false
+      icon: tag
+      item_duplication_fields: null
+      note: null
+      singleton: false
+      sort: 2
+      sort_field: sort
+      translations: null
+      unarchive_value: null
+    schema:
+      name: tags
+      sql: >-
+        CREATE TABLE "tags" (`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `sort` integer NULL, `user_created` char(36) NULL, `date_created`
+        datetime NULL, `user_updated` char(36) NULL, `date_updated` datetime
+        NULL, `name` varchar(255) null, CONSTRAINT `tags_user_created_foreign`
+        FOREIGN KEY (`user_created`) REFERENCES `directus_users` (`id`),
+        CONSTRAINT `tags_user_updated_foreign` FOREIGN KEY (`user_updated`)
+        REFERENCES `directus_users` (`id`))
 fields:
   - collection: directus_users
     field: custom_user_data_divider
@@ -144,7 +203,8 @@ fields:
       width: full
     schema:
       data_type: json
-      default_value: null
+      default_value:
+        ops: []
       foreign_key_column: null
       foreign_key_table: null
       generation_expression: null
@@ -404,6 +464,33 @@ fields:
     schema: null
     type: alias
   - collection: documents
+    field: tags
+    meta:
+      collection: documents
+      conditions: null
+      display: related-values
+      display_options:
+        template: '{{tags_id.name}}'
+      field: tags
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options:
+        enableLink: true
+        template: '{{tags_id.name}}'
+      readonly: false
+      required: false
+      sort: null
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: documents
     field: title
     meta:
       collection: documents
@@ -417,7 +504,7 @@ fields:
       note: null
       options: null
       readonly: false
-      required: false
+      required: true
       sort: 8
       special: null
       translations: null
@@ -432,7 +519,7 @@ fields:
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
       is_unique: false
       max_length: 255
@@ -673,6 +760,422 @@ fields:
       numeric_scale: null
       table: documents_directus_users
     type: integer
+  - collection: documents_tags
+    field: documents_id
+    meta:
+      collection: documents_tags
+      conditions: null
+      display: null
+      display_options: null
+      field: documents_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_table: documents
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: documents_id
+      numeric_precision: null
+      numeric_scale: null
+      table: documents_tags
+    type: integer
+  - collection: documents_tags
+    field: id
+    meta:
+      collection: documents_tags
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: true
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: false
+      max_length: null
+      name: id
+      numeric_precision: null
+      numeric_scale: null
+      table: documents_tags
+    type: integer
+  - collection: documents_tags
+    field: tags_id
+    meta:
+      collection: documents_tags
+      conditions: null
+      display: null
+      display_options: null
+      field: tags_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: id
+      foreign_key_table: tags
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: tags_id
+      numeric_precision: null
+      numeric_scale: null
+      table: documents_tags
+    type: integer
+  - collection: tags
+    field: date_created
+    meta:
+      collection: tags
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: null
+      special:
+        - cast-timestamp
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      data_type: datetime
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: date_created
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: timestamp
+  - collection: tags
+    field: date_updated
+    meta:
+      collection: tags
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: null
+      special:
+        - cast-timestamp
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      data_type: datetime
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: date_updated
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: timestamp
+  - collection: tags
+    field: documents
+    meta:
+      collection: tags
+      conditions: null
+      display: related-values
+      display_options:
+        template: '{{documents_id.title}}'
+      field: documents
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options:
+        template: '{{documents_id.title}}'
+      readonly: false
+      required: false
+      sort: null
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema: null
+    type: alias
+  - collection: tags
+    field: id
+    meta:
+      collection: tags
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: true
+      is_generated: false
+      is_nullable: false
+      is_primary_key: true
+      is_unique: false
+      max_length: null
+      name: id
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: integer
+  - collection: tags
+    field: name
+    meta:
+      collection: tags
+      conditions: null
+      display: raw
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: varchar
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: name
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: string
+  - collection: tags
+    field: sort
+    meta:
+      collection: tags
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: integer
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: sort
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: integer
+  - collection: tags
+    field: user_created
+    meta:
+      collection: tags
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: null
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      data_type: char
+      default_value: null
+      foreign_key_column: id
+      foreign_key_table: directus_users
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 36
+      name: user_created
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: string
+  - collection: tags
+    field: user_updated
+    meta:
+      collection: tags
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: null
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      data_type: char
+      default_value: null
+      foreign_key_column: id
+      foreign_key_table: directus_users
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 36
+      name: user_updated
+      numeric_precision: null
+      numeric_scale: null
+      table: tags
+    type: string
 relations:
   - collection: documents
     field: user_created
@@ -758,3 +1261,87 @@ relations:
       on_delete: CASCADE
       on_update: NO ACTION
       table: documents_directus_users
+  - collection: documents_tags
+    field: documents_id
+    meta:
+      junction_field: tags_id
+      many_collection: documents_tags
+      many_field: documents_id
+      one_allowed_collections: null
+      one_collection: documents
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: tags
+      sort_field: null
+    related_collection: documents
+    schema:
+      column: documents_id
+      constraint_name: null
+      foreign_key_column: id
+      foreign_key_table: documents
+      on_delete: CASCADE
+      on_update: NO ACTION
+      table: documents_tags
+  - collection: documents_tags
+    field: tags_id
+    meta:
+      junction_field: documents_id
+      many_collection: documents_tags
+      many_field: tags_id
+      one_allowed_collections: null
+      one_collection: tags
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: documents
+      sort_field: null
+    related_collection: tags
+    schema:
+      column: tags_id
+      constraint_name: null
+      foreign_key_column: id
+      foreign_key_table: tags
+      on_delete: CASCADE
+      on_update: NO ACTION
+      table: documents_tags
+  - collection: tags
+    field: user_created
+    meta:
+      junction_field: null
+      many_collection: tags
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: directus_users
+    schema:
+      column: user_created
+      constraint_name: null
+      foreign_key_column: id
+      foreign_key_table: directus_users
+      on_delete: NO ACTION
+      on_update: NO ACTION
+      table: tags
+  - collection: tags
+    field: user_updated
+    meta:
+      junction_field: null
+      many_collection: tags
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    related_collection: directus_users
+    schema:
+      column: user_updated
+      constraint_name: null
+      foreign_key_column: id
+      foreign_key_table: directus_users
+      on_delete: NO ACTION
+      on_update: NO ACTION
+      table: tags
