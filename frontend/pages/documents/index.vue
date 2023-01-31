@@ -431,7 +431,7 @@ async function newDocument() {
 	try {
 		const newDoc: Partial<Document> = {
 			title: editTitleValue,
-			tags: editTagsValue.map(tag => ({ tags_id: tag.id })) as DocumentTag[],
+			tags: editTagsValue.map(tag => ({ tags_id: tag })) as DocumentTag[],
 			subscribers: editSubsValue.map(user => ({
 				directus_users_id: user.id,
 			})) as DocumentSubscriber[],
