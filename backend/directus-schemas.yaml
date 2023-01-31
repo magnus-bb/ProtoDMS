@@ -121,10 +121,10 @@ collections:
         CREATE TABLE "tags" (`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
         `sort` integer NULL, `user_created` char(36) NULL, `date_created`
         datetime NULL, `user_updated` char(36) NULL, `date_updated` datetime
-        NULL, `name` varchar(255) null, CONSTRAINT `tags_user_created_foreign`
-        FOREIGN KEY (`user_created`) REFERENCES `directus_users` (`id`),
-        CONSTRAINT `tags_user_updated_foreign` FOREIGN KEY (`user_updated`)
-        REFERENCES `directus_users` (`id`))
+        NULL, `name` varchar(255) NOT NULL DEFAULT null, CONSTRAINT
+        `tags_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
+        `directus_users` (`id`), CONSTRAINT `tags_user_updated_foreign` FOREIGN
+        KEY (`user_updated`) REFERENCES `directus_users` (`id`))
 fields:
   - collection: directus_users
     field: custom_user_data_divider
@@ -1049,9 +1049,9 @@ fields:
       generation_expression: null
       has_auto_increment: false
       is_generated: false
-      is_nullable: true
+      is_nullable: false
       is_primary_key: false
-      is_unique: false
+      is_unique: true
       max_length: 255
       name: name
       numeric_precision: null

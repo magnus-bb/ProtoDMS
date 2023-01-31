@@ -344,7 +344,7 @@ export type Tags = {
   date_updated?: string | null;
   documents: string | DocumentsTags[];
   id: number;
-  name?: string | null;
+  name: string;
   sort?: number | null;
   user_created?: string | DirectusUsers | null;
   user_updated?: string | DirectusUsers | null;

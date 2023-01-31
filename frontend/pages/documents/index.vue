@@ -1,39 +1,14 @@
 <template>
 	<div class="p-4 flex flex-col">
-		<div class="grid gap-x-4 gap-y-2 items-center grid-flow-col grid-rows-4 md:grid-rows-2">
-			<!-- SEARCH -->
-			<div class="form-control">
-				<label for="search" class="sr-only">Search documents</label>
-				<div class="input-group">
-					<input
-						id="search"
-						ref="searchInput"
-						v-model="search"
-						type="search"
-						name="search"
-						aria-label="Search input"
-						class="input input-bordered placeholder:text-muted w-full"
-						placeholder="Search documents"
-					/>
-					<Icon class="text-2xl optical-size-40 grade-100">search</Icon>
-				</div>
-			</div>
-
-			<!-- TAGS -->
-			<FilterSelect
-				v-model="tags"
-				name="tags"
-				:options="allTags"
-				multiple
-				hover
-				label-prop="name"
-				emit-prop="id"
-				class="border-0 bg-base-300"
+		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
+			<button
+				class="btn btn-outline btn-secondary btn-block md:btn-wide col-span-2 md:col-span-1 md:row-start-2"
+				@click="showAddRemoveTagsModal"
 			>
-				Tags
-			</FilterSelect>
+				Add/remove tags
+			</button>
 
-			<div class="md:justify-self-end">
+			<div class="md:justify-self-end md:col-start-2">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
 				+
 				<kbd class="kbd kbd-sm">click</kbd>
@@ -41,7 +16,7 @@
 			</div>
 
 			<!-- SELECTED DOCUMENT ACTIONS -->
-			<div class="md:justify-self-end flex gap-x-2">
+			<div class="justify-self-end md:row-start-2 flex gap-x-2">
 				<div class="dropdown dropdown-hover">
 					<button
 						:class="{ 'btn-secondary bg-secondary/50': selectedDocs.length }"
@@ -105,7 +80,41 @@
 			</div>
 		</div>
 
-		<div class="divider mb-8" />
+		<div class="divider" />
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+			<!-- SEARCH -->
+			<div class="form-control">
+				<label for="search" class="sr-only">Search documents</label>
+				<div class="input-group">
+					<input
+						id="search"
+						ref="searchInput"
+						v-model="search"
+						type="search"
+						name="search"
+						aria-label="Search input"
+						class="input input-bordered placeholder:text-muted w-full"
+						placeholder="Search documents"
+					/>
+					<Icon class="text-2xl optical-size-40 grade-100">search</Icon>
+				</div>
+			</div>
+
+			<!-- TAGS -->
+			<FilterSelect
+				v-model="tags"
+				name="tags"
+				:options="allTags"
+				multiple
+				hover
+				label-prop="name"
+				emit-prop="id"
+				class="border-0 bg-base-300"
+			>
+				Tags
+			</FilterSelect>
+		</div>
 
 		<main v-if="documents?.length" class="space-y-8">
 			<div class="document-grid">
@@ -132,8 +141,8 @@
 
 	<!-- CREATE DOCUMENT MODAL -->
 	<div class="modal modal-bottom md:modal-middle" :class="{ 'modal-open': documentModalShown }">
-		<div v-on-click-outside="hideModal" class="modal-box !max-w-2xl overflow-y-visible">
-			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideModal">
+		<div v-on-click-outside="hideDocumentModal" class="modal-box !max-w-2xl overflow-y-visible">
+			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideDocumentModal">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
 			</button>
 
@@ -203,8 +212,63 @@
 						<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
 						<span>Set subscribers</span>
 					</button>
-					<!-- TODO: when updating tags or subs, only enable button when the values are not the same as selectedDocs.value[0] -->
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- CREATE / DELETE TAGS MODAL -->
+	<div
+		class="modal modal-bottom md:modal-middle"
+		:class="{ 'modal-open': addRemoveTagsModalShown }"
+	>
+		<div v-on-click-outside="hideAddRemoveTagsModal" class="modal-box !max-w-2xl">
+			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideAddRemoveTagsModal">
+				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
+			</button>
+
+			<h3 class="text-lg font-bold mb-4">Add/remove tags</h3>
+
+			<div class="form-control w-full">
+				<label class="label" for="new-tag-input">
+					<span class="label-text">Create tag</span>
+				</label>
+				<div class="flex gap-x-4">
+					<input
+						id="new-tag-input"
+						v-model="newTagInputValue"
+						placeholder="Tag name"
+						class="input input-bordered w-full placeholder:text-muted mb-4"
+					/>
+					<button class="btn btn-accent gap-x-2" :disabled="!newTagNameValid" @click="newTag">
+						Add<Icon class="fill optical-size-40">sell</Icon>
+					</button>
+				</div>
+			</div>
+
+			<div class="form-control w-full">
+				<label class="label" for="filter-tags">
+					<span class="label-text">Delete tags</span>
+				</label>
+				<input
+					id="filter-tags"
+					v-model="tagFilterString"
+					placeholder="Filter tags"
+					class="input input-bordered w-full placeholder:text-muted mb-4"
+				/>
+			</div>
+
+			<div class="flex flex-wrap gap-2">
+				<span
+					v-for="tag of filteredTags"
+					:key="tag.id"
+					class="badge badge-lg badge-outline badge-secondary gap-x-2"
+				>
+					<button class="flex items-center text-sm" @click="removeTag(tag)">
+						<Icon class="fill optical-size-24 grade-100 text-error" aria-hidden>close</Icon>
+					</button>
+					{{ tag.name }}
+				</span>
 			</div>
 		</div>
 	</div>
@@ -228,7 +292,11 @@ const search = $ref<string>((route.query.search as string) || '')
 const tags = $ref<number[]>(
 	route.query.tags?.length ? parseArray<number>(route.query.tags as string | string[]) : []
 )
-const allTags = await readAll<Tag>('tags')
+let allTags = $ref<Tag[]>([])
+await refreshTags()
+async function refreshTags() {
+	allTags = await readAll<Tag>('tags')
+}
 const allUsers = await readAllUsers()
 
 //* DOCUMENT SELECTION
@@ -298,17 +366,17 @@ watchDebounced($$(search), executeSearch, {
 // Execute search when tags change
 watch($$(tags), executeSearch)
 
-//* MODAL
+//* DOCUMENT MODAL
 let documentModalShown = $ref<boolean>(false)
 let creatingDocument = $ref<boolean>(false) // toggled on when modal needs input for document title
 let editingTags = $ref<boolean>(false) // toggled on when modal needs input for document tags
 let editingSubs = $ref<boolean>(false) // toggled on when modal needs input for document subscribers
 
-function hideModal() {
+function hideDocumentModal() {
 	documentModalShown = false
 }
 
-//* EDIT TAGS
+//* EDIT DOCUMENT TAGS
 let editTagsValue = $ref<Number[]>([])
 
 function showTagsModal() {
@@ -352,7 +420,7 @@ async function updateSelectedDocumentTags() {
 		// Refresh list of docs with new update
 		executeSearch()
 
-		hideModal()
+		hideDocumentModal()
 	} catch (err) {
 		alert(`There was an error updating the document '${doc.title}'`)
 		console.error(err)
@@ -406,7 +474,7 @@ async function updateSelectedDocumentSubs() {
 		// Refresh list of docs with new update
 		executeSearch()
 
-		hideModal()
+		hideDocumentModal()
 	} catch (err) {
 		alert(`There was an error updating the document '${doc.title}'`)
 		console.error(err)
@@ -439,7 +507,7 @@ async function newDocument() {
 
 		const createdDoc = await createDocument(newDoc)
 
-		hideModal()
+		hideDocumentModal()
 
 		if (createdDoc?.id) return navigateTo('/documents/' + createdDoc.id)
 	} catch (err) {
@@ -474,6 +542,72 @@ async function deleteSelectedDocuments() {
 
 	// Refresh documents
 	executeSearch()
+}
+
+//* ADD / REMOVE TAGS
+
+async function removeTag(tag: Tag) {
+	if (!window.confirm(`Are you sure you want to delete the tag '${tag.name}'?`)) {
+		return
+	}
+
+	try {
+		await deleteTag(tag.id)
+
+		refreshTags()
+		executeSearch()
+	} catch (err) {
+		alert(`There was an error deleting the tag '${tag.name}'`)
+		console.error(err)
+	}
+
+	refreshTags()
+}
+
+let newTagInputValue = $ref<string>('')
+
+async function newTag() {
+	try {
+		await createTag(newTagInputValue)
+
+		newTagInputValue = ''
+
+		refreshTags()
+	} catch (err) {
+		alert(`There was an error creating tag`)
+		console.error(err)
+	}
+}
+
+const newTagNameValid = $computed<boolean>(() => {
+	const lowercaseInput = newTagInputValue.toLowerCase()
+
+	if (allTags.map(tag => (tag.name as string).toLowerCase()).includes(lowercaseInput)) {
+		return false
+	}
+
+	return newTagInputValue.length > 0
+})
+
+let tagFilterString = $ref<string>('')
+
+const filteredTags = $computed<Tag[]>(() => {
+	return allTags.filter(tag => {
+		return (tag.name as string).toLowerCase().includes(tagFilterString.toLowerCase())
+	})
+})
+
+let addRemoveTagsModalShown = $ref<boolean>(false)
+
+function showAddRemoveTagsModal() {
+	addRemoveTagsModalShown = true
+
+	newTagInputValue = ''
+	tagFilterString = ''
+}
+
+function hideAddRemoveTagsModal() {
+	addRemoveTagsModalShown = false
 }
 </script>
 

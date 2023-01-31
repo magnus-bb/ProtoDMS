@@ -4,8 +4,9 @@
 			<span
 				v-if="notifications?.length"
 				class="indicator-item indicator-start badge badge-secondary badge-sm top-1 left-1 p-1"
-				>{{ notifications?.length }}</span
 			>
+				{{ notifications?.length }}
+			</span>
 			<button class="btn btn-square btn-ghost">
 				<Icon class="optical-size-48 fill text-4xl text-neutral-content">{{
 					notifications?.length ? '&#xe7f7;' : '&#xe7f4;'
@@ -14,6 +15,7 @@
 		</div>
 
 		<ul
+			ref="notificationMenu"
 			tabindex="0"
 			class="dropdown-content menu p-2 mt-3 shadow bg-base-200 rounded-box w-max max-h-96 overflow-y-auto flex-nowrap"
 		>
@@ -73,6 +75,9 @@ const notificationLoop = setInterval(getNotifications, 30 * TIME_UNITS.second) /
 onBeforeUnmount(() => {
 	clearInterval(notificationLoop) // make sure we only ever have one loop running
 })
+
+const notificationMenu = ref<HTMLUListElement>()
+
 //* DELETING NOTIFICATIONS
 async function deleteNotification(id: number) {
 	const directus = useDirectus()
@@ -86,6 +91,8 @@ async function deleteNotification(id: number) {
 			notifications.findIndex(not => not.id === id),
 			1
 		)
+
+		notificationMenu.value?.focus() // makes sure menu stays open if you want to chain deletes
 	} catch (err) {
 		console.error(err)
 	}

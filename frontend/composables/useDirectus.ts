@@ -47,11 +47,25 @@ export function deleteMany(collection: keyof CustomDirectusTypes, ids: number[])
 	return directus.items(collection).deleteMany(ids)
 }
 
+export function deleteTag(id: number) {
+	const directus = useDirectus()
+
+	return directus.items('tags').deleteOne(id)
+}
+
 //* CREATE
 export function createDocument(doc: Partial<Document>) {
 	const directus = useDirectus()
 
 	return directus.items('documents').createOne(doc)
+}
+
+export function createTag(name: string) {
+	const directus = useDirectus()
+
+	return directus.items('tags').createOne({
+		name,
+	})
 }
 
 //* UPDATE

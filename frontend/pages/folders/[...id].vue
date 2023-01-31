@@ -26,8 +26,8 @@
 	</Teleport>
 
 	<div class="p-4 flex flex-col">
-		<div class="grid gap-x-4 gap-y-2 items-center grid-flow-col grid-rows-4 md:grid-rows-2">
-			<div class="flex items-center gap-x-4 flex-wrap-reverse scrollbar">
+		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
+			<div class="flex items-center gap-x-4 flex-wrap-reverse scrollbar col-span-2 md:col-span-1">
 				<DirectoryBreadcrumbs
 					v-if="currentFolder && allFolders"
 					:all-folders="allFolders"
@@ -41,6 +41,7 @@
 			</div>
 
 			<InputToggle
+				class="col-span-2 md:row-start-2 md:col-span-1"
 				@show-input="initRenameFolderInputValue"
 				@hide-input="renameFolderInputValue = ''"
 			>
@@ -49,7 +50,7 @@
 					id="renameFolder"
 					ref="renameFolderInput"
 					v-model="renameFolderInputValue"
-					class="input w-full max-w-lg placeholder:text-muted text-3xl"
+					class="input w-full max-w-lg placeholder:text-muted text-xl sm:text-3xl"
 					placeholder="Folder name"
 					@keydown.enter="renameCurrentFolder"
 				/>
@@ -65,15 +66,15 @@
 				</template>
 			</InputToggle>
 
-			<div class="md:justify-self-end">
+			<div class="md:justify-self-end md:col-start-2">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
 				+
 				<kbd class="kbd kbd-sm">click</kbd>
 				to select multiple files
 			</div>
 
-			<!-- FILE ACTIONS -->
-			<div class="flex gap-x-2 md:justify-self-end">
+			<div class="flex gap-x-2 justify-self-end">
+				<!-- FILE ACTIONS -->
 				<div class="dropdown dropdown-hover">
 					<button
 						:class="{ 'btn-secondary bg-secondary/50': selectedFiles.length }"
