@@ -10,7 +10,7 @@
 		<span
 			v-else
 			class="gap-2 btn btn-sm btn-ghost no-animation"
-			:class="{ 'btn-disabled': folder === disableFolder }"
+			:class="{ 'btn-disabled': disableFolder, 'text-primary': highlightFolder?.id === folder.id }"
 			@click="emit('select', folder)"
 		>
 			<Icon class="folder-icon">folder</Icon><code>{{ folder.name }}</code>
@@ -22,7 +22,8 @@
 				:key="child.id"
 				:navigation="navigation"
 				:folder="child"
-				:disable-folder="disableFolder"
+				:disable-folders="disableFolders"
+				:highlight-folder="highlightFolder"
 				@select="emit('select', $event)"
 			/>
 		</ul>
@@ -31,27 +32,36 @@
 
 <script setup lang="ts">
 import type { TreeFolder } from '@/types/files'
+import type { DirectusFolders as DirectusFolder } from '@/types/directus'
 
 const {
 	folder,
 	navigation = false,
-	disableFolder = null,
+	disableFolders = null,
+	highlightFolder = null,
 } = defineProps<{
 	folder: TreeFolder
 	navigation?: boolean // turn on to display as navigable links, off to just emit selected folder
-	disableFolder?: TreeFolder | null // pass this in if you want to disable and mute a specific folder (e.g. the current folder, so you can't select it)
+	disableFolders?: DirectusFolder[] | null // if you want to disable and mute a specific folder (e.g. the current folder, so you can't select it) or several folders (parents and children of folder etc)
+	highlightFolder?: DirectusFolder | null // if you want to indiciate the current folder in the tree etc
 }>()
 
 const emit = defineEmits<{
 	(e: 'select', folder: TreeFolder): void
 }>()
+
+const disableFolder = $computed<boolean>(() => {
+	// If disableFolders is null, don't add disabled class
+	if (!disableFolders?.length) return false
+
+	// If disableFolders is array of folders, check if the current folder is in that array (by checking ids)
+	return disableFolders.some(f => f.id === folder.id)
+})
 </script>
 
 <style lang="postcss" scoped>
 .router-link-exact-active,
 .btn-disabled {
-	@apply text-primary;
-
 	.folder-icon {
 		--fill: 1;
 	}

@@ -142,7 +142,6 @@
 			<h3 v-else-if="editingSubs" class="text-lg font-bold mb-4">Select users</h3>
 
 			<div class="grid gap-y-2">
-				<!-- TODO: show prompt with title input, create doc (will automatically get empty delta as content), then show tags modal, then show subsciber modal, then redirect to edit page -->
 				<div v-if="creatingDocument">
 					<div class="form-control">
 						<label for="title" class="label"><span class="label-text">Title</span></label>
@@ -154,7 +153,6 @@
 						/>
 					</div>
 				</div>
-				<!-- TODO: show modal with tag input (like search) prepopulated with existing tags -->
 				<div v-if="editingTags">
 					<label v-if="creatingDocument" for="edit-tags" class="label">
 						<span class="label-text">Tags</span>
@@ -170,7 +168,6 @@
 						Tags
 					</FilterSelect>
 				</div>
-				<!-- TODO: show modal with existing subscribers (avatar group, like on card) and dropdown with checkboxes to add / remove, then bind avatar group to the selected -->
 				<div v-if="editingSubs">
 					<label v-if="creatingDocument" for="edit-subs" class="label">
 						<span class="label-text">Subscribers</span>

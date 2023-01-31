@@ -122,9 +122,9 @@
 							class="items-center text-xl sm:text-2xl"
 							title="Move file(s)"
 						>
-							<label tabindex="0" title="Move file(s)" for="move-file-modal">
+							<button @click="showMoveFilesModal">
 								<Icon class="weight-700 fill optical-size-40">drive_file_move</Icon>
-							</label>
+							</button>
 						</li>
 						<!-- delete files -->
 						<li
@@ -148,31 +148,30 @@
 
 					<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-full">
 						<!-- create folder -->
-						<li
-							class="items-center text-xl sm:text-2xl"
-							title="Create folder"
-							@click="createFolder"
-						>
-							<span tabindex="0">
+						<li class="items-center text-xl sm:text-2xl" title="Create folder">
+							<button @click="createFolder">
 								<Icon class="weight-700 fill optical-size-40">create_new_folder</Icon>
-							</span>
+							</button>
 						</li>
 						<!-- move folder -->
-						<li v-if="currentFolder !== rootFolder" class="items-center text-xl sm:text-2xl">
-							<label tabindex="0" title="Move folder" for="move-folder-modal">
+						<li
+							v-if="currentFolder !== rootFolder"
+							class="items-center text-xl sm:text-2xl"
+							title="Move folder"
+						>
+							<button @click="showMoveFolderModal">
 								<Icon class="weight-700 fill optical-size-40">drive_file_move</Icon>
-							</label>
+							</button>
 						</li>
 						<!-- delete folder -->
 						<li
 							v-if="currentFolder !== rootFolder"
 							class="items-center text-xl sm:text-2xl"
 							title="Delete folder"
-							@click="deleteCurrentFolder"
 						>
-							<span tabindex="0">
+							<button @click="deleteCurrentFolder">
 								<Icon class="weight-700 fill optical-size-40 text-error">folder_delete</Icon>
-							</span>
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -202,7 +201,7 @@
 					multiple
 					@change="uploadFiles"
 				>
-					<Icon class="text-4xl fill optical-size-40 grade-100">upload</Icon>
+					<Icon class="text-4xl fill optical-size-40 grade-100">upload_file</Icon>
 				</FileSelector>
 			</div>
 		</main>
@@ -235,46 +234,42 @@
 		</div>
 	</div>
 
-	<!-- Hacky to have two modals, but it is the easiest way when daisy's modals are all html and css -->
-	<!-- TODO: rewrite so there is a single controller that reuses same modal but passes context of file / folder with js -->
-	<!-- MOVE FILE MODAL -->
-	<input id="move-file-modal" ref="moveFilesModal" type="checkbox" class="modal-toggle" />
-	<label for="move-file-modal" class="modal">
-		<label class="modal-box relative">
-			<label for="move-file-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
+	<!-- MOVE FILE/FOLDER MODAL -->
+	<div class="modal modal-bottom md:modal-middle" :class="{ 'modal-open': moveModalShown }">
+		<div v-on-click-outside="hideModal" class="modal-box !max-w-2xl overflow-y-visible">
+			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideModal">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
-			</label>
+			</button>
 
-			<h3 class="text-lg font-bold mb-4">Select where to move the selected files</h3>
+			<h3 v-if="movingFiles" class="text-lg font-bold mb-4">
+				Select where to move the selected files
+			</h3>
+			<h3 v-else-if="movingFolder" class="text-lg font-bold mb-4">
+				Select where to move '{{ currentFolder?.name }}'
+			</h3>
 
 			<ul>
-				<Folder :folder="rootFolder" :disable-folder="currentFolder" @select="moveSelectedFiles" />
+				<Folder
+					v-if="movingFolder"
+					:folder="rootFolder"
+					:disable-folders="foldersToDisable"
+					:highlight-folder="currentFolder"
+					@select="moveCurrentFolder"
+				/>
+				<Folder
+					v-else-if="movingFiles"
+					:folder="rootFolder"
+					:disable-folders="currentFolder ? [currentFolder] : null"
+					:highlight-folder="currentFolder"
+					@select="moveSelectedFiles"
+				/>
 			</ul>
-		</label>
-	</label>
-
-	<!-- MOVE FOLDER MODAL -->
-	<input id="move-folder-modal" ref="moveFolderModal" type="checkbox" class="modal-toggle" />
-	<label for="move-folder-modal" class="modal">
-		<label class="modal-box relative">
-			<label for="move-folder-modal" class="btn btn-sm btn-circle absolute right-2 top-2">
-				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
-			</label>
-
-			<h3 class="text-lg font-bold mb-4">Select where to move '{{ currentFolder?.name }}'</h3>
-
-			<ul>
-				<Folder :folder="rootFolder" :disable-folder="currentFolder" @select="moveCurrentFolder" />
-			</ul>
-		</label>
-	</label>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
-// TODO: custom context menu for delete, rename, move: https://dev.to/stackfindover/how-to-create-a-custom-right-click-menu-54h2
-// use clickoutside to close menu
-// TODO: move folders out into separate composable (useFolders)
-// TODO: a spinner (nuxt-template style) while getting these with useLazyAsyncData
+import { vOnClickOutside } from '@vueuse/components'
 
 import type {
 	DirectusFolders as DirectusFolder,
@@ -509,8 +504,21 @@ async function deleteFolder(id: string): Promise<boolean> {
 	return true
 }
 
+//* MOVING MODAL
+let moveModalShown = $ref<boolean>(false)
+let movingFiles = $ref<boolean>(false)
+let movingFolder = $ref<boolean>(false)
+
+function hideModal() {
+	moveModalShown = false
+}
+
 //* MOVE FOLDER
-const moveFolderModal = ref<HTMLInputElement>()
+function showMoveFolderModal() {
+	moveModalShown = true
+	movingFolder = true
+	movingFiles = false
+}
 
 async function moveCurrentFolder(targetFolder: TreeFolder) {
 	if (!currentFolder?.id) {
@@ -536,9 +544,53 @@ async function moveCurrentFolder(targetFolder: TreeFolder) {
 		console.error(err)
 	}
 
-	moveFolderModal.value?.click() // close modal
+	hideModal()
 
 	refreshFolders()
+}
+
+// We pass this array into the Folder component in the move modal, so they are not selectable,
+// since you should not be able to move a folder into its own parent, itself or any of its children
+const foldersToDisable = $computed<DirectusFolder[]>(() => {
+	if (!currentFolder) return []
+
+	// We can get the parent folder by looking at the current folder's parent id and finding that id in list of all folders
+	const parentFolder = allFolders.find(folder => folder.id === currentFolder.parent)
+	if (!parentFolder) return [currentFolder]
+
+	// To get all children, we need to get the current folder formatted with children, so we find the current folder by id in the tree folder structure (starting at rootFolder)
+	const currentFolderTree = findChildFolder(rootFolder, currentFolder.id)
+	if (!currentFolderTree) return [parentFolder, currentFolder]
+
+	// With the current folder found, we can now add all the children to a flat array
+	const folders: DirectusFolder[] = [parentFolder, currentFolder]
+
+	// Finds all children and adds them to the folders array
+	addChildren(currentFolderTree, folders)
+
+	function addChildren(folder: TreeFolder, folderArr: TreeFolder[]) {
+		if (folder.children?.length) {
+			folderArr.push(...folder.children)
+
+			for (const child of folder.children) {
+				addChildren(child, folderArr)
+			}
+		}
+	}
+
+	return folders
+})
+
+function findChildFolder(element: TreeFolder, id: string): TreeFolder | undefined {
+	if (element.id === id) return element
+
+	if (element.children?.length) {
+		for (const child of element.children) {
+			const found = findChildFolder(child, id)
+
+			if (found) return found
+		}
+	}
 }
 
 //* FILE UPLOAD
@@ -630,7 +682,11 @@ const fileDownloadUrl = $computed<string>(() => {
 })
 
 //* MOVE FILES
-const moveFilesModal = ref<HTMLInputElement>()
+function showMoveFilesModal() {
+	moveModalShown = true
+	movingFolder = false
+	movingFiles = true
+}
 
 async function moveSelectedFiles(targetFolder: TreeFolder) {
 	if (!selectedFiles.value.length) return
@@ -649,7 +705,7 @@ async function moveSelectedFiles(targetFolder: TreeFolder) {
 		console.error(err)
 	}
 
-	moveFilesModal.value?.click() // close modal
+	hideModal()
 
 	refreshFiles()
 }

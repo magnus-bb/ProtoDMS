@@ -243,7 +243,6 @@ const selectedLabels = computed(() => {
 	}
 
 	if (props.multiple) {
-		console.log(props.modelValue)
 		return props.modelValue.map(selectedOption => {
 			if (!props.emitProp) {
 				// If no particular prop is used for emitting (or the options are just strings),
