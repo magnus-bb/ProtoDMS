@@ -40,7 +40,13 @@
 
 		<!-- document editor -->
 		<main class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
-			<QuillEditor toolbar="full" class="!border-none" theme="snow" @ready="editorReady" />
+			<QuillEditor
+				toolbar="full"
+				class="!border-none"
+				theme="snow"
+				:enable="online"
+				@ready="editorReady"
+			/>
 		</main>
 
 		<!-- save button and save message -->
@@ -49,6 +55,14 @@
 				<Icon class="fill text-3xl">save</Icon>Save changes
 			</button>
 			<p class="text-muted text-sm">{{ relativeSaveTimeString }}</p>
+		</div>
+	</div>
+
+	<div v-if="!online" class="toast toast-top toast-center w-72">
+		<div class="alert alert-error">
+			<div>
+				<span>You are offline. Editing has been disabled.</span>
+			</div>
 		</div>
 	</div>
 </template>
@@ -103,7 +117,6 @@ function getDocumentId(): string {
 // Array of user IDs in the session
 let editingUserIds = $ref<string[]>([])
 let changeSinceSave = $ref<boolean>(false) // This is manipulated when joining document
-
 // Array of DirectusUsers with names and avatars in the session
 const editingUsers = computedAsync<DirectusUser[]>(
 	() => {
@@ -138,6 +151,12 @@ let { document: initialDocument } = await joinDocument()
 
 // If, for some reason we get disconnected, we have to rejoin when reconnected
 socket.io.on('reconnect', async () => {
+	;({ document: initialDocument } = await joinDocument())
+})
+
+const online = useOnline() // Disable quill and show alert when offline
+// Reconnect when back online (this does not trigger 'reconnect' event of socket.io for some reason)
+whenever(online, async () => {
 	;({ document: initialDocument } = await joinDocument())
 })
 

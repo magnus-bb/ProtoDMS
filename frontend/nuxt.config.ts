@@ -2,7 +2,7 @@ import eslintPlugin from 'vite-plugin-eslint'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
-const title = 'Thesis'
+const title = 'ProtoDMS'
 const description = 'SOME DESCRIPTION'
 // const logoPath = ORIGIN + '/img/POPlogo-socials.png'
 

@@ -7,14 +7,14 @@
 * Mappe-editor til filer
   * Basically frontend til Directus' API til mapper og filer så man kan manage filer
   * Der skal vises et ID til filer, så man kan linke dem direkte fra docs
-* Brug browser API til at tjekke om man er online for at disable editing af quill dokumenter og så potentielt at reconnecte, når den skifter til online igen
-  * VueUse har noget til dette
 * På forsiden skal der vises dokumenter man selv er subscriber på
 * Tilføj sortering + søgning i flere felter til dokumenter etc
   * Eks. søgning i tags og content
 * Søgning i filer og filtrering efter hvilke docs de tilhører
   * Husk at nulstille selections ved søgning / filtrering
-* CRUD tags
+* Quill plugins
+  * mentions
+  * filer
 
 # Backend
 * Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det

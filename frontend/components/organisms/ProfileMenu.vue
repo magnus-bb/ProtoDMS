@@ -4,7 +4,7 @@
 			v-if="user"
 			:user="user"
 			tabindex="0"
-			class="cursor-pointer w-14 rounded-xl"
+			class="cursor-pointer w-14 rounded-full"
 			:avatar-options="{ key: 'user-avatar' }"
 		/>
 
@@ -17,7 +17,9 @@
 		</ul>
 	</div>
 
-	<NuxtLink v-else to="/signin" title="sign in" class="btn btn-ghost">Sign in</NuxtLink>
+	<NuxtLink v-else to="/signin" title="sign in or sign up" class="btn btn-ghost text-3xl"
+		><Icon>login</Icon></NuxtLink
+	>
 </template>
 
 <script setup lang="ts">
