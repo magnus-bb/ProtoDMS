@@ -40,8 +40,9 @@
 
 		<!-- document editor -->
 		<main class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
+			<QuillEditorToolbar id="editor-toolbar" />
 			<QuillEditor
-				toolbar="full"
+				toolbar="#editor-toolbar"
 				class="!border-none"
 				theme="snow"
 				:enable="online"
@@ -192,6 +193,7 @@ async function joinDocument(): Promise<JoinRoomResponse> {
 //* QUILL SETUP & EVENTS
 let quill: Quill
 
+// const editorToolbar = ref<HTMLDivElement>()
 async function editorReady(quillElement: Quill) {
 	if (!initialDocument) return await goBack('Could not get document') // we should not be able to get here with no doc
 
@@ -206,7 +208,6 @@ async function editorReady(quillElement: Quill) {
 		changeSinceSave = true // when changing content, make save button active
 	})
 }
-
 socket.on('content-changed', (delta: DeltaObject) => {
 	quill.updateContents(delta, 'silent')
 	changeSinceSave = true // when changing content, make save button active

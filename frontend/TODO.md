@@ -13,15 +13,11 @@
 * Søgning i filer og filtrering efter hvilke docs de tilhører
   * Husk at nulstille selections ved søgning / filtrering
 * Quill plugins (se VueQuill docs for hvordan de registreres)
-  * Lav egen knap til at finde filer og docs fra directus [guide](https://github.com/quilljs/quill/issues/2611)
-    * Først tilføj et plugin, der tilføjer en knap og tjek hvordan den gør
-    * Lav custom toolbar container
-    * Find en liste af alle indbyggede knapper og tilføj dem ligesom i ovenstående guide (med `.ql-bold` etc)
-    * Tilføj knap med eget udseende og tilføj click-handler
-      * Se eksempel i guide
-      * Handler skal vise en modal, der viser en file-selector og en doc-selector ligesom deres respektive sider. Handleren skal returne et link til filen eller vise billedet, hvis det er media. Den skal også returne docs som links. I alle tilfælde skal linktekst være titel / navn på fil / doc og evt stå med fed.
-    * Registrer i quill
-    * 
+  * Hjemmelavede controllers
+    * Upload billede / fil til Directus og embed i dokumentet
+      * Her kan nedenstående `quill-image-uploader` bruges til billeder, men kan den håndtere filer også, og så bare vise dem som et link etc?
+    * Mentions
+      * Link til eksisterende brugere, dokumenter, og filer / billeder - den skal bare få lister fra Directus
   * [image uploader](https://github.com/NoelOConnell/quill-image-uploader) til at sørge for at billeder ryger ind på directus
     * I callbacket kan der åbnes en modal med folder selection og awaite svaret. Når det er gjort, så skal den bruge dataene til at create dokumentet i Directus med den korrekte parent. Efter dette skal den modtage filens ID og så returne et link til filen
     * Man kan flytte filer rundt uden problemer, da linket altid bare er til billedets id, men hvis man sletter billedet bliver det ikke reflekteret i dokumentet. Det er vel ok.
