@@ -42,10 +42,16 @@
 		<main class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
 			<QuillEditorToolbar id="editor-toolbar" />
 			<QuillEditor
-				toolbar="#editor-toolbar"
+				:toolbar="{
+					container: '#editor-toolbar',
+					handlers: {
+						'directus-select-or-upload-file': selectOrUploadFile,
+					},
+				}"
 				class="!border-none"
 				theme="snow"
 				:enable="online"
+				:modules="quillModules"
 				@ready="editorReady"
 			/>
 		</main>
@@ -208,6 +214,15 @@ async function editorReady(quillElement: Quill) {
 		changeSinceSave = true // when changing content, make save button active
 	})
 }
+
+const quillModules = [useQuillMentions()]
+
+// This can be used to show modal that allows user to select file from directus or upload a new one and the use this.quill to insert a link etc at the current cursor location
+function selectOrUploadFile() {
+	console.warn('TODO: directus select / upload btn')
+	console.log(this.quill)
+}
+
 socket.on('content-changed', (delta: DeltaObject) => {
 	quill.updateContents(delta, 'silent')
 	changeSinceSave = true // when changing content, make save button active
@@ -318,5 +333,63 @@ onUnmounted(() => {
 <style scoped lang="postcss">
 :deep(.ql-toolbar) {
 	@apply border-t-0 border-l-0 border-r-0;
+}
+
+/* Styling for quill-mention */
+:deep() {
+	.ql-mention-list-container {
+		z-index: 9001;
+		width: 270px;
+		overflow: auto;
+		background-color: #fff;
+		border: 1px solid #f0f0f0;
+		border-radius: 4px;
+		box-shadow: 0 2px 12px 0 rgba(30, 30, 30, 0.08);
+	}
+
+	.ql-mention-loading {
+		padding: 0 20px;
+		font-size: 16px;
+		line-height: 44px;
+		vertical-align: middle;
+	}
+
+	.ql-mention-list {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		list-style: none;
+	}
+
+	.ql-mention-list-item {
+		padding: 0 20px;
+		font-size: 16px;
+		line-height: 44px;
+		vertical-align: middle;
+		cursor: pointer;
+	}
+
+	.ql-mention-list-item.disabled {
+		cursor: auto;
+	}
+
+	.ql-mention-list-item.selected {
+		text-decoration: none;
+		background-color: #d3e1eb;
+	}
+
+	.mention {
+		width: 65px;
+		height: 24px;
+		margin-right: 2px;
+		padding: 3px 0;
+		background-color: #d3e1eb;
+		border-radius: 6px;
+		user-select: all;
+	}
+
+	.mention > span {
+		margin: 0 3px;
+	}
 }
 </style>

@@ -126,6 +126,15 @@
 			<button class="ql-link" />
 			<button class="ql-video" />
 			<button class="ql-image" />
+			<button class="ql-directus-select-or-upload-file">
+				<Icon class="grade-200">description</Icon>
+			</button>
+			<div
+				class="px-2 tooltip tooltip-bottom"
+				data-tip="Type @, person:, file:, or document: to link to other resources."
+			>
+				<Icon class="text-sm">question_mark</Icon>
+			</div>
 		</span>
 		<span class="ql-formats">
 			<button class="ql-clean" />

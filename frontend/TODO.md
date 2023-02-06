@@ -10,6 +10,10 @@
 * På forsiden skal der vises dokumenter man selv er subscriber på
 * Tilføj sortering + søgning i flere felter til dokumenter etc
   * Eks. søgning i tags og content
+* Man skal kunne tilføje sig selv og andre som subscriber på et dokument på editsiden
+* Man skal kunne linke filer, personer og andre docs til dokumenter på editsiden
+  * Når man tilføjer med mentions, så skal den automatisk også tilføje personer, filer, andre docs
+  * Relaterede personer skal være separat fra subscriptions
 * Søgning i filer og filtrering efter hvilke docs de tilhører
   * Husk at nulstille selections ved søgning / filtrering
 * Quill plugins (se VueQuill docs for hvordan de registreres)
@@ -18,11 +22,14 @@
       * Her kan nedenstående `quill-image-uploader` bruges til billeder, men kan den håndtere filer også, og så bare vise dem som et link etc?
     * Mentions
       * Link til eksisterende brugere, dokumenter, og filer / billeder - den skal bare få lister fra Directus
-  * [image uploader](https://github.com/NoelOConnell/quill-image-uploader) til at sørge for at billeder ryger ind på directus
+      * DET ER FOR SVÆRT AT LAVE INLINE LINKS, SÅ BARE SØRG FOR, AT MENTIONS OGSÅ TILFØJER FILER, PERSONER OG DOCS TIL LINKEDE RESSOURCER I EN SIDEBAR, SÅ MAN KAN KLIKKE PÅ DEM DER
+  * ~~[image uploader](https://github.com/NoelOConnell/quill-image-uploader) til at sørge for at billeder ryger ind på directus~~
+    * DETTE VIRKER IKKE, MEN ER BESKREVET SOM TEKNISK BEGRÆNSNING, DA MAN STADIG KAN LINKE TING, DER ER UPLOADET
     * I callbacket kan der åbnes en modal med folder selection og awaite svaret. Når det er gjort, så skal den bruge dataene til at create dokumentet i Directus med den korrekte parent. Efter dette skal den modtage filens ID og så returne et link til filen
     * Man kan flytte filer rundt uden problemer, da linket altid bare er til billedets id, men hvis man sletter billedet bliver det ikke reflekteret i dokumentet. Det er vel ok.
     * Se om denne kan bruges til at selecte filer fra directus også, ellers må jeg lave en custom toolbar item, der kan return et link til en fil.
   * [mentions](https://github.com/quill-mention/quill-mention) link til andre brugere og dokumenter og filer!!
+    * TODO: tilføj linkede dokumenter og filer
   * [find & replace](https://github.com/MuhammedAlkhudiry/quill-find-replace-module)
   * [cursors](https://github.com/reedsy/quill-cursors) til at vise andre personer
   * [blot formatter](https://github.com/Fandom-OSS/quill-blot-formatter) til at resize billeder

@@ -147,7 +147,7 @@ export async function signup(formData: SignUpFormData) {
 	await login({ email, password })
 }
 
-//* FILES
+//* IMAGES
 // Based on nuxt-directus
 type DirectusImageFormat = 'jpg' | 'png' | 'webp' | 'tiff'
 type DirectusImageFit = 'cover' | 'contain' | 'inside' | 'outside'
