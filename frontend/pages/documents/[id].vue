@@ -78,6 +78,14 @@
 			</div>
 		</div>
 	</div>
+
+	<button class="btn" @click="documentModalShown = !documentModalShown">TYext</button>
+
+	<DocumentSelector
+		:current-document-id="documentId"
+		:class="{ 'modal-open': documentModalShown }"
+		@hide="documentModalShown = false"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -338,6 +346,9 @@ onUnmounted(() => {
 	clearInterval(saveStringInterval)
 	socket.disconnect()
 })
+
+//* ADDING RELATED RESOURCES
+const documentModalShown = $ref<boolean>(false)
 </script>
 
 <style scoped lang="postcss">

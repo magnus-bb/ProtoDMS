@@ -117,7 +117,7 @@
 		</div>
 
 		<main v-if="documents?.length" class="space-y-8">
-			<div class="document-grid">
+			<div ref="documentGrid" class="document-grid">
 				<!-- TOP -->
 				<!-- DOCUMENTS -->
 				<DocumentPreview
@@ -276,6 +276,7 @@
 
 <script setup lang="ts">
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import autoAnimate from '@formkit/auto-animate'
 import { vOnClickOutside } from '@vueuse/components'
 import type {
 	Documents as Document,
@@ -342,6 +343,11 @@ async function executeSearch() {
 	documents = res
 }
 
+// Animate on search
+const documentGrid = ref<HTMLElement>()
+onMounted(() => {
+	autoAnimate(documentGrid.value as HTMLElement)
+})
 // Creates an object of search state (search term etc) that can be passed to router.replace
 function formatUrlQuery(): Record<string, any> {
 	return removeEmpty({

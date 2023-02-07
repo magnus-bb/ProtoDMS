@@ -74,6 +74,7 @@ export function updateDocument(id: number, doc: Partial<Document>) {
 
 	return directus.items('documents').updateOne(id, doc)
 }
+
 //* AUTH
 export function useUser(): { user: Ref<DirectusUser | null>; accessToken: Ref<string | null> } {
 	const user = useState<DirectusUser | null>('user', () => null)
