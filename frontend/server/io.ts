@@ -229,7 +229,9 @@ class DocumentSession {
 			.items('documents')
 			.readOne(
 				documentId,
-				{},
+				{
+					fields: ['*', 'related_documents.id', 'related_documents.related_document_id.*'] as any[],
+				},
 				{
 					requestOptions: {
 						headers: {

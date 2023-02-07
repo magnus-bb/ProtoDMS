@@ -1,13 +1,24 @@
 <template>
 	<Teleport to="#sidebar-content">
 		<div>
-			<h2 class="text-2xl font-semibold">Documents</h2>
+			<h2 class="text-2xl font-semibold">Related documents</h2>
+			<div class="flex flex-wrap gap-2 mt-2">
+				<NuxtLink
+					v-for="rel of initialDocument!.related_documents"
+					:key="(rel as RelatedDocument).id"
+					class="badge badge-lg badge-outline badge-accent"
+					target="_blank"
+					:to="`/documents/${((rel as RelatedDocument).related_document_id as Document).id}`"
+				>
+					{{ ((rel as RelatedDocument).related_document_id as Document).title }}
+				</NuxtLink>
+			</div>
 		</div>
 		<div>
-			<h2 class="text-2xl font-semibold">Users</h2>
+			<h2 class="text-2xl font-semibold">Related users</h2>
 		</div>
 		<div>
-			<h2 class="text-2xl font-semibold">Files</h2>
+			<h2 class="text-2xl font-semibold">Related files</h2>
 		</div>
 	</Teleport>
 
@@ -91,14 +102,18 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
-import type { Quill, DeltaObject } from '@/types/quill'
+import type { Quill, DeltaObject, DeltaDocument } from '@/types/quill'
 import type {
 	JoinRoomData,
 	EditorEventData,
 	JoinRoomResponse,
 	DocumentSavedEventData,
 } from '@/types/document-sync'
-import type { DirectusUsers as DirectusUser } from '@/types/directus'
+import type {
+	DirectusUsers as DirectusUser,
+	DocumentsRelatedDocuments as RelatedDocument,
+	Documents as Document,
+} from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 definePageMeta({
