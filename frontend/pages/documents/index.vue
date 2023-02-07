@@ -45,6 +45,16 @@
 								<Icon class="weight-700 fill optical-size-40">edit_document</Icon>
 							</NuxtLink>
 						</li>
+						<!-- set related docs -->
+						<li
+							v-if="selectedDocs.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Set related documents"
+						>
+							<button @click="showRelatedDocsModal">
+								<Icon class="weight-700 fill optical-size-40">file_open</Icon>
+							</button>
+						</li>
 						<!-- edit tags -->
 						<li
 							v-if="selectedDocs.length === 1"
@@ -61,7 +71,7 @@
 							class="items-center text-xl sm:text-2xl"
 							title="Edit subscribers"
 						>
-							<button v-if="selectedDocs.length" @click="showSubsModal">
+							<button @click="showSubsModal">
 								<Icon class="weight-700 fill optical-size-40">group_add</Icon>
 							</button>
 						</li>
@@ -139,151 +149,145 @@
 		</main>
 	</div>
 
-	<!-- CREATE DOCUMENT MODAL -->
-	<div class="modal modal-bottom md:modal-middle" :class="{ 'modal-open': documentModalShown }">
-		<div v-on-click-outside="hideDocumentModal" class="modal-box !max-w-2xl overflow-y-visible">
-			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideDocumentModal">
-				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
-			</button>
-
+	<!-- CREATE DOCUMENT / EDIT TAGS & SUBS MODAL -->
+	<Modal :class="{ 'modal-open': documentModalShown }" @hide="hideDocumentModal">
+		<template #heading>
 			<h3 v-if="creatingDocument" class="text-lg font-bold mb-4">Create document</h3>
 			<h3 v-else-if="editingTags" class="text-lg font-bold mb-4">Select tags</h3>
 			<h3 v-else-if="editingSubs" class="text-lg font-bold mb-4">Select users</h3>
+		</template>
 
-			<div class="grid gap-y-2">
-				<div v-if="creatingDocument">
-					<div class="form-control">
-						<label for="title" class="label"><span class="label-text">Title</span></label>
-						<input
-							id="title"
-							v-model="editTitleValue"
-							placeholder="Document title"
-							class="input input-bordered placeholder:text-muted"
-						/>
-					</div>
-				</div>
-				<div v-if="editingTags">
-					<label v-if="creatingDocument" for="edit-tags" class="label">
-						<span class="label-text">Tags</span>
-					</label>
-					<FilterSelect
-						v-model="editTagsValue"
-						name="edit-tags"
-						:options="allTags"
-						multiple
-						label-prop="name"
-						emit-prop="id"
-						class="border-0"
-					>
-						Tags
-					</FilterSelect>
-				</div>
-				<div v-if="editingSubs">
-					<label v-if="creatingDocument" for="edit-subs" class="label">
-						<span class="label-text">Subscribers</span>
-					</label>
-					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2" />
-				</div>
-				<div class="mt-4">
-					<button
-						v-if="creatingDocument"
-						class="btn btn-block btn-accent gap-x-2"
-						:disabled="!editTitleValue.length"
-						@click="newDocument"
-					>
-						<Icon class="weight-700 fill optical-size-40 text-lg">note_add</Icon>
-						<span>Create document</span>
-					</button>
-					<button
-						v-else-if="editingTags"
-						class="btn btn-block btn-accent gap-x-2"
-						:disabled="!editTagsValueChanged"
-						@click="updateSelectedDocumentTags"
-					>
-						<Icon class="weight-700 fill optical-size-40 text-lg">sell</Icon>
-						<span>Set tags</span>
-					</button>
-					<button
-						v-else-if="editingSubs"
-						class="btn btn-block btn-accent gap-x-2"
-						:disabled="!editSubsValueChanged"
-						@click="updateSelectedDocumentSubs"
-					>
-						<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
-						<span>Set subscribers</span>
-					</button>
+		<div class="grid gap-y-2">
+			<div v-if="creatingDocument">
+				<div class="form-control">
+					<label for="title" class="label"><span class="label-text">Title</span></label>
+					<input
+						id="title"
+						v-model="editTitleValue"
+						placeholder="Document title"
+						class="input input-bordered placeholder:text-muted"
+					/>
 				</div>
 			</div>
+			<div v-if="editingTags">
+				<label v-if="creatingDocument" for="edit-tags" class="label">
+					<span class="label-text">Tags</span>
+				</label>
+				<FilterSelect
+					v-model="editTagsValue"
+					name="edit-tags"
+					:options="allTags"
+					multiple
+					label-prop="name"
+					emit-prop="id"
+					class="border-0"
+				>
+					Tags
+				</FilterSelect>
+			</div>
+			<div v-if="editingSubs">
+				<label v-if="creatingDocument" for="edit-subs" class="label">
+					<span class="label-text">Subscribers</span>
+				</label>
+				<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2" />
+			</div>
+			<div class="mt-4">
+				<button
+					v-if="creatingDocument"
+					class="btn btn-block btn-accent gap-x-2"
+					:disabled="!editTitleValue.length"
+					@click="newDocument"
+				>
+					<Icon class="weight-700 fill optical-size-40 text-lg">note_add</Icon>
+					<span>Create document</span>
+				</button>
+				<button
+					v-else-if="editingTags"
+					class="btn btn-block btn-accent gap-x-2"
+					:disabled="!editTagsValueChanged"
+					@click="updateSelectedDocumentTags"
+				>
+					<Icon class="weight-700 fill optical-size-40 text-lg">sell</Icon>
+					<span>Set tags</span>
+				</button>
+				<button
+					v-else-if="editingSubs"
+					class="btn btn-block btn-accent gap-x-2"
+					:disabled="!editSubsValueChanged"
+					@click="updateSelectedDocumentSubs"
+				>
+					<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
+					<span>Set subscribers</span>
+				</button>
+			</div>
 		</div>
-	</div>
+	</Modal>
 
 	<!-- CREATE / DELETE TAGS MODAL -->
-	<div
-		class="modal modal-bottom md:modal-middle"
-		:class="{ 'modal-open': addRemoveTagsModalShown }"
-	>
-		<div v-on-click-outside="hideAddRemoveTagsModal" class="modal-box !max-w-2xl">
-			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideAddRemoveTagsModal">
-				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
-			</button>
+	<Modal :class="{ 'modal-open': addRemoveTagsModalShown }" @hide="hideAddRemoveTagsModal">
+		<template #heading>Add/remove tags</template>
 
-			<h3 class="text-lg font-bold mb-4">Add/remove tags</h3>
-
-			<div class="form-control w-full">
-				<label class="label" for="new-tag-input">
-					<span class="label-text">Create tag</span>
-				</label>
-				<div class="flex gap-x-4">
-					<input
-						id="new-tag-input"
-						v-model="newTagInputValue"
-						placeholder="Tag name"
-						class="input input-bordered w-full placeholder:text-muted mb-4"
-					/>
-					<button class="btn btn-accent gap-x-2" :disabled="!newTagNameValid" @click="newTag">
-						Add<Icon class="fill optical-size-40">sell</Icon>
-					</button>
-				</div>
-			</div>
-
-			<div class="form-control w-full">
-				<label class="label" for="filter-tags">
-					<span class="label-text">Delete tags</span>
-				</label>
+		<div class="form-control w-full">
+			<label class="label" for="new-tag-input">
+				<span class="label-text">Create tag</span>
+			</label>
+			<div class="flex gap-x-4">
 				<input
-					id="filter-tags"
-					v-model="tagFilterString"
-					placeholder="Filter tags"
+					id="new-tag-input"
+					v-model="newTagInputValue"
+					placeholder="Tag name"
 					class="input input-bordered w-full placeholder:text-muted mb-4"
 				/>
-			</div>
-
-			<div class="flex flex-wrap gap-2">
-				<span
-					v-for="tag of filteredTags"
-					:key="tag.id"
-					class="badge badge-lg badge-outline badge-secondary gap-x-2"
-				>
-					<button class="flex items-center text-sm" @click="removeTag(tag)">
-						<Icon class="fill optical-size-24 grade-100 text-error" aria-hidden>close</Icon>
-					</button>
-					{{ tag.name }}
-				</span>
+				<button class="btn btn-accent gap-x-2" :disabled="!newTagNameValid" @click="newTag">
+					Add<Icon class="fill optical-size-40">sell</Icon>
+				</button>
 			</div>
 		</div>
-	</div>
+
+		<div class="form-control w-full">
+			<label class="label" for="filter-tags">
+				<span class="label-text">Delete tags</span>
+			</label>
+			<input
+				id="filter-tags"
+				v-model="tagFilterString"
+				placeholder="Filter tags"
+				class="input input-bordered w-full placeholder:text-muted mb-4"
+			/>
+		</div>
+
+		<div class="flex flex-wrap gap-2">
+			<span
+				v-for="tag of filteredTags"
+				:key="tag.id"
+				class="badge badge-lg badge-outline badge-secondary gap-x-2"
+			>
+				<button class="flex items-center text-sm" @click="removeTag(tag)">
+					<Icon class="fill optical-size-24 grade-100 text-error" aria-hidden>close</Icon>
+				</button>
+				{{ tag.name }}
+			</span>
+		</div>
+	</Modal>
+
+	<DocumentSelector
+		:current-document="selectedDocs[0]"
+		:class="{ 'modal-open': relatedDocsModalShown }"
+		@hide="hideRelatedDocsModal"
+		@update-relations="updateRelatedDocs"
+	/>
 </template>
 
 <script setup lang="ts">
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import autoAnimate from '@formkit/auto-animate'
-import { vOnClickOutside } from '@vueuse/components'
 import type {
 	Documents as Document,
 	DirectusUsers as DirectusUser,
 	DocumentsDirectusUsers as DocumentSubscriber,
 	DocumentsTags as DocumentTag,
 	Tags as Tag,
+	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
 
 //* INITIALIZE SEARCH STATE
@@ -329,6 +333,9 @@ async function executeSearch() {
 			: null,
 		fields: [
 			'*',
+			'related_documents.id',
+			'related_documents.related_document_id.*',
+			'related_documents.related_document_id.tags.tags_id.*',
 			'subscribers.directus_users_id.id',
 			'subscribers.directus_users_id.avatar',
 			'subscribers.directus_users_id.first_name',
@@ -614,6 +621,36 @@ function showAddRemoveTagsModal() {
 
 function hideAddRemoveTagsModal() {
 	addRemoveTagsModalShown = false
+}
+
+//* EDIT RELATED DOCUMENTS
+let relatedDocsModalShown = $ref<boolean>(false)
+function showRelatedDocsModal() {
+	relatedDocsModalShown = true
+}
+function hideRelatedDocsModal() {
+	relatedDocsModalShown = false
+}
+
+async function updateRelatedDocs(idToUpdate: number, newDocIds: number[]) {
+	try {
+		const updates: Pick<Document, 'related_documents'> = {
+			related_documents: newDocIds.map(docId => ({
+				related_document_id: docId,
+			})) as RelatedDocument[],
+		}
+
+		await updateDocument(idToUpdate, updates)
+	} catch (err) {
+		alert(
+			`There was an error updating the document '${selectedDocs.value[0].title}'s related documents`
+		)
+		console.error(err)
+	}
+
+	hideRelatedDocsModal()
+
+	executeSearch()
 }
 </script>
 

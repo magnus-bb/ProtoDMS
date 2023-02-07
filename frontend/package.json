@@ -1,5 +1,5 @@
 {
-  "name": "thesis-frontend",
+  "name": "ProtoDMS",
   "private": true,
   "scripts": {
     "build": "nuxt build",

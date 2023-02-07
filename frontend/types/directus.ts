@@ -81,6 +81,7 @@ export type DirectusFiles = {
   metadata?: unknown | null;
   modified_by?: string | DirectusUsers | null;
   modified_on: string;
+  related_documents: string | DocumentsRelatedFiles[];
   storage: string;
   tags?: unknown | null;
   title?: string | null;
@@ -290,6 +291,7 @@ export type DirectusUsers = {
   location?: string | null;
   password?: string | null;
   provider: string;
+  related_documents: string | DocumentsRelatedUsers[];
   role?: string | DirectusRoles | null;
   status: string;
   subscriptions: string | DocumentsDirectusUsers[];
@@ -317,8 +319,10 @@ export type Documents = {
   date_created?: string | null;
   date_updated?: string | null;
   id: number;
+  related_documents: string | DocumentsRelatedDocuments[];
+  related_files: string | DocumentsRelatedFiles[];
+  related_users: string | DocumentsRelatedUsers[];
   sort?: number | null;
-  status: string;
   subscribers: string | DocumentsDirectusUsers[];
   tags: string | DocumentsTags[];
   title: string;
@@ -331,6 +335,27 @@ export type DocumentsDirectusUsers = {
   documents_id?: number | Documents | null;
   id: number;
   last_name?: number | null;
+};
+
+export type DocumentsRelatedDocuments = {
+  document_id?: number | Documents | null;
+  id: number;
+  related_document_id?: number | Documents | null;
+  relation?: string | null;
+};
+
+export type DocumentsRelatedFiles = {
+  document_id?: number | Documents | null;
+  file_id?: string | DirectusFiles | null;
+  id: number;
+  relation?: string | null;
+};
+
+export type DocumentsRelatedUsers = {
+  document_id?: number | Documents | null;
+  id: number;
+  relation?: string | null;
+  user_id?: string | DirectusUsers | null;
 };
 
 export type DocumentsTags = {
@@ -374,6 +399,9 @@ export type CustomDirectusTypes = {
   directus_webhooks: DirectusWebhooks;
   documents: Documents;
   documents_directus_users: DocumentsDirectusUsers;
+  documents_related_documents: DocumentsRelatedDocuments;
+  documents_related_files: DocumentsRelatedFiles;
+  documents_related_users: DocumentsRelatedUsers;
   documents_tags: DocumentsTags;
   tags: Tags;
 };

@@ -1,8 +1,14 @@
 <template>
 	<Teleport to="#sidebar-content">
-		<h2 class="text-2xl font-semibold">Users</h2>
-		<h2 class="text-2xl font-semibold">Documents</h2>
-		<h2 class="text-2xl font-semibold">Files</h2>
+		<div>
+			<h2 class="text-2xl font-semibold">Documents</h2>
+		</div>
+		<div>
+			<h2 class="text-2xl font-semibold">Users</h2>
+		</div>
+		<div>
+			<h2 class="text-2xl font-semibold">Files</h2>
+		</div>
 	</Teleport>
 
 	<div class="p-4 flex flex-col gap-y-4">
@@ -78,14 +84,6 @@
 			</div>
 		</div>
 	</div>
-
-	<button class="btn" @click="documentModalShown = !documentModalShown">TYext</button>
-
-	<DocumentSelector
-		:current-document-id="documentId"
-		:class="{ 'modal-open': documentModalShown }"
-		@hide="documentModalShown = false"
-	/>
 </template>
 
 <script setup lang="ts">
@@ -346,9 +344,6 @@ onUnmounted(() => {
 	clearInterval(saveStringInterval)
 	socket.disconnect()
 })
-
-//* ADDING RELATED RESOURCES
-const documentModalShown = $ref<boolean>(false)
 </script>
 
 <style scoped lang="postcss">

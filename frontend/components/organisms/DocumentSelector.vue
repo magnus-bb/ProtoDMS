@@ -1,9 +1,41 @@
 <template>
-	<Modal box-classes="lg:ml-80">
+	<Modal box-classes="lg:ml-80" @hide="reset">
 		<!-- set a left margin of 80 to match width of sidebar when shown -->
-		<template #heading>Select documents</template>
+		<div v-if="currentDocument?.related_documents?.length">
+			<h3>Remove related documents</h3>
 
-		<div class="grid gap-2 grid-cols-1 sm:grid-cols-2 mb-4">
+			<div class="document-grid mt-4">
+				<!-- mini preview -->
+				<button
+					v-for="rel of (currentDocument.related_documents as RelatedDocument[])"
+					:key="rel.id"
+					class="card cursor-default shadow-lg hover:shadow-xl focus:shadow-2xl bg-base-200"
+					:class="{ 'bg-error/50': selectedToRemove.includes((rel.related_document_id as Document).id) }"
+					@click="selectToRemove((rel.related_document_id as Document).id)"
+				>
+					<!-- CLICK TO REMOVE ITEM AND REFRESH DOCS -->
+					<div class="card-body p-4">
+						<h2 class="card-title text-base">
+							{{ (rel.related_document_id as Document).title }}
+						</h2>
+
+						<div class="flex gap-1.5 flex-wrap">
+							<span
+								v-for="tag of ((rel.related_document_id as Document).tags as DocumentTag[])"
+								:key="tag.id"
+								class="badge badge-outline badge-secondary"
+							>
+								{{ (tag.tags_id as Tag)?.name }}
+							</span>
+						</div>
+					</div>
+				</button>
+			</div>
+		</div>
+
+		<h3 class="mt-6">Add related documents</h3>
+
+		<div class="grid gap-2 grid-cols-1 sm:grid-cols-2 mt-4">
 			<input
 				v-model="filterString"
 				placeholder="Filter title"
@@ -24,14 +56,14 @@
 			</FilterSelect>
 		</div>
 
-		<div ref="documentGrid" class="document-grid">
+		<div ref="documentGrid" class="document-grid mt-4">
 			<!-- mini preview -->
 			<button
 				v-for="doc of filteredDocs"
 				:key="doc.id"
-				:class="{ 'bg-secondary/30': selected.includes(doc.id) }"
 				class="card cursor-default shadow-lg hover:shadow-xl focus:shadow-2xl bg-base-200"
-				@click="select(doc.id)"
+				:class="{ 'bg-primary/30': selectedToAdd.includes(doc.id) }"
+				@click="selectToAdd(doc.id)"
 			>
 				<div class="card-body p-4">
 					<h2 class="card-title text-base">{{ doc.title }}</h2>
@@ -50,7 +82,13 @@
 		</div>
 
 		<template #actions>
-			<button class="btn" @click="selectDocs">Select</button>
+			<button
+				class="btn btn-accent"
+				:disabled="!selectedToAdd?.length && !selectedToRemove?.length"
+				@click="updateRelatedDocuments"
+			>
+				Update
+			</button>
 		</template>
 	</Modal>
 </template>
@@ -60,11 +98,12 @@ import autoAnimate from '@formkit/auto-animate'
 import type {
 	Documents as Document,
 	DocumentsTags as DocumentTag,
+	DocumentsRelatedDocuments as RelatedDocument,
 	Tags as Tag,
 } from '@/types/directus'
 
-const { currentDocumentId = null } = defineProps<{
-	currentDocumentId?: string // this is used so we can filter off the current doc, since we don't want to be able to relate a doc to itself
+const { currentDocument = null } = defineProps<{
+	currentDocument?: Document // this is used so we can filter off the current doc, since we don't want to be able to relate a doc to itself
 }>()
 
 const documents = await query<Document>('documents', {
@@ -77,24 +116,26 @@ const documents = await query<Document>('documents', {
 		'tags.id',
 		'tags.tags_id.*',
 	],
-	filter: {
-		id: {
-			_neq: currentDocumentId,
-		},
-	},
 	limit: -1,
 })
 
 //* FILTERING
 const allTags = await readAll<Tag>('tags')
-const selectedTags = $ref<number[]>([])
-const filterString = $ref<string>('')
+let selectedTags = $ref<number[]>([])
+let filterString = $ref<string>('')
 
 const filteredDocs = $computed<Document[]>(() => {
+	if (!currentDocument) return []
 	return documents.filter(filterCheck)
 })
 
 function filterCheck(doc: Document) {
+	const isNotCurrentDoc = doc.id !== currentDocument?.id
+
+	const isRelatedToCurrentDoc = (currentDocument?.related_documents as RelatedDocument[]).some(
+		rel => (rel.related_document_id as Document).id === doc.id
+	)
+
 	// Check if doc has any of the selected tags (no selected tags shows all)
 	const hasSelectedTags = selectedTags.length
 		? selectedTags.some(tagId =>
@@ -105,7 +146,7 @@ function filterCheck(doc: Document) {
 	// Check if the filter string is in the title
 	const hasFilterString = doc.title.toLowerCase().includes(filterString.toLowerCase())
 
-	return hasSelectedTags && hasFilterString
+	return hasSelectedTags && hasFilterString && isNotCurrentDoc && !isRelatedToCurrentDoc
 }
 
 // Animate on filter change
@@ -117,15 +158,31 @@ onMounted(() => {
 //* SELECTION
 // Because of issues where selected elements cannot be compared (for some reason)
 // we just select docs by their ID and then get the full docs with selected IDs when emitted
-const { selected, select } = useSelection<number>()
+const { selected: selectedToRemove, select: selectToRemove } = useSelection<number>()
+const { selected: selectedToAdd, select: selectToAdd } = useSelection<number>()
 
 const emit = defineEmits<{
-	(e: 'select', docs: Document[]): void
+	(e: 'updateRelations', idToUpdate: number, newDocIds: number[]): void
+	(e: 'hide'): void
 }>()
 
-function selectDocs() {
-	const docs = documents.filter(doc => selected.value.includes(doc.id))
-	emit('select', docs)
+function updateRelatedDocuments() {
+	const existingRelatedDocs = (currentDocument?.related_documents as RelatedDocument[]).map(
+		rel => (rel.related_document_id as Document).id
+	)
+	const withRemoved = existingRelatedDocs.filter(id => !selectedToRemove.value.includes(id))
+	const newRelatedDocs = [...withRemoved, ...selectedToAdd.value]
+
+	emit('updateRelations', currentDocument!.id, newRelatedDocs)
+}
+
+function reset() {
+	selectedToRemove.value = []
+	selectedToAdd.value = []
+	filterString = ''
+	selectedTags = []
+
+	emit('hide')
 }
 </script>
 
