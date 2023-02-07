@@ -15,6 +15,7 @@ const props = defineProps<{
 const options = {
 	modules: {
 		toolbar: [],
+		mention: useQuillMentions(),
 	},
 	readOnly: true,
 	enable: false,

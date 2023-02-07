@@ -5,7 +5,7 @@
 			<!-- transition-all class only when not swiping, so it will only transition when you let go -->
 			<div
 				v-show="shown"
-				id="sidebarContent"
+				id="sidebar-content"
 				ref="sidebar"
 				class="sidebar w-full p-4 overflow-y-auto flex flex-col gap-y-4 absolute h-screen"
 				:class="{ 'transition-all': !isSwiping }"

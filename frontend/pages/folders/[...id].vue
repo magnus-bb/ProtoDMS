@@ -1,7 +1,8 @@
 <template>
 	<!-- BREADCRUMBS WITH PATH (DAISYUI) -->
 
-	<Teleport to="#sidebarContent">
+	<Teleport to="#sidebar-content">
+		<h2 class="text-2xl font-semibold">Folders</h2>
 		<ul>
 			<Folder navigation :folder="rootFolder" />
 		</ul>

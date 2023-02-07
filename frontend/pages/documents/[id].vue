@@ -1,4 +1,10 @@
 <template>
+	<Teleport to="#sidebar-content">
+		<h2 class="text-2xl font-semibold">Users</h2>
+		<h2 class="text-2xl font-semibold">Documents</h2>
+		<h2 class="text-2xl font-semibold">Files</h2>
+	</Teleport>
+
 	<div class="p-4 flex flex-col gap-y-4">
 		<header class="flex justify-between items-center gap-x-4">
 			<!-- document title -->
@@ -88,6 +94,10 @@ import type {
 } from '@/types/document-sync'
 import type { DirectusUsers as DirectusUser } from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+
+definePageMeta({
+	layout: 'sidebar',
+})
 
 const directus = useDirectus()
 
