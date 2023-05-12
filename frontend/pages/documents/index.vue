@@ -35,6 +35,16 @@
 								<Icon class="weight-700 fill optical-size-40">note_add</Icon>
 							</button>
 						</li>
+						<!-- duplicate document -->
+						<li
+							v-if="selectedDocs.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Duplicate document"
+						>
+							<button @click="duplicateDocument">
+								<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
+							</button>
+						</li>
 						<!-- edit document-->
 						<li
 							v-if="selectedDocs.length === 1"
@@ -527,6 +537,24 @@ async function newDocument() {
 		alert('There was an error creating document')
 		console.error(err)
 	}
+}
+
+//* DUPLICATE DOCUMENT
+async function duplicateDocument() {
+	const selected = selectedDocs.value[0]
+	const duplicatedDocument = {
+		title: `Copy of ${selected.title}`,
+		content: selected.content,
+		tags: selected.tags,
+		subscribers: selected.subscribers,
+		related_documents: selected.related_documents,
+		related_users: selected.related_users,
+		related_files: selected.related_files,
+	}
+
+	await createDocument(duplicatedDocument)
+
+	executeSearch()
 }
 
 //* DELETE DOCUMENTS

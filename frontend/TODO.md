@@ -15,11 +15,12 @@
   * Så man tænker på dem ligesom filer, der kan have et metadata-dokument og så kan man linke andre dokumenter til den.
 
 ## Skabeloner
+DONE
 * Består udelukkende af en duplicate-knap, da man så kan lave 'template'-dokumenter
 * Lav en knap ude fra søgeviewet (behøver ikke inde i edit view)
   * Knappen skal kopiere dokumentet med ALT og tilføje "kopi af" foran titlen (evt skift direkte til edit af navnet)
 ### Diskussion
-* Det er nok nødvendigt at have NOT-filters, så disse kan frasorteres søgeresultater, men helst at dette automatisk sker, for ikke at clutter søgninger
+* Det er nok nødvendigt at have NOT-filters, så skabeloner kan frasorteres søgeresultater, men helst at dette automatisk sker, for ikke at clutter søgninger
 
 ## Relationer
 * I sidebaren af et dokument skal man kunne se relaterede dokumenter ud fra deres titel og mærkater, som har en delete-knap
