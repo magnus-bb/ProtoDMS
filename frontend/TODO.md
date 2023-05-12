@@ -1,3 +1,153 @@
+# Features
+## Integrerede illustrationer
+* I edit-viewet af dokumenter skal der være en liste under dokumentet af illustrationer, der kan have en titel
+* De skal tilføjes med en "add illustration" knap
+* Når en illustration laves skal der komme en ny knap nedenunder til at oprette en ny så man kan tilføje flere
+* Der skal være en delete-knap
+* Der skal bare embeddes en GoJS editor. Evt. hav den til at være en form for view-mode indtil det toggles om, så man kan se illustrationen uden at få alle værktøjer
+* I backenden skal der oprettes en collection til illustrationer
+  * Skal nok bare have en relation til ét dokument og så en titel og et JSON-felt, eller whatever GoJS vil gemme data som
+  * Det skal være sådan, at når relationen slettes fra dokumentets side, så sletter det også illustrationen
+
+### Diskussion
+* Det er okay, at disse ikke opdateres real time - det skrives bare i begrænsningerne
+* Det ville nok være bedst, hvis illustrationer har sin egen edit-side separat fra dokumenter, så man kan have dem separat og linke flere dokumenter til dem
+  * Så man tænker på dem ligesom filer, der kan have et metadata-dokument og så kan man linke andre dokumenter til den.
+
+## Skabeloner
+* Består udelukkende af en duplicate-knap, da man så kan lave 'template'-dokumenter
+* Lav en knap ude fra søgeviewet (behøver ikke inde i edit view)
+  * Knappen skal kopiere dokumentet med ALT og tilføje "kopi af" foran titlen (evt skift direkte til edit af navnet)
+### Diskussion
+* Det er nok nødvendigt at have NOT-filters, så disse kan frasorteres søgeresultater, men helst at dette automatisk sker, for ikke at clutter søgninger
+
+## Relationer
+* I sidebaren af et dokument skal man kunne se relaterede dokumenter ud fra deres titel og mærkater, som har en delete-knap
+  * Siden det er tovejs, så kan man se dem, der er relateret fra andre dokumenters side
+* Man skal kunne klikke for at gå til dokumentet
+* Der skal i bunden være en knap til at tilføje en relation. Dette skal vise en modal med det almindelige søgeview, hvor man kan alt det samme som på søgesiden
+* I backenden skal relationer lige oprettes mellem dokumenter, det er m2m
+  * Sletning af relation skal ikke gøre noget ved de relaterede dokumenter
+
+### Diskussion
+* Det er ok, at det ikke live-opdateres. Skriv om det i begrænsninger
+* Relationsbeskrivelser
+
+## Filer med tekstuel metadata
+* Dokumenter skal i sidebaren under relaterede dokumenter have en liste af filer, der er knyttet til dokumentet
+  * Disse skal også have en delete-knap og en titel
+* Der skal også kunne tilføjes nye til listen ved at få en modal med fil-søgeviewet
+* Klik på en fil skal bare downloade den
+* I backenden skal der bare tilføjes m2m-relationer med filer og dokumenter
+  * Sletning af relationen bør ikke slette filen
+
+### Diskussion
+* Det er ok, at det ikke live-opdateres. Skriv om det i begrænsninger
+* Der er måske et problem ved at man kan linke både til filer og fildokumentation, da det åbner op for forskellig brug af filer, der gør det svært at overholde ét princip
+
+## Kategoriserende mærkater
+* Allerede done
+
+## Private dokumenter
+* Nye dokumenter skal altid starte som "draft", inde i edit-viewet skal der være en toggle-knap til at publish
+* I backenden skal tilføjes "draft" igen og laves en permission, der gør at man kun kan se published eller hvis man selv er creator
+  * Det burde vist sørge for, at man kun får det man må i frontenden
+
+## Kortsigtet fildeling og skrivebeskyttet deling
+* Både dokumenter og filer kan egentlig deles med andre på platformen, hvis de er logget ind
+  * Ude fra søgeviewet skal der bare være en "share"-knap, der gemmer linket i ens clipboard
+* Når man navigerer direkte til et dokument eller en fils download link, men bliver redirected til login, så skal loginsiden huske den URL man var på vej til, og så redirect dertil, når man har logget ind
+
+### Diskussion
+* Readonly fildeling skal nok cuttes og så skrive, at implementeringen er teknisk besværlig, men meget magen til alm. deling og derfor ikke så interessant at bruge tid på
+  * Alternativt kan det undersøges, at man bruger share-objektet og laver en separat side til readonly links (så man ikke får editor-view) som ikke har alm. auth men tjekker, om der er oprettet en share i Directus
+
+## Realtidskollaboration
+* Already done
+
+### Diskussion
+* Ikke CRDT eller OT-compliant, men det er fint nok i en prototype. Det vil altid synkronisere helt ved saves
+
+## Integrationer og SSO
+* Uden for scope, der er intet at integrere med, da det afhænger 100% af en organisations anvendte auth og andre systemer (herunder projektstyring)
+
+
+## Bidragsscore
+* På brugerprofilen kan vises en contribution heatmap med https://github.com/julienr114/vue-calendar-heatmap
+* Når man går ind på en brugers profil laves der en request efter revisions med brugerens navn, og disse vises så i heatmappet
+
+### Diskussion
+* For at undgå, at brugere bare saver en masse gange, så vil det være en god idé at visualisere ændringer i versionshistorikken på en måde, som gør contribution-historikken lidt mere transparent.
+  * Bare lige nok til, at brugere føler, at man godt kan tjekke om de har prøvet at hacke featuren, f.eks. hvis man faktisk skal bruge det som grundlag for f.eks. en lønforhøjelse etc, hvor ens chef potentielt lige ville tjekke den igennem.
+
+## Fuldtekstsøgning
+* Skal sandsynligvis cuttes, da formatet for deltaer ikke er rå tekst, og derfor ikke er super smart at søge i.
+  * Alternativt KAN man lave et computed felt, der genererer den rene tekst ud fra content-deltaen, og bruge dette som target for fuldtekstsøgning
+  * Det er også ret svært at lave et view, der viser, når man matcher tekst i content, så man ved, hvad man rent faktisk finder
+
+### Diskussion
+* Formatet, der tillader realtidskollaboration er ikke super godt sammen med fuldtekstsøgning, da det kræver en konvertering content, der så caches i ens søgeengine (f.eks. ES)
+
+## Overlapsfiltrering
+* Per default er det vist et OR filter, der bliver anvendt, når man sender flere tags med i en søgning, og der var nogle problemer med at få AND til at virke
+  * Tjek lige igen, om ikke man nemt kan formatere det som en AND
+* Hvis AND virker, så skal der bare være en toggle mellem AND og OR med en kort beskrivelse, e.g. "must contain all tags" eller "must contain any tag"
+* Det er fint, hvis ikke der er mulighed for individuelle AND og OR, da det både var en konstruktionsdetalje og svært at lave et view til (medmindre Directus' kan kopieres?)
+
+## Grafvisning af dokumentnetværk
+* Dokumenter og deres relaterede dokumenter skal vises i en graf på søgesiden
+  * Bonus, hvis den kan opdateres med søgefiltre, så man kan bruge den som decideret resultatliste
+* Knuder skal kunne klikkes for at åbne dokumentet (bare naviger til dens side)
+* Det er ok, at der ikke er filer og brugere, det kan være et diskussionspunkt
+
+### Diskussion
+* Det ville være smart at vise relaterede filer og brugere, og så give dem en anden farve + gøre dem klikbare (profilside og download link)
+
+## OCR
+* Tilføj knap i dokumenter, der kan OCR en fil, som åbner en filpicker (evt. prædefineret til kun at vise png, jpg, bmp, pbm-filer)
+  * Den valgte fils url gives til tesseract.js https://www.npmjs.com/package/tesseract.js/v/2.1.1, og resultatet kopieres til clipboard med besked om, at det er gjort
+* Kan evt cuttes, hvis integration er et helvede 
+
+### Diskussion
+* Kunne være godt at lave helt integreret, så man f.eks. uploader en fil, der så helt automatisk får et tilknyttet, søgbart dokument med indholdet uden brugere selv skal oprette noget. Dette kræver dog, at tesseract kører i backenden, hvilken kræver en dele mere infrastruktur (jeg heller ikke)
+
+## NLP
+* Dette kan evt flyttes til noget diskussion i stedet?
+* Cuttet, da dette kræver store integrationer, træning på data, som jeg ikke har, og penge jeg ikke vil bruge
+* Dette var også lidt et afsnit om muligheder, men som sådan er de konkrete features ikke særdeles opbakket af litteratur, det er bare idéer
+
+## Profilside
+* Når man er på egen profilside skal man kunne redigere felter med
+  * E-mailadresse (obligatorisk som del af login-oplysninger)
+  * Telefonnummer
+  * Fulde navn
+  * Region-ID (organisationens interne identifikationsnummer)
+  * Arbejdsstilling / faggruppe
+  * Afdeling / fysisk lokation
+  * Billede af personen
+* Informationerne kan bare vises i inputfelter, og så have en knap, der bliver aktiv, hvis noget ændres
+* På andres profilsider skal disse være read-only og bare vises som tekst
+* I backenden skal disse info bare tilføjes til brugerobjektet og så skal der evt. laves permissions, hvis ikke disse er default
+
+## Manuel personrelation
+* På dokumenter skal man have en liste i sidebaren af relaterede personer. Denne behover ikke live-update (bare beskriv det som begrænsning)
+* Ligesom med dokumenter og filer skal der være en knap til at tilføje nye, som viser en modal med en liste af avatarer og navne, hvor man kan vælge en person fra og søge pba navn
+* Personer i listen skal have avatar og navn samt delete-knap, og så skal de kunne klikkes for at gå til profilside
+
+## Versionshistorik
+* Skal bruge Directus' revisions og bare vise ændringer i content (hvordan kan man filtrere så det kun er contentændringer?) i sidebaren
+* Der skal være en liste af ændringer med brugerens avatar og navn samt en knap til at se ændringen i en modal?
+* Denne feature skal evt. cuttes på baggrund af at Directus' revision-system måske ikke egner sig godt til dette
+
+## Abonnementer
+* Backenden er lavet, og måske tilføj/fjern i frontenden?
+* Vis en liste af abonnenter på dokumenter i sidebaren
+  * Skal kunne tilføjes og slettes fra ligesom andre relationer
+* Kunne måske lige gøre notifikationer klikbare, så de åbner dokumentet, hvis det er nemt. Det kræver dog mere data i flowet i backenden
+
+## 
+
+
 # Frontend
 * Notifikationer
   * Clear knap?
