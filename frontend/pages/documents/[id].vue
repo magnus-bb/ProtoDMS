@@ -2,20 +2,40 @@
 	<Teleport to="#sidebar-content">
 		<div>
 			<h2 class="text-2xl font-semibold">Related documents</h2>
-			<div class="flex flex-wrap gap-2 mt-2">
+			<div v-if="initialDocument?.related_documents.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_documents"
 					:key="(rel as RelatedDocument).id"
-					class="badge badge-lg badge-outline badge-accent"
+					class="badge badge-lg badge-base-200"
 					target="_blank"
 					:to="`/documents/${((rel as RelatedDocument).related_document_id as Document).id}`"
 				>
 					{{ ((rel as RelatedDocument).related_document_id as Document).title }}
 				</NuxtLink>
 			</div>
+			<p v-else class="text-lg font-light italic">No related documents</p>
 		</div>
 		<div>
 			<h2 class="text-2xl font-semibold">Related users</h2>
+			<div v-if="initialDocument?.related_users.length" class="flex flex-wrap gap-2 mt-2">
+				<NuxtLink
+					v-for="rel of initialDocument!.related_users"
+					:key="(rel as RelatedUser).id"
+					class="badge badge-lg badge-base-200"
+					target="_blank"
+					:to="`/users/${((rel as RelatedUser).user_id as DirectusUser).id}`"
+				>
+					{{
+						[
+							((rel as RelatedUser).user_id as DirectusUser).first_name,
+							((rel as RelatedUser).user_id as DirectusUser).last_name,
+						]
+							.filter(u => u)
+							.join(' ')
+					}}
+				</NuxtLink>
+			</div>
+			<p v-else class="text-lg font-light italic">No related documents</p>
 		</div>
 		<div>
 			<h2 class="text-2xl font-semibold">Related files</h2>
@@ -112,6 +132,7 @@ import type {
 import type {
 	DirectusUsers as DirectusUser,
 	DocumentsRelatedDocuments as RelatedDocument,
+	DocumentsRelatedUsers as RelatedUser,
 	Documents as Document,
 } from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'

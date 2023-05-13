@@ -94,6 +94,7 @@
 </template>
 
 <script setup lang="ts">
+// TODO: vis både related_document_id og document_id i relaterede
 import autoAnimate from '@formkit/auto-animate'
 import type {
 	Documents as Document,

@@ -230,7 +230,15 @@ class DocumentSession {
 			.readOne(
 				documentId,
 				{
-					fields: ['*', 'related_documents.id', 'related_documents.related_document_id.*'] as any[],
+					fields: [
+						'*',
+						'related_documents.id',
+						'related_documents.related_document_id.*',
+						'related_users.id',
+						'related_users.user_id.*',
+						'related_files.id',
+						'related_files.file_id.*',
+					] as any[],
 				},
 				{
 					requestOptions: {

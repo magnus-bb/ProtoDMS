@@ -79,9 +79,9 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit subscribers"
+							title="Edit subscribers and related users"
 						>
-							<button @click="showSubsModal">
+							<button @click="showUsersModal">
 								<Icon class="weight-700 fill optical-size-40">group_add</Icon>
 							</button>
 						</li>
@@ -164,7 +164,7 @@
 		<template #heading>
 			<h3 v-if="creatingDocument" class="text-lg font-bold mb-4">Create document</h3>
 			<h3 v-else-if="editingTags" class="text-lg font-bold mb-4">Select tags</h3>
-			<h3 v-else-if="editingSubs" class="text-lg font-bold mb-4">Select users</h3>
+			<h3 v-else-if="editingUsers" class="text-lg font-bold mb-4">Select users</h3>
 		</template>
 
 		<div class="grid gap-y-2">
@@ -195,11 +195,23 @@
 					Tags
 				</FilterSelect>
 			</div>
-			<div v-if="editingSubs">
-				<label v-if="creatingDocument" for="edit-subs" class="label">
-					<span class="label-text">Subscribers</span>
-				</label>
-				<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2" />
+			<div v-if="editingUsers" class="space-y-2">
+				<div>
+					<label v-if="creatingDocument" for="edit-users" class="label">
+						<span class="label-text">Related users</span>
+					</label>
+					<UserSelector v-model="editUsersValue" :options="allUsers" class="flex flex-col gap-y-2">
+						Users
+					</UserSelector>
+				</div>
+				<div>
+					<label v-if="creatingDocument" for="edit-subs" class="label">
+						<span class="label-text">Subscribers</span>
+					</label>
+					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2">
+						Subscribers
+					</UserSelector>
+				</div>
 			</div>
 			<div class="mt-4">
 				<button
@@ -221,13 +233,13 @@
 					<span>Set tags</span>
 				</button>
 				<button
-					v-else-if="editingSubs"
+					v-else-if="editingUsers"
 					class="btn btn-block btn-accent gap-x-2"
-					:disabled="!editSubsValueChanged"
-					@click="updateSelectedDocumentSubs"
+					:disabled="!editSubsValueChanged && !editUsersValueChanged"
+					@click="updateSelectedDocumentUsers"
 				>
 					<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
-					<span>Set subscribers</span>
+					<span>Set users</span>
 				</button>
 			</div>
 		</div>
@@ -295,7 +307,9 @@ import type {
 	Documents as Document,
 	DirectusUsers as DirectusUser,
 	DocumentsDirectusUsers as DocumentSubscriber,
+	DocumentsRelatedUsers as RelatedUser,
 	DocumentsTags as DocumentTag,
+	DocumentsRelatedFiles as RelatedFile,
 	Tags as Tag,
 	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
@@ -344,12 +358,19 @@ async function executeSearch() {
 		fields: [
 			'*',
 			'related_documents.id',
+			'related_documents.document_id.*',
 			'related_documents.related_document_id.*',
 			'related_documents.related_document_id.tags.tags_id.*',
 			'subscribers.directus_users_id.id',
 			'subscribers.directus_users_id.avatar',
 			'subscribers.directus_users_id.first_name',
 			'subscribers.directus_users_id.last_name',
+			'related_users.user_id.id',
+			'related_users.user_id.avatar',
+			'related_users.user_id.first_name',
+			'related_users.user_id.last_name',
+			'related_files.id',
+			'related_files.file_id.*',
 			'tags.id',
 			'tags.tags_id.*',
 		],
@@ -393,7 +414,7 @@ watch($$(tags), executeSearch)
 let documentModalShown = $ref<boolean>(false)
 let creatingDocument = $ref<boolean>(false) // toggled on when modal needs input for document title
 let editingTags = $ref<boolean>(false) // toggled on when modal needs input for document tags
-let editingSubs = $ref<boolean>(false) // toggled on when modal needs input for document subscribers
+let editingUsers = $ref<boolean>(false) // toggled on when modal needs input for document subscribers
 
 function hideDocumentModal() {
 	documentModalShown = false
@@ -409,7 +430,7 @@ function showTagsModal() {
 	documentModalShown = true
 	creatingDocument = false
 	editingTags = true
-	editingSubs = false
+	editingUsers = false
 }
 
 // Returns whether the the array of tags (to update doc with) has the same elements as the current doc's tags or not, so we can disable submit btn
@@ -450,10 +471,15 @@ async function updateSelectedDocumentTags() {
 	}
 }
 
-//* EDIT SUBSCRIBERS
+//* EDIT SUBSCRIBERS AND RELATED USERS
+let editUsersValue = $ref<DirectusUser[]>([])
 let editSubsValue = $ref<DirectusUser[]>([])
 
-function showSubsModal() {
+function showUsersModal() {
+	// related_users is a junction type that has a user_id field which is populated as the actual user
+	editUsersValue = (selectedDocs.value[0].related_users as RelatedUser[]).map(
+		rel => rel.user_id as DirectusUser
+	)
 	// subscribers is a junction type that has a directus_users_id field which is populated as the actual user
 	editSubsValue = (selectedDocs.value[0].subscribers as DocumentSubscriber[]).map(
 		sub => sub.directus_users_id as DirectusUser
@@ -462,8 +488,25 @@ function showSubsModal() {
 	documentModalShown = true
 	creatingDocument = false
 	editingTags = false
-	editingSubs = true
+	editingUsers = true
 }
+
+// Returns whether the the array of related users (to update doc with) has the same elements as the current doc's users or not, so we can disable submit btn
+const editUsersValueChanged = $computed<boolean>(() => {
+	const selectedDoc = selectedDocs.value[0]
+
+	if (!selectedDoc) return false
+
+	const sameLength = editUsersValue.length === selectedDoc.related_users.length
+	if (!sameLength) return true // If the length is different, the arrays are different
+
+	// If the length is the same, every user in the input must exist in the selected doc's subs for the arrays to be the same, so we return the inverse
+	return !editUsersValue.every(user => {
+		return (selectedDoc.related_users as RelatedUser[]).some(
+			currentUser => (currentUser.user_id as DirectusUser).id === user.id
+		)
+	})
+})
 
 // Returns whether the the array of subs (to update doc with) has the same elements as the current doc's subs or not, so we can disable submit btn
 const editSubsValueChanged = $computed<boolean>(() => {
@@ -482,14 +525,17 @@ const editSubsValueChanged = $computed<boolean>(() => {
 	})
 })
 
-async function updateSelectedDocumentSubs() {
+async function updateSelectedDocumentUsers() {
 	const doc = selectedDocs.value[0]
 
 	try {
-		const updates: Pick<Document, 'subscribers'> = {
+		const updates: Pick<Document, 'subscribers' | 'related_users'> = {
 			subscribers: editSubsValue.map(user => ({
 				directus_users_id: user.id,
 			})) as DocumentSubscriber[],
+			related_users: editUsersValue.map(user => ({
+				user_id: user.id,
+			})) as RelatedUser[],
 		}
 
 		await updateDocument(doc.id, updates)
@@ -510,12 +556,13 @@ let editTitleValue = $ref<string>('')
 function showCreateModal() {
 	editTitleValue = ''
 	editTagsValue = []
+	editUsersValue = []
 	editSubsValue = []
 
 	documentModalShown = true
 	creatingDocument = true
 	editingTags = true
-	editingSubs = true
+	editingUsers = true
 }
 
 async function newDocument() {
@@ -523,6 +570,9 @@ async function newDocument() {
 		const newDoc: Partial<Document> = {
 			title: editTitleValue,
 			tags: editTagsValue.map(tag => ({ tags_id: tag })) as DocumentTag[],
+			related_users: editUsersValue.map(user => ({
+				user_id: user.id,
+			})) as RelatedUser[],
 			subscribers: editSubsValue.map(user => ({
 				directus_users_id: user.id,
 			})) as DocumentSubscriber[],
@@ -542,17 +592,25 @@ async function newDocument() {
 //* DUPLICATE DOCUMENT
 async function duplicateDocument() {
 	const selected = selectedDocs.value[0]
+
 	const duplicatedDocument = {
 		title: `Copy of ${selected.title}`,
 		content: selected.content,
-		tags: selected.tags,
-		subscribers: selected.subscribers,
-		related_documents: selected.related_documents,
-		related_users: selected.related_users,
-		related_files: selected.related_files,
+		tags: (selected.tags as DocumentTag[]).map(({ tags_id }) => ({ tags_id })),
+		subscribers: (selected.subscribers as DocumentSubscriber[]).map(({ directus_users_id }) => ({
+			directus_users_id,
+		})),
+		// TODO: select korrekt related docs (enten document_id eller related_document_id - den, hvis ID ikke er det samme som selected.id)
+		related_documents: (selected.related_documents as RelatedDocument[]).map(
+			({ related_document_id }) => ({
+				related_document_id,
+			})
+		),
+		related_users: (selected.related_users as RelatedUser[]).map(({ user_id }) => ({ user_id })),
+		related_files: (selected.related_files as RelatedFile[]).map(({ file_id }) => ({ file_id })),
 	}
 
-	await createDocument(duplicatedDocument)
+	await createDocument(duplicatedDocument as Document)
 
 	executeSearch()
 }
@@ -680,6 +738,15 @@ async function updateRelatedDocs(idToUpdate: number, newDocIds: number[]) {
 
 	executeSearch()
 }
+
+//* OPEN SELECTED DOCUMENT
+onKeyStroke('Enter', (e: KeyboardEvent) => {
+	e.preventDefault()
+
+	if (selectedDocs.value.length === 1) {
+		window.open('/documents/' + selectedDocs.value[0].id, '_blank')
+	}
+})
 </script>
 
 <style scoped lang="postcss">

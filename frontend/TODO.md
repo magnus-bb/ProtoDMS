@@ -23,6 +23,7 @@ DONE
 * Det er nok nødvendigt at have NOT-filters, så skabeloner kan frasorteres søgeresultater, men helst at dette automatisk sker, for ikke at clutter søgninger
 
 ## Relationer
+DONE
 * I sidebaren af et dokument skal man kunne se relaterede dokumenter ud fra deres titel og mærkater, som har en delete-knap
   * Siden det er tovejs, så kan man se dem, der er relateret fra andre dokumenters side
 * Man skal kunne klikke for at gå til dokumentet
@@ -41,6 +42,11 @@ DONE
 * Klik på en fil skal bare downloade den
 * I backenden skal der bare tilføjes m2m-relationer med filer og dokumenter
   * Sletning af relationen bør ikke slette filen
+* HUSK at redigere creation-modalen til også at selecte relaterede filer
+
+### Diskussion
+* Det ville være en fordel, hvis man let kan navigere til fildokumenter fra en fils side også, så man nemmere kan se, hvad en fil indeholder eller bruges til.
+  * Lige nu er det kun fra dokumentsiden, at man kan finde fildokumentation, da det er lavet til, at man gør filer søgbare ligesom dokumenter. Men det kan jo også være, at man faktisk har fat i filen og så har brug for at læse lidt om den
 
 ### Diskussion
 * Det er ok, at det ikke live-opdateres. Skriv om det i begrænsninger
@@ -131,9 +137,11 @@ DONE
 * I backenden skal disse info bare tilføjes til brugerobjektet og så skal der evt. laves permissions, hvis ikke disse er default
 
 ## Manuel personrelation
-* På dokumenter skal man have en liste i sidebaren af relaterede personer. Denne behover ikke live-update (bare beskriv det som begrænsning)
+DONE
+* På dokumenter skal man have en liste i sidebaren af relaterede personer. Denne behøver ikke live-update (bare beskriv det som begrænsning)
 * Ligesom med dokumenter og filer skal der være en knap til at tilføje nye, som viser en modal med en liste af avatarer og navne, hvor man kan vælge en person fra og søge pba navn
 * Personer i listen skal have avatar og navn samt delete-knap, og så skal de kunne klikkes for at gå til profilside
+* HUSK at redigere CREATION-modalen til også at have relationelle persons udover subscribers
 
 ## Versionshistorik
 * Skal bruge Directus' revisions og bare vise ændringer i content (hvordan kan man filtrere så det kun er contentændringer?) i sidebaren
@@ -146,7 +154,6 @@ DONE
   * Skal kunne tilføjes og slettes fra ligesom andre relationer
 * Kunne måske lige gøre notifikationer klikbare, så de åbner dokumentet, hvis det er nemt. Det kræver dog mere data i flowet i backenden
 
-## 
 
 
 # Frontend

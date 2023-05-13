@@ -12,7 +12,7 @@
 		</div>
 		<div class="dropdown w-full">
 			<label tabindex="0" class="btn w-full">
-				Users
+				<slot />
 				<Icon
 					class="fill optical-size-24 grade-100 absolute right-4 self-center text-xl leading-none bg-transparent"
 					aria-hidden
