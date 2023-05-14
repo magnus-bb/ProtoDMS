@@ -23,8 +23,7 @@ DONE
 * Det er nok nødvendigt at have NOT-filters, så skabeloner kan frasorteres søgeresultater, men helst at dette automatisk sker, for ikke at clutter søgninger
 
 ## Relationer
-TODO: I en relations junction tabel, er relationen enten document_id eller related_document_id, alt efter hvilken side relationen blev tilføjet fra. For hver relation (junction entry) skal et doc vælge den korrekte af de to for at vise og redigere det relaterede dokument. Det er altid det dokument, hvis ID ikke er det samme som det aktive dokuments id. Dette skal ordnes i edit-viewet, så alle relationer bliver vist, og det skal ordnes i relation editoren på søgesiden
-
+DONE
 * I sidebaren af et dokument skal man kunne se relaterede dokumenter ud fra deres titel og mærkater, som har en delete-knap
   * Siden det er tovejs, så kan man se dem, der er relateret fra andre dokumenters side
 * Man skal kunne klikke for at gå til dokumentet

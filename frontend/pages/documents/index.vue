@@ -180,9 +180,9 @@
 				</div>
 			</div>
 			<div v-if="editingTags">
-				<label v-if="creatingDocument" for="edit-tags" class="label">
+				<!-- <label v-if="creatingDocument" for="edit-tags" class="label">
 					<span class="label-text">Tags</span>
-				</label>
+				</label> -->
 				<FilterSelect
 					v-model="editTagsValue"
 					name="edit-tags"
@@ -197,17 +197,17 @@
 			</div>
 			<div v-if="editingUsers" class="space-y-2">
 				<div>
-					<label v-if="creatingDocument" for="edit-users" class="label">
+					<!-- <label v-if="creatingDocument" for="edit-users" class="label">
 						<span class="label-text">Related users</span>
-					</label>
+					</label> -->
 					<UserSelector v-model="editUsersValue" :options="allUsers" class="flex flex-col gap-y-2">
 						Users
 					</UserSelector>
 				</div>
 				<div>
-					<label v-if="creatingDocument" for="edit-subs" class="label">
+					<!-- <label v-if="creatingDocument" for="edit-subs" class="label">
 						<span class="label-text">Subscribers</span>
-					</label>
+					</label> -->
 					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2">
 						Subscribers
 					</UserSelector>
@@ -310,6 +310,7 @@ import type {
 	DocumentsRelatedUsers as RelatedUser,
 	DocumentsTags as DocumentTag,
 	DocumentsRelatedFiles as RelatedFile,
+	DirectusFiles as File,
 	Tags as Tag,
 	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
@@ -561,28 +562,31 @@ function showCreateModal() {
 
 	documentModalShown = true
 	creatingDocument = true
-	editingTags = true
-	editingUsers = true
+	// editingTags = true
+	// editingUsers = true
+	editingTags = false
+	editingUsers = false
 }
 
 async function newDocument() {
 	try {
 		const newDoc: Partial<Document> = {
 			title: editTitleValue,
-			tags: editTagsValue.map(tag => ({ tags_id: tag })) as DocumentTag[],
-			related_users: editUsersValue.map(user => ({
-				user_id: user.id,
-			})) as RelatedUser[],
-			subscribers: editSubsValue.map(user => ({
-				directus_users_id: user.id,
-			})) as DocumentSubscriber[],
+			// tags: editTagsValue.map(tag => ({ tags_id: tag })) as DocumentTag[],
+			// related_users: editUsersValue.map(user => ({
+			// 	user_id: user.id,
+			// })) as RelatedUser[],
+			// subscribers: editSubsValue.map(user => ({
+			// 	directus_users_id: user.id,
+			// })) as DocumentSubscriber[],
 		}
 
 		const createdDoc = await createDocument(newDoc)
 
 		hideDocumentModal()
 
-		if (createdDoc?.id) return navigateTo('/documents/' + createdDoc.id)
+		// if (createdDoc?.id) return navigateTo('/documents/' + createdDoc.id)
+		if (createdDoc?.id) return window.open('/documents/' + createdDoc.id, '_blank')
 	} catch (err) {
 		alert('There was an error creating document')
 		console.error(err)
@@ -593,24 +597,47 @@ async function newDocument() {
 async function duplicateDocument() {
 	const selected = selectedDocs.value[0]
 
+	const selectedSubIds = (selected.subscribers as DocumentSubscriber[]).map(
+		({ directus_users_id }) => {
+			return {
+				directus_users_id: (directus_users_id as DirectusUser)?.id,
+			}
+		}
+	)
+	const selectedRelUserIds = (selected.related_users as RelatedUser[]).map(({ user_id }) => {
+		return {
+			user_id: (user_id as DirectusUser)?.id,
+		}
+	})
+	const selectedTagIds = (selected.tags as DocumentTag[]).map(({ tags_id }) => {
+		return {
+			tags_id: (tags_id as Tag)?.id,
+		}
+	})
+	const selectedRelDocIds = (selected.related_documents as RelatedDocument[]).map(
+		({ related_document_id }) => {
+			return {
+				related_document_id: (related_document_id as Document)?.id,
+			}
+		}
+	)
+	const selectedRelFileIds = (selected.related_files as RelatedFile[]).map(({ file_id }) => {
+		return {
+			file_id: (file_id as File)?.id,
+		}
+	})
+
 	const duplicatedDocument = {
 		title: `Copy of ${selected.title}`,
 		content: selected.content,
-		// tags: (selected.tags as DocumentTag[]).map(({ tags_id }) => ({ tags_id })),
-		tags: [7],
-		subscribers: (selected.subscribers as DocumentSubscriber[]).map(({ directus_users_id }) => ({
-			directus_users_id,
-		})),
-		related_documents: (selected.related_documents as RelatedDocument[]).map(
-			({ related_document_id }) => ({
-				related_document_id,
-			})
-		),
-		related_users: (selected.related_users as RelatedUser[]).map(({ user_id }) => ({ user_id })),
-		related_files: (selected.related_files as RelatedFile[]).map(({ file_id }) => ({ file_id })),
+		tags: selectedTagIds,
+		subscribers: selectedSubIds,
+		related_users: selectedRelUserIds,
+		related_documents: selectedRelDocIds,
+		related_files: selectedRelFileIds,
 	}
 
-	await createDocument(duplicatedDocument as Document)
+	await createDocument(duplicatedDocument as any)
 
 	executeSearch()
 }

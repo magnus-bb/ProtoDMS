@@ -238,7 +238,7 @@
 
 	<!-- MOVE FILE/FOLDER MODAL -->
 	<div class="modal modal-bottom md:modal-middle" :class="{ 'modal-open': moveModalShown }">
-		<div v-on-click-outside="hideModal" class="modal-box !max-w-2xl overflow-y-visible">
+		<div v-on-click-outside="hideModal" class="modal-box !max-w-2xl overflow-y-visible ml-16">
 			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideModal">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
 			</button>

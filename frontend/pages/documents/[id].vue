@@ -35,10 +35,23 @@
 					}}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No related documents</p>
+			<p v-else class="text-lg font-light italic">No related users</p>
 		</div>
 		<div>
 			<h2 class="text-2xl font-semibold">Related files</h2>
+			<div v-if="initialDocument?.related_files.length" class="flex flex-wrap gap-2 mt-2">
+				<NuxtLink
+					v-for="rel of initialDocument!.related_files"
+					:key="(rel as RelatedFile).id"
+					class="badge badge-lg badge-base-200"
+					target="_blank"
+					:download="((rel as RelatedFile).file_id as File).filename_download"
+					:to="getAssetUrl(((rel as RelatedFile).file_id as File).id, { download: true })"
+				>
+					{{ ((rel as RelatedFile).file_id as File).filename_download }}
+				</NuxtLink>
+			</div>
+			<p v-else class="text-lg font-light italic">No related files</p>
 		</div>
 	</Teleport>
 
@@ -133,6 +146,8 @@ import type {
 	DirectusUsers as DirectusUser,
 	DocumentsRelatedDocuments as RelatedDocument,
 	DocumentsRelatedUsers as RelatedUser,
+	DocumentsRelatedFiles as RelatedFile,
+	DirectusFiles as File,
 	Documents as Document,
 } from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
