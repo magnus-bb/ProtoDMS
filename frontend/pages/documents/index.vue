@@ -55,7 +55,7 @@
 								<Icon class="weight-700 fill optical-size-40">edit_document</Icon>
 							</NuxtLink>
 						</li>
-						<!-- set related docs -->
+						<!-- edit related docs -->
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
@@ -82,7 +82,17 @@
 							title="Edit subscribers and related users"
 						>
 							<button @click="showUsersModal">
-								<Icon class="weight-700 fill optical-size-40">group_add</Icon>
+								<Icon class="weight-700 fill optical-size-40">group</Icon>
+							</button>
+						</li>
+						<!-- edit related files -->
+						<li
+							v-if="selectedDocs.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Edit related files"
+						>
+							<button @click="showRelatedFilesModal">
+								<Icon class="weight-700 fill optical-size-40">attach_file</Icon>
 							</button>
 						</li>
 						<!-- delete documents -->
@@ -180,9 +190,6 @@
 				</div>
 			</div>
 			<div v-if="editingTags">
-				<!-- <label v-if="creatingDocument" for="edit-tags" class="label">
-					<span class="label-text">Tags</span>
-				</label> -->
 				<FilterSelect
 					v-model="editTagsValue"
 					name="edit-tags"
@@ -197,52 +204,46 @@
 			</div>
 			<div v-if="editingUsers" class="space-y-2">
 				<div>
-					<!-- <label v-if="creatingDocument" for="edit-users" class="label">
-						<span class="label-text">Related users</span>
-					</label> -->
 					<UserSelector v-model="editUsersValue" :options="allUsers" class="flex flex-col gap-y-2">
 						Users
 					</UserSelector>
 				</div>
 				<div>
-					<!-- <label v-if="creatingDocument" for="edit-subs" class="label">
-						<span class="label-text">Subscribers</span>
-					</label> -->
 					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2">
 						Subscribers
 					</UserSelector>
 				</div>
 			</div>
-			<div class="mt-4">
-				<button
-					v-if="creatingDocument"
-					class="btn btn-block btn-accent gap-x-2"
-					:disabled="!editTitleValue.length"
-					@click="newDocument"
-				>
-					<Icon class="weight-700 fill optical-size-40 text-lg">note_add</Icon>
-					<span>Create document</span>
-				</button>
-				<button
-					v-else-if="editingTags"
-					class="btn btn-block btn-accent gap-x-2"
-					:disabled="!editTagsValueChanged"
-					@click="updateSelectedDocumentTags"
-				>
-					<Icon class="weight-700 fill optical-size-40 text-lg">sell</Icon>
-					<span>Set tags</span>
-				</button>
-				<button
-					v-else-if="editingUsers"
-					class="btn btn-block btn-accent gap-x-2"
-					:disabled="!editSubsValueChanged && !editUsersValueChanged"
-					@click="updateSelectedDocumentUsers"
-				>
-					<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
-					<span>Set users</span>
-				</button>
-			</div>
 		</div>
+		<template #actions>
+			<button
+				v-if="creatingDocument"
+				class="btn btn-block btn-accent gap-x-2"
+				:disabled="!editTitleValue.length"
+				@click="newDocument"
+			>
+				<Icon class="weight-700 fill optical-size-40 text-lg">note_add</Icon>
+				<span>Create document</span>
+			</button>
+			<button
+				v-else-if="editingTags"
+				class="btn btn-block btn-accent gap-x-2"
+				:disabled="!editTagsValueChanged"
+				@click="updateSelectedDocumentTags"
+			>
+				<Icon class="weight-700 fill optical-size-40 text-lg">sell</Icon>
+				<span>Set tags</span>
+			</button>
+			<button
+				v-else-if="editingUsers"
+				class="btn btn-block btn-accent gap-x-2"
+				:disabled="!editSubsValueChanged && !editUsersValueChanged"
+				@click="updateSelectedDocumentUsers"
+			>
+				<Icon class="weight-700 fill optical-size-40 text-lg">group_add</Icon>
+				<span>Set users</span>
+			</button>
+		</template>
 	</Modal>
 
 	<!-- CREATE / DELETE TAGS MODAL -->
@@ -292,12 +293,27 @@
 		</div>
 	</Modal>
 
+	<!-- RELATED DOCS MODAL -->
 	<DocumentSelector
-		:current-document="selectedDocs[0]"
+		v-if="relatedDocsModalShown"
 		:class="{ 'modal-open': relatedDocsModalShown }"
+		:current-document="selectedDocs[0]"
 		@hide="hideRelatedDocsModal"
 		@update-relations="updateRelatedDocs"
 	/>
+
+	<!-- RELATED FILES MODAL -->
+	<Modal :class="{ 'modal-open': relatedFilesModalShown }" @hide="hideRelatedFilesModal">
+		<template #heading>Select files</template>
+
+		<ul>
+			<Folder :folder="rootFolder" :highlight-folder="currentFolder" @select="goToFolder" />
+		</ul>
+
+		<div class="divider" />
+
+		<!-- TODO render files with previews if it is easy to reuse, otherwise just use a list of names -->
+	</Modal>
 </template>
 
 <script setup lang="ts">
@@ -311,9 +327,11 @@ import type {
 	DocumentsTags as DocumentTag,
 	DocumentsRelatedFiles as RelatedFile,
 	DirectusFiles as File,
+	DirectusFolders as DirectusFolder,
 	Tags as Tag,
 	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
+import type { TreeFolder } from '@/types/files'
 
 //* INITIALIZE SEARCH STATE
 const route = useRoute()
@@ -562,8 +580,6 @@ function showCreateModal() {
 
 	documentModalShown = true
 	creatingDocument = true
-	// editingTags = true
-	// editingUsers = true
 	editingTags = false
 	editingUsers = false
 }
@@ -572,20 +588,12 @@ async function newDocument() {
 	try {
 		const newDoc: Partial<Document> = {
 			title: editTitleValue,
-			// tags: editTagsValue.map(tag => ({ tags_id: tag })) as DocumentTag[],
-			// related_users: editUsersValue.map(user => ({
-			// 	user_id: user.id,
-			// })) as RelatedUser[],
-			// subscribers: editSubsValue.map(user => ({
-			// 	directus_users_id: user.id,
-			// })) as DocumentSubscriber[],
 		}
 
 		const createdDoc = await createDocument(newDoc)
 
 		hideDocumentModal()
 
-		// if (createdDoc?.id) return navigateTo('/documents/' + createdDoc.id)
 		if (createdDoc?.id) return window.open('/documents/' + createdDoc.id, '_blank')
 	} catch (err) {
 		alert('There was an error creating document')
@@ -671,7 +679,6 @@ async function deleteSelectedDocuments() {
 }
 
 //* ADD / REMOVE TAGS
-
 async function removeTag(tag: Tag) {
 	if (!window.confirm(`Are you sure you want to delete the tag '${tag.name}'?`)) {
 		return
@@ -773,6 +780,56 @@ onKeyStroke('Enter', (e: KeyboardEvent) => {
 	if (selectedDocs.value.length === 1) {
 		window.open('/documents/' + selectedDocs.value[0].id, '_blank')
 	}
+})
+
+//* EDIT RELATED FILES
+let relatedFilesModalShown = $ref<boolean>(false)
+function showRelatedFilesModal() {
+	relatedFilesModalShown = true
+}
+function hideRelatedFilesModal() {
+	relatedFilesModalShown = false
+}
+async function updateRelatedFiles(idToUpdate: number, newFileIds: number[]) {
+	try {
+		const updates = {
+			related_files: newFileIds.map(fileId => ({
+				file_id: fileId,
+			})) as unknown as RelatedFile[],
+		}
+
+		await updateDocument(idToUpdate, updates)
+	} catch (err) {
+		alert(
+			`There was an error updating the document '${selectedDocs.value[0].title}'s related files`
+		)
+		console.error(err)
+	}
+
+	hideRelatedFilesModal()
+
+	executeSearch()
+}
+
+// FOLDER RENDERING
+let allFolders: DirectusFolder[] = $ref([])
+await refreshFolders()
+
+async function refreshFolders() {
+	const folderRes = await getAllFolders()
+	allFolders = folderRes
+}
+const rootFolder = $computed<TreeFolder>(() => createDirectoryTree(allFolders))
+
+let currentFolder = $ref<TreeFolder>(rootFolder)
+function goToFolder(folder: TreeFolder) {
+	currentFolder = folder
+}
+
+// FILE RENDERING
+const currentFiles = $computed<DirectusFile[]>(() => {
+	// TODO: use [...id].vue in folders page and Folder.vue for reference
+	// TODO: do as ...id.vue - check if that means getting ALL files and just filter them by which are in currentFolder og if that means async requests. I think getting all files is best
 })
 </script>
 

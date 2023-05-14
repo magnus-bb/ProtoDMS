@@ -1,8 +1,8 @@
 <template>
-	<Modal box-classes="lg:ml-80" @hide="reset">
+	<Modal @hide="reset">
 		<!-- set a left margin of 80 to match width of sidebar when shown -->
 		<div v-if="currentDocument?.related_documents?.length">
-			<h3>Remove related documents</h3>
+			<h3 class="text-lg font-bold mb-4">Remove related documents</h3>
 
 			<div class="document-grid mt-4">
 				<!-- mini preview -->
@@ -33,7 +33,7 @@
 			</div>
 		</div>
 
-		<h3 class="mt-6">Add related documents</h3>
+		<h3 class="mt-6 text-lg font-bold mb-4">Add related documents</h3>
 
 		<div class="grid gap-2 grid-cols-1 sm:grid-cols-2 mt-4">
 			<input
@@ -83,7 +83,7 @@
 
 		<template #actions>
 			<button
-				class="btn btn-accent"
+				class="btn btn-block btn-accent"
 				:disabled="!selectedToAdd?.length && !selectedToRemove?.length"
 				@click="updateRelatedDocuments"
 			>
@@ -107,18 +107,34 @@ const { currentDocument = null } = defineProps<{
 	currentDocument?: Document // this is used so we can filter off the current doc, since we don't want to be able to relate a doc to itself
 }>()
 
-const documents = await query<Document>('documents', {
-	fields: [
-		'*',
-		'subscribers.directus_users_id.id',
-		'subscribers.directus_users_id.avatar',
-		'subscribers.directus_users_id.first_name',
-		'subscribers.directus_users_id.last_name',
-		'tags.id',
-		'tags.tags_id.*',
-	],
-	limit: -1,
-})
+let documents: Document[] = []
+await refreshDocuments()
+async function refreshDocuments() {
+	documents = await query<Document>('documents', {
+		fields: [
+			'*',
+			'subscribers.directus_users_id.id',
+			'subscribers.directus_users_id.avatar',
+			'subscribers.directus_users_id.first_name',
+			'subscribers.directus_users_id.last_name',
+			'tags.id',
+			'tags.tags_id.*',
+		],
+		limit: -1,
+	})
+}
+// documents = await query<Document>('documents', {
+// 	fields: [
+// 		'*',
+// 		'subscribers.directus_users_id.id',
+// 		'subscribers.directus_users_id.avatar',
+// 		'subscribers.directus_users_id.first_name',
+// 		'subscribers.directus_users_id.last_name',
+// 		'tags.id',
+// 		'tags.tags_id.*',
+// 	],
+// 	limit: -1,
+// })
 
 //* FILTERING
 const allTags = await readAll<Tag>('tags')
