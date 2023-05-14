@@ -1,6 +1,6 @@
 <template>
 	<button class="card">
-		<div class="card-body w-full">
+		<div class="card-body w-full relative">
 			<h2 class="card-title inline">{{ document.title }}</h2>
 			<div class="divider my-0" />
 
@@ -39,6 +39,14 @@
 					</div>
 				</div>
 			</div>
+			<div
+				v-if="document.related_files.length"
+				class="absolute top-0 right-0 h-0 w-0 rounded-tr-2xl border-t-[5rem] border-l-[5rem] border-t-base-300 border-l-transparent"
+			>
+				<div class="absolute -top-[4.25rem] -left-[2.25rem] tooltip" :data-tip="relatedFilesText">
+					<Icon class="text-2xl fill optical-size-40 grade-100 text-secondary">attach_file</Icon>
+				</div>
+			</div>
 		</div>
 	</button>
 </template>
@@ -51,9 +59,19 @@ import type {
 	DocumentsTags as DocumentTag,
 	DocumentsDirectusUsers as DocumentSubscriber,
 	DirectusUsers as DirectusUser,
+	DirectusFiles as File,
+	DocumentsRelatedFiles as RelatedFile,
 } from '@/types/directus'
 
 const { document } = defineProps<{
 	document: Document
 }>()
+
+const relatedFilesText = $computed<string>(() => {
+	const fileNames = (document.related_files as RelatedFile[]).map(
+		rel => (rel.file_id as File).filename_download
+	)
+
+	return new Intl.ListFormat('en', { style: 'short', type: 'conjunction' }).format(fileNames)
+})
 </script>

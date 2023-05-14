@@ -1,5 +1,8 @@
 import type { TreeFolder } from '@/types/files'
-import type { DirectusFolders as DirectusFolder } from '@/types/directus'
+import type {
+	DirectusFolders as DirectusFolder,
+	DirectusFiles as DirectusFile,
+} from '@/types/directus'
 
 // Go through all folders from directus and use the 'parent' id property to attach
 // folders to their parent folders in a 'children' array
@@ -28,4 +31,7 @@ export function createDirectoryTree(folders: TreeFolder[]): TreeFolder {
 
 export function getAllFolders() {
 	return readAll<DirectusFolder>('directus_folders') as Promise<DirectusFolder[]> // This IS a folder array, if undef, something else broke anyway
+}
+export function getAllFiles() {
+	return readAll<DirectusFile>('directus_files') as Promise<DirectusFile[]> // This IS a folder array, if undef, something else broke anyway
 }

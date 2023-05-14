@@ -304,8 +304,25 @@
 
 	<!-- RELATED FILES MODAL -->
 	<Modal :class="{ 'modal-open': relatedFilesModalShown }" @hide="hideRelatedFilesModal">
-		<template #heading>Select files</template>
+		<template #heading>Remove related files</template>
 
+		<div v-if="alreadyRelatedFiles.length" class="flex flex-wrap gap-2 mt-2">
+			<button
+				v-for="file of alreadyRelatedFiles"
+				:key="file.id"
+				class="badge badge-lg badge-base-200 font-mono cursor-pointer items-center gap-1.5"
+				@click="removeRelatedFile(file.id)"
+			>
+				<Icon class="fill optical-size-24 grade-100 text-sm" aria-hidden>close</Icon>
+				<span>
+					{{ file.filename_download }}
+				</span>
+			</button>
+		</div>
+
+		<p v-else class="font-light italic">No related files</p>
+
+		<h3 class="text-lg font-bold mb-4 mt-6">Add related files</h3>
 		<ul>
 			<Folder :folder="rootFolder" :highlight-folder="currentFolder" @select="goToFolder" />
 		</ul>
@@ -313,6 +330,14 @@
 		<div class="divider" />
 
 		<!-- TODO render files with previews if it is easy to reuse, otherwise just use a list of names -->
+		<div class="file-grid">
+			<File
+				v-for="file of currentFolderFiles"
+				:key="file.id"
+				:file="file"
+				@click="addRelatedFile(file.id)"
+			/>
+		</div>
 	</Modal>
 </template>
 
@@ -332,6 +357,7 @@ import type {
 	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
+import { getAllFiles } from '~~/utils/files'
 
 //* INITIALIZE SEARCH STATE
 const route = useRoute()
@@ -784,31 +810,14 @@ onKeyStroke('Enter', (e: KeyboardEvent) => {
 
 //* EDIT RELATED FILES
 let relatedFilesModalShown = $ref<boolean>(false)
-function showRelatedFilesModal() {
+
+async function showRelatedFilesModal() {
+	await Promise.all([refreshFolders(), refreshAllFiles()])
 	relatedFilesModalShown = true
 }
+
 function hideRelatedFilesModal() {
 	relatedFilesModalShown = false
-}
-async function updateRelatedFiles(idToUpdate: number, newFileIds: number[]) {
-	try {
-		const updates = {
-			related_files: newFileIds.map(fileId => ({
-				file_id: fileId,
-			})) as unknown as RelatedFile[],
-		}
-
-		await updateDocument(idToUpdate, updates)
-	} catch (err) {
-		alert(
-			`There was an error updating the document '${selectedDocs.value[0].title}'s related files`
-		)
-		console.error(err)
-	}
-
-	hideRelatedFilesModal()
-
-	executeSearch()
 }
 
 // FOLDER RENDERING
@@ -816,8 +825,7 @@ let allFolders: DirectusFolder[] = $ref([])
 await refreshFolders()
 
 async function refreshFolders() {
-	const folderRes = await getAllFolders()
-	allFolders = folderRes
+	allFolders = await getAllFolders()
 }
 const rootFolder = $computed<TreeFolder>(() => createDirectoryTree(allFolders))
 
@@ -827,10 +835,68 @@ function goToFolder(folder: TreeFolder) {
 }
 
 // FILE RENDERING
-const currentFiles = $computed<DirectusFile[]>(() => {
-	// TODO: use [...id].vue in folders page and Folder.vue for reference
-	// TODO: do as ...id.vue - check if that means getting ALL files and just filter them by which are in currentFolder og if that means async requests. I think getting all files is best
+let allFiles = $ref<File[]>([])
+refreshAllFiles()
+async function refreshAllFiles() {
+	allFiles = await getAllFiles()
+}
+
+const alreadyRelatedFiles = $computed<File[]>(() => {
+	const selectedDoc = selectedDocs.value[0]
+	if (!selectedDoc) return []
+
+	return (selectedDoc.related_files as RelatedFile[]).map(rel => rel.file_id as File)
 })
+
+const alreadyRelatedFileIds = $computed<string[]>(() =>
+	alreadyRelatedFiles.map((file: File) => file.id)
+)
+
+// Files in currentFolder that are not already related to selected doc
+const currentFolderFiles = $computed<File[]>(() => {
+	const selectedDoc = selectedDocs.value[0]
+	if (!selectedDoc) return []
+
+	return allFiles.filter((file: File) => {
+		return file.folder === currentFolder.id && !alreadyRelatedFileIds.includes(file.id)
+	})
+})
+
+// UPDATING
+async function addRelatedFile(idToAdd: string) {
+	const newIds = [...alreadyRelatedFileIds, idToAdd]
+
+	await updateRelatedFiles(newIds)
+}
+
+async function removeRelatedFile(idToRemove: string) {
+	const newIds = alreadyRelatedFileIds.filter(id => id !== idToRemove)
+
+	await updateRelatedFiles(newIds)
+}
+
+async function updateRelatedFiles(newFileIds: string[]) {
+	const doc = selectedDocs.value[0]
+
+	try {
+		const updates = {
+			related_files: newFileIds.map(fileId => ({
+				file_id: fileId,
+			})) as RelatedFile[],
+		}
+
+		await updateDocument(doc.id, updates)
+	} catch (err) {
+		alert(
+			`There was an error updating the document '${selectedDocs.value[0].title}'s related files`
+		)
+		console.error(err)
+	}
+
+	hideRelatedFilesModal()
+
+	await executeSearch()
+}
 </script>
 
 <style scoped lang="postcss">
@@ -838,6 +904,17 @@ const currentFiles = $computed<DirectusFile[]>(() => {
 	@apply grid gap-6;
 
 	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+.file-grid {
+	@apply grid gap-6;
+
+	--file-width: 80px;
+	@screen sm {
+		--file-width: 112px;
+	}
+
+	grid-template-columns: repeat(auto-fill, minmax(var(--file-width), 1fr));
 }
 
 :deep() {
