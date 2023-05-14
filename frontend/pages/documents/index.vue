@@ -596,11 +596,11 @@ async function duplicateDocument() {
 	const duplicatedDocument = {
 		title: `Copy of ${selected.title}`,
 		content: selected.content,
-		tags: (selected.tags as DocumentTag[]).map(({ tags_id }) => ({ tags_id })),
+		// tags: (selected.tags as DocumentTag[]).map(({ tags_id }) => ({ tags_id })),
+		tags: [7],
 		subscribers: (selected.subscribers as DocumentSubscriber[]).map(({ directus_users_id }) => ({
 			directus_users_id,
 		})),
-		// TODO: select korrekt related docs (enten document_id eller related_document_id - den, hvis ID ikke er det samme som selected.id)
 		related_documents: (selected.related_documents as RelatedDocument[]).map(
 			({ related_document_id }) => ({
 				related_document_id,
