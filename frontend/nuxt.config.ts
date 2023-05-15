@@ -31,6 +31,10 @@ export default defineNuxtConfig({
 
 	ssr: false,
 
+	devServer: {
+		port: process.env.PORT || 3000,
+	},
+
 	// These are automatically read from environment when prefixed with NUXT_
 	runtimeConfig: {
 		public: {

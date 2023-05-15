@@ -155,9 +155,10 @@ DONE
   * Skal kunne tilføjes og slettes fra ligesom andre relationer
 * Kunne måske lige gøre notifikationer klikbare, så de åbner dokumentet, hvis det er nemt. Det kræver dog mere data i flowet i backenden
 
-
-
 # Frontend
+* https://github.com/nuxt/nuxt/pull/19230 OMSKRIV SOCKET.IO
+
+
 * Notifikationer
   * Clear knap?
 * Profilside
