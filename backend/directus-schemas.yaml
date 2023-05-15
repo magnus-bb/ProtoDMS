@@ -59,7 +59,7 @@ collections:
       sql: >-
         CREATE TABLE "documents_directus_users" (`directus_users_id` char(36)
         NULL DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `documents_id` integer NULL DEFAULT null, `last_name` integer null,
+        `documents_id` integer NULL DEFAULT null, `last_name` integer NULL,
         CONSTRAINT `documents_directus_users_directus_users_id_foreign` FOREIGN
         KEY (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE
         CASCADE, CONSTRAINT `documents_directus_users_documents_id_foreign`
@@ -1871,7 +1871,7 @@ relations:
       one_allowed_collections: null
       one_collection: documents
       one_collection_field: null
-      one_deselect_action: nullify
+      one_deselect_action: delete
       one_field: subscribers
       sort_field: last_name
     related_collection: documents
