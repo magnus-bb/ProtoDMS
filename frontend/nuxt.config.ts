@@ -3,7 +3,7 @@ import eslintPlugin from 'vite-plugin-eslint'
 const isDev = process.env.NODE_ENV !== 'production'
 
 const title = 'ProtoDMS'
-const description = 'SOME DESCRIPTION'
+const description = "Manages your organization's documentation"
 // const logoPath = ORIGIN + '/img/POPlogo-socials.png'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
@@ -119,4 +119,6 @@ export default defineNuxtConfig({
 				: null,
 		],
 	},
+
+	sourcemap: true,
 })

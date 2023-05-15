@@ -1,5 +1,5 @@
 <template>
-	<QuillEditor v-once :options="options" :content="props.content" class="!border-0" />
+	<QuillEditor v-once :options="options" :content="props.content.ops as any" class="!border-0" />
 </template>
 
 <script setup lang="ts">

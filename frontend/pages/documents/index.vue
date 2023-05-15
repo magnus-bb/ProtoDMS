@@ -1,12 +1,7 @@
 <template>
 	<div class="p-4 flex flex-col">
 		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
-			<button
-				class="btn btn-outline btn-secondary btn-block md:btn-wide col-span-2 md:col-span-1 md:row-start-2"
-				@click="showAddRemoveTagsModal"
-			>
-				Add/remove tags
-			</button>
+			<div class="col-span-2 md:col-span-1 md:row-start-2 text-4xl font-semibold">Documents</div>
 
 			<div class="md:justify-self-end md:col-start-2">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
@@ -16,7 +11,7 @@
 			</div>
 
 			<!-- SELECTED DOCUMENT ACTIONS -->
-			<div class="justify-self-end md:row-start-2 flex gap-x-2">
+			<div class="justify-self-end md:row-start-2 md:col-start-2 flex gap-x-2">
 				<div class="dropdown dropdown-hover">
 					<button
 						:class="{ 'btn-secondary bg-secondary/50': selectedDocs.length }"
@@ -132,18 +127,23 @@
 			</div>
 
 			<!-- TAGS -->
-			<FilterSelect
-				v-model="tags"
-				name="tags"
-				:options="allTags"
-				multiple
-				hover
-				label-prop="name"
-				emit-prop="id"
-				class="border-0 bg-base-300"
-			>
-				Tags
-			</FilterSelect>
+			<div class="flex items-center gap-4">
+				<FilterSelect
+					v-model="tags"
+					name="tags"
+					:options="allTags"
+					multiple
+					hover
+					label-prop="name"
+					emit-prop="id"
+					class="border-0 bg-base-300"
+				>
+					Tags
+				</FilterSelect>
+				<button class="btn btn-outline btn-secondary" @click="showAddRemoveTagsModal">
+					Add/remove tags
+				</button>
+			</div>
 		</div>
 
 		<main v-if="documents?.length" class="space-y-8">
