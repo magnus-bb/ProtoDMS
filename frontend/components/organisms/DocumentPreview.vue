@@ -1,13 +1,38 @@
 <template>
 	<button class="card">
 		<div class="card-body w-full relative">
-			<h2 class="card-title inline">{{ document.title }}</h2>
+			<!-- PRIVATE DOC INDICATOR -->
+			<div
+				v-if="document.private"
+				class="absolute top-0 left-0 h-0 w-0 rounded-tl-2xl border-t-[4rem] border-r-[4rem] border-t-base-300 border-r-transparent"
+			>
+				<div
+					class="absolute -top-[52px] left-3 tooltip tooltip-right z-20"
+					data-tip="Only you can see this document"
+				>
+					<Icon class="text-xl optical-size-40 grade-100 text-muted">lock</Icon>
+				</div>
+			</div>
+			<!-- RELATED FILES INDICATOR -->
+			<div
+				v-if="document.related_files?.length"
+				class="absolute top-0 right-0 h-0 w-0 rounded-tr-2xl border-t-[4rem] border-l-[4rem] border-t-base-300 border-l-transparent"
+			>
+				<div
+					class="absolute -top-[52px] right-3 tooltip tooltip-left z-20"
+					:data-tip="relatedFilesText"
+				>
+					<Icon class="text-xl optical-size-40 grade-100 text-secondary">attach_file</Icon>
+				</div>
+			</div>
+
+			<h2 class="card-title inline z-10">{{ document.title }}</h2>
 			<div class="divider my-0" />
 
 			<!-- MUST use a wrapper to get v-once working correctly with :content so quill does not keep failing updates
-		when searching which calls a diff check that fails -->
+			when searching which calls a diff check that fails -->
 			<!-- <QuillReadOnly :content="new Delta(document.content as any)" /> -->
-			<QuillReadOnly :content="document.content as Delta" />
+			<QuillReadOnly :content="(document.content as Delta)" />
 
 			<div class="card-actions grid items-center grid-cols-[1fr_auto]">
 				<!-- TAGS -->
@@ -38,14 +63,6 @@
 							avatar-class="border-2 border-secondary"
 						/>
 					</div>
-				</div>
-			</div>
-			<div
-				v-if="document.related_files.length"
-				class="absolute top-0 right-0 h-0 w-0 rounded-tr-2xl border-t-[5rem] border-l-[5rem] border-t-base-300 border-l-transparent"
-			>
-				<div class="absolute -top-[4.25rem] -left-[2.25rem] tooltip" :data-tip="relatedFilesText">
-					<Icon class="text-2xl fill optical-size-40 grade-100 text-secondary">attach_file</Icon>
 				</div>
 			</div>
 		</div>

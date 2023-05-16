@@ -42,6 +42,19 @@
 								<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
 							</button>
 						</li>
+						<!-- make private / publish -->
+						<li
+							v-if="selectedDocs.length === 1 && isOwnerOfSelectedDoc"
+							class="items-center text-xl sm:text-2xl"
+							:title="selectedDocIsPrivate ? 'Make public' : 'Make private'"
+						>
+							<button @click="togglePrivate">
+								<Icon v-if="selectedDocIsPrivate" class="weight-700 fill optical-size-40"
+									>lock_open</Icon
+								>
+								<Icon v-else class="weight-700 fill optical-size-40">lock</Icon>
+							</button>
+						</li>
 						<!-- edit document-->
 						<li
 							v-if="selectedDocs.length === 1"
@@ -179,17 +192,26 @@
 			<h3 v-else-if="editingUsers" class="text-lg font-bold mb-4">Select users</h3>
 		</template>
 
-		<div class="grid gap-y-2">
-			<div v-if="creatingDocument">
-				<div class="form-control">
-					<label for="title" class="label"><span class="label-text">Title</span></label>
-					<input
-						id="title"
-						v-model="editTitleValue"
-						placeholder="Document title"
-						class="input input-bordered placeholder:text-muted"
-					/>
-				</div>
+		<div class="grid gap-y-4">
+			<div v-if="creatingDocument" class="form-control">
+				<label for="title" class="label pt-0"><span class="label-text">Title</span></label>
+				<input
+					id="title"
+					v-model="editTitleValue"
+					placeholder="Document title"
+					class="input input-bordered placeholder:text-muted"
+				/>
+			</div>
+			<div v-if="creatingDocument" class="form-control">
+				<label for="private" class="label pt-0">
+					<span class="label-text">Private document</span>
+				</label>
+				<input
+					id="private"
+					v-model="editPrivateValue"
+					type="checkbox"
+					class="toggle toggle-primary"
+				/>
 			</div>
 			<div v-if="editingTags">
 				<FilterSelect
@@ -204,17 +226,13 @@
 					Tags
 				</FilterSelect>
 			</div>
-			<div v-if="editingUsers" class="space-y-2">
-				<div>
-					<UserSelector v-model="editUsersValue" :options="allUsers" class="flex flex-col gap-y-2">
-						Users
-					</UserSelector>
-				</div>
-				<div>
-					<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2">
-						Subscribers
-					</UserSelector>
-				</div>
+			<div v-if="editingUsers" class="space-y-4">
+				<UserSelector v-model="editUsersValue" :options="allUsers" class="flex flex-col gap-y-2">
+					Users
+				</UserSelector>
+				<UserSelector v-model="editSubsValue" :options="allUsers" class="flex flex-col gap-y-2">
+					Subscribers
+				</UserSelector>
 			</div>
 		</div>
 		<template #actions>
@@ -498,7 +516,7 @@ const editTagsValueChanged = $computed<boolean>(() => {
 	const selectedDoc = selectedDocs.value[0]
 
 	if (!selectedDoc) return false
-	const sameLength = editTagsValue.length === selectedDoc.tags.length
+	const sameLength = editTagsValue.length === selectedDoc.tags?.length
 	if (!sameLength) return true // If the length is different, the arrays are different
 
 	// If the length is the same, every tag in the input must exist in the selected doc's tags for the arrays to be the same, so we return the inverse
@@ -557,7 +575,7 @@ const editUsersValueChanged = $computed<boolean>(() => {
 
 	if (!selectedDoc) return false
 
-	const sameLength = editUsersValue.length === selectedDoc.related_users.length
+	const sameLength = editUsersValue.length === selectedDoc.related_users?.length
 	if (!sameLength) return true // If the length is different, the arrays are different
 
 	// If the length is the same, every user in the input must exist in the selected doc's subs for the arrays to be the same, so we return the inverse
@@ -574,7 +592,7 @@ const editSubsValueChanged = $computed<boolean>(() => {
 
 	if (!selectedDoc) return false
 
-	const sameLength = editSubsValue.length === selectedDoc.subscribers.length
+	const sameLength = editSubsValue.length === selectedDoc.subscribers?.length
 	if (!sameLength) return true // If the length is different, the arrays are different
 
 	// If the length is the same, every user in the input must exist in the selected doc's subs for the arrays to be the same, so we return the inverse
@@ -612,9 +630,11 @@ async function updateSelectedDocumentUsers() {
 
 //* CREATE DOCUMENT
 let editTitleValue = $ref<string>('')
+let editPrivateValue = $ref<boolean>(true)
 
 function showCreateModal() {
 	editTitleValue = ''
+	editPrivateValue = true
 	editTagsValue = []
 	editUsersValue = []
 	editSubsValue = []
@@ -629,6 +649,7 @@ async function newDocument() {
 	try {
 		const newDoc: Partial<Document> = {
 			title: editTitleValue,
+			private: editPrivateValue,
 		}
 
 		const createdDoc = await createDocument(newDoc)
@@ -909,6 +930,42 @@ async function updateRelatedFiles(newFileIds: string[]) {
 	}
 
 	hideRelatedFilesModal()
+
+	await executeSearch()
+}
+
+//* TOGGLE PRIVATE/PUBLIC
+const { user } = useUser()
+
+const isOwnerOfSelectedDoc = $computed<boolean>(() => {
+	const selectedDoc = selectedDocs.value[0]
+
+	return selectedDoc?.user_created === user.value?.id
+})
+const selectedDocIsPrivate = $computed<boolean>(() => {
+	const selectedDoc = selectedDocs.value[0]
+
+	return selectedDoc?.private
+})
+
+async function togglePrivate() {
+	if (!isOwnerOfSelectedDoc) return
+
+	const selectedDoc = selectedDocs.value[0]
+
+	if (!selectedDoc) return
+
+	try {
+		await updateDocument(selectedDoc.id, {
+			private: !selectedDoc.private,
+		})
+	} catch (err) {
+		alert(
+			`There was an error making the document '${selectedDoc.title} ${
+				selectedDocIsPrivate ? 'public' : 'private'
+			}`
+		)
+	}
 
 	await executeSearch()
 }

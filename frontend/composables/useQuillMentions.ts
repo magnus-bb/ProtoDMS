@@ -1,5 +1,4 @@
 import mention from '@/node_modules/quill-mention/dist/quill.mention.esm.js'
-import type { Quill } from '@/types/quill'
 
 import type {
 	DirectusUsers as DirectusUser,
@@ -7,17 +6,8 @@ import type {
 	Documents as Document,
 } from '@/types/directus'
 
-const atValues = [
-	{ id: 1, value: 'Fredrik Sundqvist' },
-	{ id: 2, value: 'Patrik Sjölin' },
-]
-const hashValues = [
-	{ id: 3, value: 'Fredrik Sundqvist 2' },
-	{ id: 4, value: 'Patrik Sjölin 2' },
-]
-
-const MENTION_DENOTATION_CHARS = ['@', 'person:', 'file:', 'document:'] as const
-type MentionDenotationChar = typeof MENTION_DENOTATION_CHARS[number]
+const MENTION_DENOTATION_CHARS = ['@', ':person', ':file', ':document'] as const
+type MentionDenotationChar = (typeof MENTION_DENOTATION_CHARS)[number]
 
 interface MentionItem {
 	id: number | string
@@ -39,11 +29,11 @@ export default function () {
 			) {
 				let values: MentionItem[] | undefined
 
-				if (mentionChar === '@' || mentionChar === 'person:') {
+				if (mentionChar === '@' || mentionChar === ':person') {
 					values = await getUsers(searchTerm) // request users with filter on full name
-				} else if (mentionChar === 'file:') {
+				} else if (mentionChar === ':file') {
 					values = await getFiles(searchTerm) // request files with filter on filename_download
-				} else if (mentionChar === 'document:') {
+				} else if (mentionChar === ':document') {
 					values = await getDocuments(searchTerm) // request documents with filter on title
 				}
 

@@ -2,7 +2,7 @@
 	<Teleport to="#sidebar-content">
 		<div>
 			<h2 class="text-2xl font-semibold">Related documents</h2>
-			<div v-if="initialDocument?.related_documents.length" class="flex flex-wrap gap-2 mt-2">
+			<div v-if="initialDocument?.related_documents?.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_documents"
 					:key="(rel as RelatedDocument).id"
@@ -17,7 +17,7 @@
 		</div>
 		<div>
 			<h2 class="text-2xl font-semibold">Related users</h2>
-			<div v-if="initialDocument?.related_users.length" class="flex flex-wrap gap-2 mt-2">
+			<div v-if="initialDocument?.related_users?.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_users"
 					:key="(rel as RelatedUser).id"
@@ -39,7 +39,7 @@
 		</div>
 		<div>
 			<h2 class="text-2xl font-semibold">Related files</h2>
-			<div v-if="initialDocument?.related_files.length" class="flex flex-wrap gap-2 mt-2">
+			<div v-if="initialDocument?.related_files?.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_files"
 					:key="(rel as RelatedFile).id"

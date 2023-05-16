@@ -6,7 +6,7 @@ export type DirectusActivity = {
   ip?: string | null;
   item: string;
   origin?: string | null;
-  revisions: string | DirectusRevisions[];
+  revisions?: any[] | DirectusRevisions[] | null;
   timestamp: string;
   user?: string | DirectusUsers | null;
   user_agent?: string | null;
@@ -40,12 +40,12 @@ export type DirectusDashboards = {
   id: string;
   name: string;
   note?: string | null;
-  panels: string | DirectusPanels[];
+  panels?: any[] | DirectusPanels[] | null;
   user_created?: string | DirectusUsers | null;
 };
 
 export type DirectusFields = {
-  collection: string | DirectusCollections;
+  collection?: string | DirectusCollections | null;
   conditions?: unknown | null;
   display?: string | null;
   display_options?: unknown | null;
@@ -81,7 +81,7 @@ export type DirectusFiles = {
   metadata?: unknown | null;
   modified_by?: string | DirectusUsers | null;
   modified_on: string;
-  related_documents: string | DocumentsRelatedFiles[];
+  related_documents?: any[] | DocumentsRelatedFiles[] | null;
   storage: string;
   tags?: unknown | null;
   title?: string | null;
@@ -100,7 +100,7 @@ export type DirectusFlows = {
   id: string;
   name: string;
   operation?: string | DirectusOperations | null;
-  operations: string | DirectusOperations[];
+  operations?: any[] | DirectusOperations[] | null;
   options?: unknown | null;
   status: string;
   trigger?: string | null;
@@ -124,7 +124,7 @@ export type DirectusNotifications = {
   id: number;
   item?: string | null;
   message?: string | null;
-  recipient: string | DirectusUsers;
+  recipient?: string | DirectusUsers | null;
   sender?: string | DirectusUsers | null;
   status?: string | null;
   subject: string;
@@ -133,7 +133,7 @@ export type DirectusNotifications = {
 
 export type DirectusOperations = {
   date_created?: string | null;
-  flow: string | DirectusFlows;
+  flow?: string | DirectusFlows | null;
   id: string;
   key: string;
   name?: string | null;
@@ -148,7 +148,7 @@ export type DirectusOperations = {
 
 export type DirectusPanels = {
   color?: string | null;
-  dashboard: string | DirectusDashboards;
+  dashboard?: string | DirectusDashboards | null;
   date_created?: string | null;
   height: number;
   icon?: string | null;
@@ -205,7 +205,7 @@ export type DirectusRelations = {
 };
 
 export type DirectusRevisions = {
-  activity: number | DirectusActivity;
+  activity?: number | DirectusActivity | null;
   collection: string;
   data?: unknown | null;
   delta?: unknown | null;
@@ -223,7 +223,7 @@ export type DirectusRoles = {
   id: string;
   ip_access?: unknown | null;
   name: string;
-  users: string | DirectusUsers[];
+  users?: any[] | DirectusUsers[] | null;
 };
 
 export type DirectusSessions = {
@@ -291,10 +291,10 @@ export type DirectusUsers = {
   location?: string | null;
   password?: string | null;
   provider: string;
-  related_documents: string | DocumentsRelatedUsers[];
+  related_documents?: any[] | DocumentsRelatedUsers[] | null;
   role?: string | DirectusRoles | null;
   status: string;
-  subscriptions: string | DocumentsDirectusUsers[];
+  subscriptions?: any[] | DocumentsDirectusUsers[] | null;
   tags?: unknown | null;
   tfa_secret?: string | null;
   theme?: string | null;
@@ -319,12 +319,13 @@ export type Documents = {
   date_created?: string | null;
   date_updated?: string | null;
   id: number;
-  related_documents: string | DocumentsRelatedDocuments[];
-  related_files: string | DocumentsRelatedFiles[];
-  related_users: string | DocumentsRelatedUsers[];
+  private: boolean;
+  related_documents?: any[] | DocumentsRelatedDocuments[] | null;
+  related_files?: any[] | DocumentsRelatedFiles[] | null;
+  related_users?: any[] | DocumentsRelatedUsers[] | null;
   sort?: number | null;
-  subscribers: string | DocumentsDirectusUsers[];
-  tags: string | DocumentsTags[];
+  subscribers?: any[] | DocumentsDirectusUsers[] | null;
+  tags?: any[] | DocumentsTags[] | null;
   title: string;
   user_created?: string | DirectusUsers | null;
   user_updated?: string | DirectusUsers | null;
@@ -367,7 +368,7 @@ export type DocumentsTags = {
 export type Tags = {
   date_created?: string | null;
   date_updated?: string | null;
-  documents: string | DocumentsTags[];
+  documents?: any[] | DocumentsTags[] | null;
   id: number;
   name: string;
   sort?: number | null;

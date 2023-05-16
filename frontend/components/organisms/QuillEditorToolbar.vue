@@ -131,7 +131,7 @@
 			</button>
 			<div
 				class="px-2 tooltip tooltip-bottom"
-				data-tip="Type @, person:, file:, or document: to link to other resources."
+				data-tip="Type @, :person, :file, or :document to link to other resources."
 			>
 				<Icon class="text-sm">question_mark</Icon>
 			</div>
