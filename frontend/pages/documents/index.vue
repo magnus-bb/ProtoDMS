@@ -1,19 +1,131 @@
 <template>
+	<Teleport to="#sidebar-content">
+		<h2 class="text-center text-2xl font-semibold">Actions</h2>
+
+		<ul ref="actions" tabindex="0" class="menu p-2 rounded-box">
+			<li class="menu-title">
+				<span>Quick actions</span>
+			</li>
+			<!-- create document -->
+			<li class="text-2xl" title="New document">
+				<button @click="showCreateModal">
+					<Icon class="weight-700 fill optical-size-40 text-success">note_add</Icon>
+					<span class="text-base">New document <kbd class="kbd kbd-sm">insert</kbd></span>
+				</button>
+			</li>
+			<!-- edit document-->
+			<li class="text-2xl" :class="{ disabled: selectedDocs.length !== 1 }" title="Edit document">
+				<NuxtLink
+					v-if="selectedDocs.length === 1"
+					target="_blank"
+					:to="`/documents/${selectedDocs[0]?.id}`"
+				>
+					<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
+					<span class="text-base">Edit document <kbd class="kbd kbd-sm">↵</kbd></span>
+				</NuxtLink>
+				<span v-else>
+					<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
+					<span class="text-base">Edit document <kbd class="kbd kbd-sm">↵</kbd></span>
+				</span>
+			</li>
+			<!-- delete documents -->
+			<li class="text-2xl" :class="{ disabled: !selectedDocs.length }" title="Delete selection">
+				<button :disabled="!selectedDocs.length" @click="deleteSelectedDocuments">
+					<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
+					<span class="text-base">Delete selection <kbd class="kbd kbd-sm">delete</kbd></span>
+				</button>
+			</li>
+			<li class="menu-title">
+				<span>Relations</span>
+			</li>
+			<!-- edit related docs -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Set related documents"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="showRelatedDocsModal">
+					<Icon class="weight-700 fill optical-size-40">file_open</Icon>
+					<span class="text-base">Set related documents</span>
+				</button>
+			</li>
+			<!-- edit tags -->
+			<li :class="{ disabled: selectedDocs.length !== 1 }" class="text-2xl" title="Set tags">
+				<button :disabled="selectedDocs.length !== 1" @click="showTagsModal">
+					<Icon class="weight-700 fill optical-size-40">sell</Icon>
+					<span class="text-base">Set tags</span>
+				</button>
+			</li>
+			<!-- edit subscribers -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Set related users"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="showUsersModal">
+					<Icon class="weight-700 fill optical-size-40">group</Icon>
+					<span class="text-base">Set related users</span>
+				</button>
+			</li>
+			<!-- edit related files -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Set related files"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="showRelatedFilesModal">
+					<Icon class="weight-700 fill optical-size-40">attach_file</Icon>
+					<span class="text-base">Set related files</span>
+				</button>
+			</li>
+			<li class="menu-title">
+				<span>Manage</span>
+			</li>
+			<!-- duplicate document -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Duplicate document"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="duplicateDocument">
+					<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
+					<span class="text-base">Duplicate document</span>
+				</button>
+			</li>
+			<!-- make private / publish -->
+			<li
+				class="text-2xl"
+				:class="{ disabled: selectedDocs.length !== 1 || !isOwnerOfSelectedDoc }"
+				:title="selectedDocIsPrivate ? 'Make public' : 'Make private'"
+			>
+				<button
+					:disabled="selectedDocs.length !== 1 || !isOwnerOfSelectedDoc"
+					@click="togglePrivate"
+				>
+					<Icon v-if="selectedDocIsPrivate" class="weight-700 fill optical-size-40">lock_open</Icon>
+					<Icon v-else class="weight-700 fill optical-size-40">lock</Icon>
+					<span v-if="selectedDocIsPrivate" class="text-base">Make public</span>
+					<span v-else class="text-base">Make public</span>
+				</button>
+			</li>
+		</ul>
+	</Teleport>
+
 	<div class="p-4 flex flex-col">
 		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
-			<div class="col-span-2 md:col-span-1 md:row-start-2 text-4xl font-semibold">
+			<div class="text-4xl font-semibold">
 				{{ privatePage ? 'Your private documents' : 'Public documents' }}
 			</div>
 
-			<div class="md:justify-self-end md:col-start-2">
+			<div class="justify-self-end hidden lg:block">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
 				+
 				<kbd class="kbd kbd-sm">click</kbd>
-				to select multiple files
+				to select multiple documents
 			</div>
 
 			<!-- SELECTED DOCUMENT ACTIONS -->
-			<div class="justify-self-end md:row-start-2 md:col-start-2 flex gap-x-2">
+			<div class="justify-self-end flex gap-x-2 lg:hidden">
 				<div class="dropdown dropdown-hover">
 					<button
 						:class="{ 'btn-secondary bg-secondary/50': selectedDocs.length }"
@@ -29,7 +141,7 @@
 						<!-- create document -->
 						<li class="items-center text-xl sm:text-2xl" title="New document">
 							<button @click="showCreateModal">
-								<Icon class="weight-700 fill optical-size-40">note_add</Icon>
+								<Icon class="weight-700 fill optical-size-40 text-success">note_add</Icon>
 							</button>
 						</li>
 						<!-- duplicate document -->
@@ -59,10 +171,10 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit title & content"
+							title="Edit document"
 						>
 							<NuxtLink target="_blank" :to="`/documents/${selectedDocs[0].id}`">
-								<Icon class="weight-700 fill optical-size-40">edit_document</Icon>
+								<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
 							</NuxtLink>
 						</li>
 						<!-- edit related docs -->
@@ -79,7 +191,7 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit tags"
+							title="Set tags"
 						>
 							<button @click="showTagsModal">
 								<Icon class="weight-700 fill optical-size-40">sell</Icon>
@@ -89,7 +201,7 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit subscribers and related users"
+							title="Set related users"
 						>
 							<button @click="showUsersModal">
 								<Icon class="weight-700 fill optical-size-40">group</Icon>
@@ -99,7 +211,7 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit related files"
+							title="Set related files"
 						>
 							<button @click="showRelatedFilesModal">
 								<Icon class="weight-700 fill optical-size-40">attach_file</Icon>
@@ -109,7 +221,7 @@
 						<li
 							v-if="selectedDocs.length"
 							class="items-center text-xl sm:text-2xl"
-							title="Delete document(s)"
+							title="Delete selection"
 						>
 							<button @click="deleteSelectedDocuments">
 								<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
@@ -125,7 +237,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
 			<!-- SEARCH -->
 			<div class="form-control">
-				<label for="search" class="sr-only">Search documents</label>
+				<label for="search" class="sr-only">Simply start typing to search documents</label>
 				<div class="input-group">
 					<input
 						id="search"
@@ -135,7 +247,7 @@
 						name="search"
 						aria-label="Search input"
 						class="input input-bordered placeholder:text-muted w-full"
-						placeholder="Search documents"
+						placeholder="Simply start typing to search documents"
 					/>
 					<Icon class="text-2xl optical-size-40 grade-100">search</Icon>
 				</div>
@@ -148,7 +260,6 @@
 					name="tags"
 					:options="allTags"
 					multiple
-					hover
 					label-prop="name"
 					emit-prop="id"
 					class="border-0 bg-base-300"
@@ -379,6 +490,10 @@ import type {
 import type { TreeFolder } from '@/types/files'
 import { getAllFiles } from '~~/utils/files'
 
+definePageMeta({
+	layout: 'sidebar',
+})
+
 //* PAGE VERSION
 const route = useRoute()
 const routeName = route.name as 'home' | 'documents' // lets us know whether we are on the private or public page
@@ -458,7 +573,12 @@ async function executeSearch() {
 
 // Animate on search
 const documentGrid = ref<HTMLElement>()
+// const actions = ref<HTMLElement>()
 onMounted(() => {
+	// if (actions.value) {
+	// 	autoAnimate(actions.value as HTMLElement)
+	// }
+
 	// The element does not exist, if there are no docs to render
 	if (documents?.length) {
 		autoAnimate(documentGrid.value as HTMLElement)
@@ -663,6 +783,10 @@ async function newDocument() {
 	}
 }
 
+onKeyStroke('Insert', () => {
+	showCreateModal()
+})
+
 //* DUPLICATE DOCUMENT
 async function duplicateDocument() {
 	const selected = selectedDocs.value[0]
@@ -739,6 +863,10 @@ async function deleteSelectedDocuments() {
 	// Refresh documents
 	executeSearch()
 }
+
+onKeyStroke('Delete', () => {
+	deleteSelectedDocuments()
+})
 
 //* ADD / REMOVE TAGS
 async function removeTag(tag: Tag) {
@@ -843,7 +971,6 @@ onKeyStroke('Enter', (e: KeyboardEvent) => {
 		window.open('/documents/' + selectedDocs.value[0].id, '_blank')
 	}
 })
-
 //* EDIT RELATED FILES
 let relatedFilesModalShown = $ref<boolean>(false)
 
@@ -1001,5 +1128,9 @@ async function togglePrivate() {
 	.ql-blank::before {
 		@apply !text-muted !font-bold;
 	}
+}
+
+button[disabled] {
+	@apply cursor-default pointer-events-none;
 }
 </style>

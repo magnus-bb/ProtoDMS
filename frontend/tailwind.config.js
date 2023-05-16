@@ -74,7 +74,7 @@ module.exports = {
 					secondary: '#6b96bf',
 					accent: '#006ECE',
 					'accent-content': colors.white, // #fff
-					info: colors.indigo[100], // #e0e7ff
+					info: colors.indigo[200], // #e0e7ff
 					warning: colors.lime[400], // #a3e635
 					error: colors.rose[600], // #e11d48,
 					'--btn-text-case': 'none',

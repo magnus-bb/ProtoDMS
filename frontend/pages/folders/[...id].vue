@@ -1,8 +1,6 @@
 <template>
-	<!-- BREADCRUMBS WITH PATH (DAISYUI) -->
-
 	<Teleport to="#sidebar-content">
-		<h2 class="text-2xl font-semibold">Folders</h2>
+		<h2 class="text-center text-2xl font-semibold">Folders</h2>
 		<ul>
 			<Folder navigation :folder="rootFolder" />
 		</ul>
@@ -208,7 +206,7 @@
 			</div>
 		</main>
 
-		<div v-else class="alert alert-info shadow-lg max-w-md">
+		<div v-else class="alert shadow-lg max-w-md">
 			<div class="w-full justify-between">
 				<span class="flex gap-2 items-center">
 					<svg
