@@ -1,3 +1,4 @@
+import url from 'url'
 import { Directus } from '@directus/sdk'
 import Delta from 'quill-delta'
 import fetch from 'node-fetch'
@@ -201,7 +202,9 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 async function checkUserAuth(userId: string, accessToken: string) {
 	try {
 		// Request user data with the given access token
-		const res = await fetch(`${directusUrl}users/${userId}?access_token=${accessToken}`)
+		const res = await fetch(
+			new url.URL(`/users/${userId}?access_token=${accessToken}`, directusUrl).toString()
+		)
 
 		// Request will fail if access token does not match the user, so we can return a success bool from res.ok
 		// TODO: this might need to check if userId matches returned ID if at some point we can read some data from other users
