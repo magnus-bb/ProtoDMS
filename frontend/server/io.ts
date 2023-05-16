@@ -335,3 +335,7 @@ class DocumentSession {
 			}) as unknown as Promise<DeltaDocument> // mute the error, this it to be expected, when there is no actual changes to the document
 	}
 }
+
+function trimTrailingSlash(url: string): string {
+	return url.replace(/\/$/, '')
+}

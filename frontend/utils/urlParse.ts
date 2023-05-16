@@ -33,6 +33,6 @@ export function parseArray<T = unknown>(val: string[] | string): T[] {
 	return val.map(parseString<T>)
 }
 
-export function trimTrailingSlash(url: string) {
+export function trimTrailingSlash(url: string): string {
 	return url.replace(/\/$/, '')
 }
