@@ -1,4 +1,3 @@
-import url from 'url'
 import { Directus } from '@directus/sdk'
 import Delta from 'quill-delta'
 import fetch from 'node-fetch'
@@ -203,7 +202,7 @@ async function checkUserAuth(userId: string, accessToken: string) {
 	try {
 		// Request user data with the given access token
 		const res = await fetch(
-			new url.URL(`/users/${userId}?access_token=${accessToken}`, directusUrl).toString()
+			`${trimTrailingSlash(directusUrl)}/users/${userId}?access_token=${accessToken}`
 		)
 
 		// Request will fail if access token does not match the user, so we can return a success bool from res.ok

@@ -32,3 +32,7 @@ export function parseArray<T = unknown>(val: string[] | string): T[] {
 	// If the val is an array, parse every element inside
 	return val.map(parseString<T>)
 }
+
+export function trimTrailingSlash(url: string) {
+	return url.replace(/\/$/, '')
+}

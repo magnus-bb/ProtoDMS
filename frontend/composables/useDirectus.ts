@@ -167,7 +167,7 @@ export function getAssetUrl(assetId: string, options?: DirectusImageOptions): st
 	const { directusUrl } = useRuntimeConfig().public
 	const { accessToken } = useUser()
 
-	const url = new URL(`/assets/${assetId}`, directusUrl)
+	const url = new URL(`${trimTrailingSlash(directusUrl)}/assets/${assetId}`)
 
 	if (accessToken.value) {
 		url.searchParams.append('access_token', accessToken.value)
