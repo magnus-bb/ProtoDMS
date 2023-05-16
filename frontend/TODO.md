@@ -61,6 +61,9 @@ DONE
 * Fedt, hvis man kunne lave ikoner og farver for lettere at skimme dem
 
 ## Private dokumenter
+TODO: tilføj toggle til create document modal
+TODO: tilføj knap til menuen, med "make private" og "publish" alt efter det selectede dokuments nuværende status (skal kun virke for egne dokumenter)
+TODO: vist et lille "private"-ikon øverst til venstre i document cards på public søgeside, hvis dokumentet er private (og implicit ens eget, da man kun ser egne private docs)
 * Nye dokumenter skal altid starte som "draft", inde i edit-viewet skal der være en toggle-knap til at publish
 * I backenden skal tilføjes "draft" igen og laves en permission, der gør at man kun kan se published eller hvis man selv er creator
   * Det burde vist sørge for, at man kun får det man må i frontenden
