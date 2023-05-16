@@ -37,6 +37,7 @@ DONE
 * Pga. teknisk Directus begrænsning er relationer kun énvejs i prototypen. Det er dog nok til at illustrere funktionen, og potentielt endda bedst, da relationsbeskrivelser eventuelt ville påkræve dette
 
 ## Filer med tekstuel metadata
+DONE
 * Dokumenter skal i sidebaren under relaterede dokumenter have en liste af filer, der er knyttet til dokumentet
   * Disse skal også have en delete-knap og en titel
 * Der skal også kunne tilføjes nye til listen ved at få en modal med fil-søgeviewet
@@ -56,6 +57,9 @@ DONE
 ## Kategoriserende mærkater
 * Allerede done
 
+### Diskussion
+* Fedt, hvis man kunne lave ikoner og farver for lettere at skimme dem
+
 ## Private dokumenter
 * Nye dokumenter skal altid starte som "draft", inde i edit-viewet skal der være en toggle-knap til at publish
 * I backenden skal tilføjes "draft" igen og laves en permission, der gør at man kun kan se published eller hvis man selv er creator
@@ -71,7 +75,7 @@ DONE
   * Alternativt kan det undersøges, at man bruger share-objektet og laver en separat side til readonly links (så man ikke får editor-view) som ikke har alm. auth men tjekker, om der er oprettet en share i Directus
 
 ## Realtidskollaboration
-* Already done
+* DONE
 
 ### Diskussion
 * Ikke CRDT eller OT-compliant, men det er fint nok i en prototype. Det vil altid synkronisere helt ved saves
@@ -103,6 +107,7 @@ DONE
 * Det er fint, hvis ikke der er mulighed for individuelle AND og OR, da det både var en konstruktionsdetalje og svært at lave et view til (medmindre Directus' kan kopieres?)
 
 ## Grafvisning af dokumentnetværk
+MIKKEL
 * Dokumenter og deres relaterede dokumenter skal vises i en graf på søgesiden
   * Bonus, hvis den kan opdateres med søgefiltre, så man kan bruge den som decideret resultatliste
 * Knuder skal kunne klikkes for at åbne dokumentet (bare naviger til dens side)
@@ -150,28 +155,22 @@ DONE
 * Denne feature skal evt. cuttes på baggrund af at Directus' revision-system måske ikke egner sig godt til dette
 
 ## Abonnementer
+DONE
 * Backenden er lavet, og måske tilføj/fjern i frontenden?
 * Vis en liste af abonnenter på dokumenter i sidebaren
   * Skal kunne tilføjes og slettes fra ligesom andre relationer
 * Kunne måske lige gøre notifikationer klikbare, så de åbner dokumentet, hvis det er nemt. Det kræver dog mere data i flowet i backenden
 
-# Frontend
-* https://github.com/nuxt/nuxt/pull/19230 OMSKRIV SOCKET.IO
+### Diskussion
+* Det ville give mening, hvis man kunne previewe ændringer
 
-
+# Frontend småting
 * Notifikationer
   * Clear knap?
-* Profilside
-  * Til visning af andres brugeroplysninger
-  * Til redigering af egne brugeroplysninger
-* Mappe-editor til filer
-  * Basically frontend til Directus' API til mapper og filer så man kan manage filer
-  * Der skal vises et ID til filer, så man kan linke dem direkte fra docs
 * På forsiden skal der vises dokumenter man selv er subscriber på
 * Tilføj sortering + søgning i flere felter til dokumenter etc
-  * Eks. søgning i tags og content
-* Man skal kunne tilføje sig selv og andre som subscriber på et dokument på editsiden
-* Man skal kunne linke filer, personer og andre docs til dokumenter på editsiden
+  * Eks. søgning i tags og content (fuldtekstsearch)
+* Mentions
   * Når man tilføjer med mentions, så skal den automatisk også tilføje personer, filer, andre docs
   * Relaterede personer skal være separat fra subscriptions
 * Søgning i filer og filtrering efter hvilke docs de tilhører
@@ -200,13 +199,12 @@ DONE
     * Måske kan denne tilføje noget, men ellers lader det til at mentions og auto links kan det samme som autoformat
 
 # Backend
-* Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det
-* Tilføj så notifikationer understøtter deletions
+* Tilføj ID på edited dokument i notifikationer, så man kan lave et link til at se det ændrede doc ved klik
+* Tilføj så notifikationer understøtter deletions af dokumenter
   * Det skal være sådan, at man kan se, at den er blevet slettet, men så skal man selvfølgelig ikke have et link til at se dokumentet
   * Det kræver en blocking action, så det skal måske være et separat flow, så andre opdateringer etc ikke er blocking
     * Også fordi, man sandsynligvis ikke har adgang til dataene INDEN ændringen, og det derfor er to separate flows
 * Tilføj så notifikationer understøtter creations
   * Det kan være at man automatisk sættes som subscriber eller at man bliver sat imens et dokument oprettes, og så skal man også have en notifikation.
   * Bare at ændre til også at lytte på create i update-flowet virker ikke
-* Tilføj tlf, stilling og afdeling til brugerdata
 * Send notifikation, når man bliver subscriber på et dokument

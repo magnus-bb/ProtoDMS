@@ -29,11 +29,11 @@ collections:
         AUTOINCREMENT NOT NULL, `sort` integer NULL DEFAULT null, `title`
         varchar(255) NOT NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
         null, `user_updated` char(36) NULL DEFAULT null, `content` json NULL
-        DEFAULT '{"ops":[]}', CONSTRAINT `documents_user_created_foreign`
-        FOREIGN KEY (`user_created`) REFERENCES `directus_users` (`id`) ON
-        DELETE NO ACTION, CONSTRAINT `documents_user_updated_foreign` FOREIGN
-        KEY (`user_updated`) REFERENCES `directus_users` (`id`) ON DELETE NO
-        ACTION)
+        DEFAULT '{"ops":[]}', `private` boolean NOT NULL DEFAULT 'true',
+        CONSTRAINT `documents_user_created_foreign` FOREIGN KEY (`user_created`)
+        REFERENCES `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
+        `directus_users` (`id`) ON DELETE NO ACTION)
   - collection: documents_directus_users
     meta:
       accountability: all
@@ -377,7 +377,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 5
+      sort: 4
       special:
         - cast-timestamp
         - date-created
@@ -418,7 +418,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 7
+      sort: 6
       special:
         - cast-timestamp
         - date-updated
@@ -482,6 +482,54 @@ fields:
       table: documents
     type: integer
   - collection: documents
+    field: private
+    meta:
+      collection: documents
+      conditions: null
+      display: boolean
+      display_options:
+        iconOff: public
+        iconOn: private_connectivity
+        labelOff: Public
+        labelOn: Private
+      field: private
+      group: null
+      hidden: false
+      interface: boolean
+      note: Private documents can only be read by their author
+      options:
+        colorOff: '#AF1212'
+        colorOn: '#258349'
+        iconOff: toggle_off
+        iconOn: toggle_on
+        label: Private document
+      readonly: false
+      required: false
+      sort: 7
+      special:
+        - cast-boolean
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: boolean
+      default_value: true
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: false
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: private
+      numeric_precision: null
+      numeric_scale: null
+      table: documents
+    type: boolean
+  - collection: documents
     field: related_documents
     meta:
       collection: documents
@@ -499,7 +547,7 @@ fields:
         template: '{{related_document_id.title}}'
       readonly: false
       required: false
-      sort: null
+      sort: 14
       special:
         - m2m
       translations: null
@@ -527,7 +575,7 @@ fields:
         template: '{{file_id.filename_download}}'
       readonly: false
       required: false
-      sort: null
+      sort: 12
       special:
         - m2m
       translations: null
@@ -555,7 +603,7 @@ fields:
         template: "{{user_id.first_name}}\_{{user_id.last_name}}"
       readonly: false
       required: false
-      sort: null
+      sort: 13
       special:
         - m2m
       translations: null
@@ -579,7 +627,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 3
+      sort: 2
       special: null
       translations: null
       validation: null
@@ -647,7 +695,7 @@ fields:
         template: '{{tags_id.name}}'
       readonly: false
       required: false
-      sort: null
+      sort: 11
       special:
         - m2m
       translations: null
@@ -703,14 +751,14 @@ fields:
       display_options: null
       field: user_created
       group: null
-      hidden: true
+      hidden: false
       interface: select-dropdown-m2o
       note: null
       options:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 4
+      sort: 3
       special:
         - user-created
       translations: null
@@ -750,7 +798,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 6
+      sort: 5
       special:
         - user-updated
       translations: null

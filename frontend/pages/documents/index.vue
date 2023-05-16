@@ -1,7 +1,9 @@
 <template>
 	<div class="p-4 flex flex-col">
 		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
-			<div class="col-span-2 md:col-span-1 md:row-start-2 text-4xl font-semibold">Documents</div>
+			<div class="col-span-2 md:col-span-1 md:row-start-2 text-4xl font-semibold">
+				{{ privatePage ? 'Your private documents' : 'Public documents' }}
+			</div>
 
 			<div class="md:justify-self-end md:col-start-2">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
@@ -146,8 +148,8 @@
 			</div>
 		</div>
 
-		<main v-if="documents?.length" class="space-y-8">
-			<div ref="documentGrid" class="document-grid">
+		<main class="space-y-8">
+			<div v-if="documents?.length" ref="documentGrid" class="document-grid">
 				<!-- TOP -->
 				<!-- DOCUMENTS -->
 				<DocumentPreview
@@ -359,8 +361,14 @@ import type {
 import type { TreeFolder } from '@/types/files'
 import { getAllFiles } from '~~/utils/files'
 
-//* INITIALIZE SEARCH STATE
+//* PAGE VERSION
 const route = useRoute()
+const routeName = route.name as 'home' | 'documents' // lets us know whether we are on the private or public page
+
+// Are we on the signin version of the page?
+const privatePage = $computed<boolean>(() => routeName === 'home')
+
+//* INITIALIZE SEARCH STATE
 const search = $ref<string>((route.query.search as string) || '')
 // Make sure the url tags are always parsed as an array of numbers (ids)
 const tags = $ref<number[]>(
@@ -388,18 +396,22 @@ async function executeSearch() {
 	// Reset selections on search
 	selectedDocs.value = []
 
+	// Only add filters if they are used
+	const filter: { private?: boolean; tags?: { tags_id: any } } = {}
+	if (privatePage) {
+		filter.private = true
+	}
+	if (tags.length) {
+		filter.tags = {
+			tags_id: {
+				_in: tags,
+			},
+		}
+	}
+
 	const res = await query<Document>('documents', {
 		search,
-		// If there are not selectedTags, set filter to null, since _in doesn't work with empty arrays
-		filter: tags.length
-			? {
-					tags: {
-						tags_id: {
-							_in: tags,
-						},
-					},
-			  }
-			: null,
+		filter,
 		fields: [
 			'*',
 			'related_documents.id',
@@ -419,7 +431,7 @@ async function executeSearch() {
 			'tags.id',
 			'tags.tags_id.*',
 		],
-		sort: ['title', 'tags'],
+		sort: ['-private', 'title', 'tags'],
 		limit: -1,
 	})
 
@@ -429,7 +441,10 @@ async function executeSearch() {
 // Animate on search
 const documentGrid = ref<HTMLElement>()
 onMounted(() => {
-	autoAnimate(documentGrid.value as HTMLElement)
+	// The element does not exist, if there are no docs to render
+	if (documents?.length) {
+		autoAnimate(documentGrid.value as HTMLElement)
+	}
 })
 // Creates an object of search state (search term etc) that can be passed to router.replace
 function formatUrlQuery(): Record<string, any> {

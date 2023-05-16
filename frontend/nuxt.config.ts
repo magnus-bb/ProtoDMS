@@ -63,6 +63,11 @@ export default defineNuxtConfig({
 				path: '/signup',
 				file: '@/pages/signin.vue',
 			})
+			pages.push({
+				name: 'home', // use this to render the private documents version of the page
+				path: '/',
+				file: '@/pages/documents/index.vue',
+			})
 		},
 	},
 
