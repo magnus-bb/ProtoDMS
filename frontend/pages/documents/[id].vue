@@ -135,7 +135,7 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
-import type { Quill, DeltaObject, DeltaDocument } from '@/types/quill'
+import type { Quill, DeltaObject } from '@/types/quill'
 import type {
 	JoinRoomData,
 	EditorEventData,

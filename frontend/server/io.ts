@@ -1,5 +1,6 @@
 import { Directus } from '@directus/sdk'
 import Delta from 'quill-delta'
+import fetch from 'node-fetch'
 import type { Socket, BroadcastOperator } from 'socket.io'
 import type {
 	JoinRoomData,
