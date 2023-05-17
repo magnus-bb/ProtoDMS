@@ -1,0 +1,15 @@
+@layer components {
+	.row {
+		@apply mx-auto;
+
+		width: calc(100% - theme('spacing.8'));
+
+		@screen sm {
+			width: min(1200px, 90%);
+		}
+
+		&-full {
+			@apply w-full;
+		}
+	}
+}

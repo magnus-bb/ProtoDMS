@@ -12,14 +12,14 @@
 			tabindex="0"
 			class="dropdown-content menu menu-compact p-2 mt-3 shadow bg-base-200 rounded-box w-max"
 		>
-			<li><NuxtLink>Profile</NuxtLink></li>
+			<li><NuxtLink to="/users/me">Profile</NuxtLink></li>
 			<li><button @click="signout">Log out</button></li>
 		</ul>
 	</div>
 
-	<NuxtLink v-else to="/signin" title="sign in or sign up" class="btn btn-ghost text-3xl"
-		><Icon>login</Icon></NuxtLink
-	>
+	<NuxtLink v-else to="/signin" title="sign in or sign up" class="btn btn-ghost text-3xl">
+		<Icon>login</Icon>
+	</NuxtLink>
 </template>
 
 <script setup lang="ts">
@@ -41,3 +41,9 @@ async function signout() {
 	}
 }
 </script>
+
+<style lang="postcss">
+.router-link-exact-active {
+	@apply pointer-events-none text-primary;
+}
+</style>

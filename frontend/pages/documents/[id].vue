@@ -2,15 +2,15 @@
 	<Teleport to="#sidebar-content">
 		<div>
 			<h2 class="text-2xl font-semibold">Related documents</h2>
-			<div v-if="initialDocument?.related_documents?.length" class="flex flex-wrap gap-2 mt-2">
+			<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
-					v-for="rel of initialDocument!.related_documents"
-					:key="(rel as RelatedDocument).id"
+					v-for="relDoc of relatedDocuments"
+					:key="relDoc.id"
 					class="badge badge-lg badge-base-200"
 					target="_blank"
-					:to="`/documents/${((rel as RelatedDocument).related_document_id as Document).id}`"
+					:to="`/documents/${relDoc.id}`"
 				>
-					{{ ((rel as RelatedDocument).related_document_id as Document).title }}
+					{{ relDoc.title }}
 				</NuxtLink>
 			</div>
 			<p v-else class="text-lg font-light italic">No related documents</p>
@@ -144,7 +144,6 @@ import type {
 } from '@/types/document-sync'
 import type {
 	DirectusUsers as DirectusUser,
-	DocumentsRelatedDocuments as RelatedDocument,
 	DocumentsRelatedUsers as RelatedUser,
 	DocumentsRelatedFiles as RelatedFile,
 	DirectusFiles as File,
@@ -262,6 +261,17 @@ async function joinDocument(): Promise<JoinRoomResponse> {
 
 	return res
 }
+
+//* RELATION DOCUMENTS
+// Since some can be private, this list needs a bit extra care
+const relatedDocuments = $computed<Document[]>(() => {
+	// Since some related documents can be private, and a doc can technically be related to a private doc that this user can't see, we need to filter out the null values here
+	return (
+		initialDocument?.related_documents
+			?.map(rel => rel.related_document_id as Document)
+			.filter(doc => doc) ?? []
+	)
+})
 
 //* QUILL SETUP & EVENTS
 let quill: Quill

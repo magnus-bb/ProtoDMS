@@ -117,7 +117,7 @@
 				{{ privatePage ? 'Your private documents' : 'Public documents' }}
 			</div>
 
-			<div class="justify-self-end hidden lg:block">
+			<div class="justify-self-end text-end hidden lg:block">
 				<kbd class="kbd kbd-sm">ctrl</kbd>
 				+
 				<kbd class="kbd kbd-sm">click</kbd>
@@ -234,7 +234,7 @@
 
 		<div class="divider" />
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 row">
 			<!-- SEARCH -->
 			<div class="form-control">
 				<label for="search" class="sr-only">Simply start typing to search documents</label>
