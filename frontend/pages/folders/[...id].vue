@@ -235,42 +235,36 @@
 	</div>
 
 	<!-- MOVE FILE/FOLDER MODAL -->
-	<div class="modal modal-bottom md:modal-middle" :class="{ 'modal-open': moveModalShown }">
-		<div v-on-click-outside="hideModal" class="modal-box !max-w-2xl overflow-y-visible ml-16">
-			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hideModal">
-				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
-			</button>
-
-			<h3 v-if="movingFiles" class="text-lg font-bold mb-4">
+	<Modal sidebar-safe :class="{ 'modal-open': moveModalShown }" @hide="hideModal">
+		<template #heading>
+			<span v-if="movingFiles" class="text-lg font-bold mb-4">
 				Select where to move the selected files
-			</h3>
-			<h3 v-else-if="movingFolder" class="text-lg font-bold mb-4">
+			</span>
+			<span v-else-if="movingFolder" class="text-lg font-bold mb-4">
 				Select where to move '{{ currentFolder?.name }}'
-			</h3>
+			</span>
+		</template>
 
-			<ul>
-				<Folder
-					v-if="movingFolder"
-					:folder="rootFolder"
-					:disable-folders="foldersToDisable"
-					:highlight-folder="currentFolder"
-					@select="moveCurrentFolder"
-				/>
-				<Folder
-					v-else-if="movingFiles"
-					:folder="rootFolder"
-					:disable-folders="currentFolder ? [currentFolder] : null"
-					:highlight-folder="currentFolder"
-					@select="moveSelectedFiles"
-				/>
-			</ul>
-		</div>
-	</div>
+		<ul>
+			<Folder
+				v-if="movingFolder"
+				:folder="rootFolder"
+				:disable-folders="foldersToDisable"
+				:highlight-folder="currentFolder"
+				@select="moveCurrentFolder"
+			/>
+			<Folder
+				v-else-if="movingFiles"
+				:folder="rootFolder"
+				:disable-folders="currentFolder ? [currentFolder] : null"
+				:highlight-folder="currentFolder"
+				@select="moveSelectedFiles"
+			/>
+		</ul>
+	</Modal>
 </template>
 
 <script setup lang="ts">
-import { vOnClickOutside } from '@vueuse/components'
-
 import type {
 	DirectusFolders as DirectusFolder,
 	DirectusFiles as DirectusFile,

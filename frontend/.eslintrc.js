@@ -55,6 +55,8 @@ module.exports = {
 					'user_id',
 					'file_id',
 					'document_id',
+					'organizational_id',
+					'phone_number',
 				],
 			},
 		],

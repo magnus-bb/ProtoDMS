@@ -21,9 +21,9 @@
 					</button>
 					<ul class="mt-3 p-2 shadow menu dropdown-content bg-base-200 rounded-box w-max text-2xl">
 						<li>
-							<NuxtLink to="/" title="Home" active-class="active btn-disabled"
-								><Icon>home</Icon></NuxtLink
-							>
+							<NuxtLink to="/" title="Home" active-class="active btn-disabled">
+								<Icon>home</Icon>
+							</NuxtLink>
 						</li>
 						<li v-if="user">
 							<NuxtLink to="/documents" title="Documents" active-class="active btn-disabled"
@@ -35,8 +35,9 @@
 								to="/folders"
 								title="Files"
 								:class="{ 'active btn-disabled': route.name === 'folders-id' }"
-								><Icon>perm_media</Icon></NuxtLink
 							>
+								<Icon>perm_media</Icon>
+							</NuxtLink>
 						</li>
 					</ul>
 				</div>

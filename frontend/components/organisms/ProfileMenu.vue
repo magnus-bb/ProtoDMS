@@ -42,7 +42,7 @@ async function signout() {
 }
 </script>
 
-<style lang="postcss">
+<style lang="postcss" scoped>
 .router-link-exact-active {
 	@apply pointer-events-none text-primary;
 }

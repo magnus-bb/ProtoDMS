@@ -3,7 +3,7 @@
 		<div
 			v-on-click-outside="hide"
 			class="modal-box !max-w-2xl overflow-y-visible"
-			:class="boxClasses"
+			:class="[boxClasses, { 'lg:ml-[320px]': sidebarSafe }]"
 		>
 			<button class="btn btn-sm btn-circle absolute right-2 top-2" @click="hide">
 				<Icon class="text-xl optical-size-24 grade-100">close</Icon>
@@ -23,8 +23,9 @@
 <script setup lang="ts">
 import { vOnClickOutside } from '@vueuse/components'
 
-const { boxClasses } = defineProps<{
+const { boxClasses, sidebarSafe = false } = defineProps<{
 	boxClasses?: string
+	sidebarSafe?: boolean // this is hardcoded for this project's sidebar width and breakpoint (lg:ml-[320px}])
 }>()
 
 // Toggle the class .modal-open on the root element to use the default daisy way of showing/hiding modal

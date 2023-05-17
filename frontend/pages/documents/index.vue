@@ -296,7 +296,7 @@
 	</div>
 
 	<!-- CREATE DOCUMENT / EDIT TAGS & SUBS MODAL -->
-	<Modal :class="{ 'modal-open': documentModalShown }" @hide="hideDocumentModal">
+	<Modal sidebar-safe :class="{ 'modal-open': documentModalShown }" @hide="hideDocumentModal">
 		<template #heading>
 			<h3 v-if="creatingDocument" class="text-lg font-bold mb-4">Create document</h3>
 			<h3 v-else-if="editingTags" class="text-lg font-bold mb-4">Select tags</h3>
@@ -378,7 +378,11 @@
 	</Modal>
 
 	<!-- CREATE / DELETE TAGS MODAL -->
-	<Modal :class="{ 'modal-open': addRemoveTagsModalShown }" @hide="hideAddRemoveTagsModal">
+	<Modal
+		sidebar-safe
+		:class="{ 'modal-open': addRemoveTagsModalShown }"
+		@hide="hideAddRemoveTagsModal"
+	>
 		<template #heading>Add/remove tags</template>
 
 		<div class="form-control w-full">
@@ -427,6 +431,7 @@
 	<!-- RELATED DOCS MODAL -->
 	<DocumentSelector
 		v-if="relatedDocsModalShown"
+		sidebar-safe
 		:class="{ 'modal-open': relatedDocsModalShown }"
 		:current-document="selectedDocs[0]"
 		@hide="hideRelatedDocsModal"
@@ -434,7 +439,11 @@
 	/>
 
 	<!-- RELATED FILES MODAL -->
-	<Modal :class="{ 'modal-open': relatedFilesModalShown }" @hide="hideRelatedFilesModal">
+	<Modal
+		sidebar-safe
+		:class="{ 'modal-open': relatedFilesModalShown }"
+		@hide="hideRelatedFilesModal"
+	>
 		<template #heading>Remove related files</template>
 
 		<div v-if="alreadyRelatedFiles.length" class="flex flex-wrap gap-2 mt-2">
