@@ -498,7 +498,7 @@ definePageMeta({
 const route = useRoute()
 const routeName = route.name as 'home' | 'documents' // lets us know whether we are on the private or public page
 
-// Are we on the signin version of the page?
+// Are we on the private version of the page?
 const privatePage = $computed<boolean>(() => routeName === 'home')
 
 //* INITIALIZE SEARCH STATE
@@ -746,11 +746,11 @@ async function updateSelectedDocumentUsers() {
 
 //* CREATE DOCUMENT
 let editTitleValue = $ref<string>('')
-let editPrivateValue = $ref<boolean>(true)
+let editPrivateValue = $ref<boolean>(privatePage)
 
 function showCreateModal() {
 	editTitleValue = ''
-	editPrivateValue = true
+	editPrivateValue = privatePage as boolean // initial value for this toggle is based on which version of the page we are on
 	editTagsValue = []
 	editUsersValue = []
 	editSubsValue = []
@@ -767,7 +767,6 @@ async function newDocument() {
 			title: editTitleValue,
 			private: editPrivateValue,
 		}
-
 		const createdDoc = await createDocument(newDoc)
 
 		hideDocumentModal()
