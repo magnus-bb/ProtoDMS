@@ -58,7 +58,7 @@
 							v-for="sub of (document.subscribers as DocumentSubscriber[])"
 							:key="sub.id"
 							:user="(sub.directus_users_id as Partial<DirectusUser>)"
-							:avatar-options="{ key: 'user-badge' }"
+							:avatar-options="{ key: 'user-avatar' }"
 							class="w-8 text-sm"
 							avatar-class="border-2 border-secondary"
 						/>

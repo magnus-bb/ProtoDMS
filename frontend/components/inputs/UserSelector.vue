@@ -5,7 +5,7 @@
 				v-for="user of selectedUsers"
 				:key="user.id"
 				:user="user"
-				:avatar-options="{ key: 'user-badge' }"
+				:avatar-options="{ key: 'user-avatar' }"
 				class="w-8 text-sm"
 				avatar-class="border-2 border-primary"
 			/>
@@ -31,7 +31,7 @@
 						/>
 						<Avatar
 							:user="user"
-							:avatar-options="{ key: 'user-badge' }"
+							:avatar-options="{ key: 'user-avatar' }"
 							class="w-8 text-sm"
 							avatar-class="!rounded-full overflow-hidden p-0 border-2 border-secondary"
 						/>

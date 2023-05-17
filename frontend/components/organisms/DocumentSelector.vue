@@ -7,21 +7,21 @@
 			<div class="document-grid mt-4">
 				<!-- mini preview -->
 				<button
-					v-for="rel of (currentDocument.related_documents as RelatedDocument[])"
-					:key="rel.id"
+					v-for="relDoc of currentDocRelatedDocs"
+					:key="relDoc.id"
 					class="card cursor-default shadow-lg hover:shadow-xl focus:shadow-2xl bg-base-200"
-					:class="{ 'bg-error/50': selectedToRemove.includes((rel.related_document_id as Document).id) }"
-					@click="selectToRemove((rel.related_document_id as Document).id)"
+					:class="{ 'bg-error/50': selectedToRemove.includes(relDoc.id) }"
+					@click="selectToRemove(relDoc.id)"
 				>
 					<!-- CLICK TO REMOVE ITEM AND REFRESH DOCS -->
 					<div class="card-body p-4">
 						<h2 class="card-title text-base">
-							{{ (rel.related_document_id as Document).title }}
+							{{ relDoc.title }}
 						</h2>
 
 						<div class="flex gap-1.5 flex-wrap">
 							<span
-								v-for="tag of ((rel.related_document_id as Document).tags as DocumentTag[])"
+								v-for="tag of (relDoc.tags as DocumentTag[])"
 								:key="tag.id"
 								class="badge badge-outline badge-secondary"
 							>
@@ -124,6 +124,17 @@ async function refreshDocuments() {
 	})
 }
 
+//* CURRENT DOCUMENT RELATED DOCUMENTS
+/* Some of a document's related documents can be private.
+In this case, a relation will exist, but it will point related_document_id to null, since the current user is not allowed to see the related doc.
+In this case, we just want to show the actual docs, so we grab them from the relational table and filter off nulls.
+*/
+const currentDocRelatedDocs = $computed<Document[]>(() => {
+	return (currentDocument?.related_documents as RelatedDocument[])
+		.map(rel => rel.related_document_id as Document)
+		.filter(doc => doc)
+})
+
 //* FILTERING
 const allTags = await readAll<Tag>('tags')
 let selectedTags = $ref<number[]>([])
@@ -137,9 +148,7 @@ const filteredDocs = $computed<Document[]>(() => {
 function filterCheck(doc: Document) {
 	const isNotCurrentDoc = doc.id !== currentDocument?.id
 
-	const isRelatedToCurrentDoc = (currentDocument?.related_documents as RelatedDocument[]).some(
-		rel => (rel.related_document_id as Document).id === doc.id
-	)
+	const isRelatedToCurrentDoc = currentDocRelatedDocs.some(relDoc => relDoc.id === doc.id)
 
 	// Check if doc has any of the selected tags (no selected tags shows all)
 	const hasSelectedTags = selectedTags.length
@@ -172,9 +181,7 @@ const emit = defineEmits<{
 }>()
 
 function updateRelatedDocuments() {
-	const existingRelatedDocs = (currentDocument?.related_documents as RelatedDocument[]).map(
-		rel => (rel.related_document_id as Document).id
-	)
+	const existingRelatedDocs = currentDocRelatedDocs.map(relDoc => relDoc.id)
 	const withRemoved = existingRelatedDocs.filter(id => !selectedToRemove.value.includes(id))
 	const newRelatedDocs = [...withRemoved, ...selectedToAdd.value]
 

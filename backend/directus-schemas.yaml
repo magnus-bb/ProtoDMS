@@ -1966,7 +1966,7 @@ relations:
       one_collection_field: null
       one_deselect_action: delete
       one_field: subscribers
-      sort_field: last_name
+      sort_field: null
     related_collection: documents
     schema:
       column: documents_id
