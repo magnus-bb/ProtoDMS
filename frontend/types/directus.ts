@@ -289,7 +289,9 @@ export type DirectusUsers = {
   last_name?: string | null;
   last_page?: string | null;
   location?: string | null;
+  organizational_id?: string | null;
   password?: string | null;
+  phone_number?: string | null;
   provider: string;
   related_documents?: any[] | DocumentsRelatedUsers[] | null;
   role?: string | DirectusRoles | null;
@@ -335,7 +337,6 @@ export type DocumentsDirectusUsers = {
   directus_users_id?: string | DirectusUsers | null;
   documents_id?: number | Documents | null;
   id: number;
-  last_name?: number | null;
 };
 
 export type DocumentsRelatedDocuments = {

@@ -575,10 +575,6 @@ async function executeSearch() {
 const documentGrid = ref<HTMLElement>()
 // const actions = ref<HTMLElement>()
 onMounted(() => {
-	// if (actions.value) {
-	// 	autoAnimate(actions.value as HTMLElement)
-	// }
-
 	// The element does not exist, if there are no docs to render
 	if (documents?.length) {
 		autoAnimate(documentGrid.value as HTMLElement)

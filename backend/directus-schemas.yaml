@@ -24,14 +24,14 @@ collections:
     schema:
       name: documents
       sql: >-
-        CREATE TABLE "documents" (`date_created` datetime NULL DEFAULT null,
-        `date_updated` datetime NULL DEFAULT null, `id` integer PRIMARY KEY
-        AUTOINCREMENT NOT NULL, `sort` integer NULL DEFAULT null, `title`
+        CREATE TABLE "documents" (`content` json NULL DEFAULT '{"ops":[]}',
+        `date_created` datetime NULL DEFAULT null, `date_updated` datetime NULL
+        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `private`
+        boolean NOT NULL DEFAULT '1', `sort` integer NULL DEFAULT null, `title`
         varchar(255) NOT NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
-        null, `user_updated` char(36) NULL DEFAULT null, `content` json NULL
-        DEFAULT '{"ops":[]}', `private` boolean NOT NULL DEFAULT 'true',
-        CONSTRAINT `documents_user_created_foreign` FOREIGN KEY (`user_created`)
-        REFERENCES `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        null, `user_updated` char(36) NULL DEFAULT null, CONSTRAINT
+        `documents_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
+        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
         `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
         `directus_users` (`id`) ON DELETE NO ACTION)
   - collection: documents_directus_users
@@ -58,8 +58,8 @@ collections:
       name: documents_directus_users
       sql: >-
         CREATE TABLE "documents_directus_users" (`directus_users_id` char(36)
-        NULL DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `documents_id` integer NULL DEFAULT null, CONSTRAINT
+        NULL DEFAULT null, `documents_id` integer NULL DEFAULT null, `id`
+        integer PRIMARY KEY AUTOINCREMENT NOT NULL, CONSTRAINT
         `documents_directus_users_directus_users_id_foreign` FOREIGN KEY
         (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE
         CASCADE, CONSTRAINT `documents_directus_users_documents_id_foreign`
@@ -88,14 +88,15 @@ collections:
     schema:
       name: documents_related_documents
       sql: >-
-        CREATE TABLE "documents_related_documents" (`id` integer PRIMARY KEY
-        AUTOINCREMENT NOT NULL, `document_id` integer NULL,
-        `related_document_id` integer NULL, `relation` varchar(255) null,
+        CREATE TABLE "documents_related_documents" (`document_id` integer NULL
+        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `related_document_id` integer NULL DEFAULT null, `relation` varchar(255)
+        NULL DEFAULT null, CONSTRAINT
+        `documents_related_documents_document_id_foreign` FOREIGN KEY
+        (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
         CONSTRAINT `documents_related_documents_related_document_id_foreign`
         FOREIGN KEY (`related_document_id`) REFERENCES `documents` (`id`) ON
-        DELETE CASCADE, CONSTRAINT
-        `documents_related_documents_document_id_foreign` FOREIGN KEY
-        (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE)
+        DELETE CASCADE)
   - collection: documents_related_files
     meta:
       accountability: all
@@ -119,13 +120,13 @@ collections:
     schema:
       name: documents_related_files
       sql: >-
-        CREATE TABLE "documents_related_files" (`id` integer PRIMARY KEY
-        AUTOINCREMENT NOT NULL, `document_id` integer NULL, `file_id` char(36)
-        NULL, `relation` varchar(255) null, CONSTRAINT
-        `documents_related_files_file_id_foreign` FOREIGN KEY (`file_id`)
-        REFERENCES `directus_files` (`id`) ON DELETE CASCADE, CONSTRAINT
-        `documents_related_files_document_id_foreign` FOREIGN KEY
-        (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE)
+        CREATE TABLE "documents_related_files" (`document_id` integer NULL
+        DEFAULT null, `file_id` char(36) NULL DEFAULT null, `id` integer PRIMARY
+        KEY AUTOINCREMENT NOT NULL, `relation` varchar(255) NULL DEFAULT null,
+        CONSTRAINT `documents_related_files_document_id_foreign` FOREIGN KEY
+        (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
+        CONSTRAINT `documents_related_files_file_id_foreign` FOREIGN KEY
+        (`file_id`) REFERENCES `directus_files` (`id`) ON DELETE CASCADE)
   - collection: documents_related_users
     meta:
       accountability: all
@@ -149,13 +150,13 @@ collections:
     schema:
       name: documents_related_users
       sql: >-
-        CREATE TABLE "documents_related_users" (`id` integer PRIMARY KEY
-        AUTOINCREMENT NOT NULL, `document_id` integer NULL, `user_id` char(36)
-        NULL, `relation` varchar(255) null, CONSTRAINT
-        `documents_related_users_document_id_foreign` FOREIGN KEY
-        (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
-        CONSTRAINT `documents_related_users_user_id_foreign` FOREIGN KEY
-        (`user_id`) REFERENCES `directus_users` (`id`) ON DELETE CASCADE)
+        CREATE TABLE "documents_related_users" (`document_id` integer NULL
+        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `relation` varchar(255) NULL DEFAULT null, `user_id` char(36) NULL
+        DEFAULT null, CONSTRAINT `documents_related_users_document_id_foreign`
+        FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE
+        CASCADE, CONSTRAINT `documents_related_users_user_id_foreign` FOREIGN
+        KEY (`user_id`) REFERENCES `directus_users` (`id`) ON DELETE CASCADE)
   - collection: documents_tags
     meta:
       accountability: all
@@ -179,10 +180,10 @@ collections:
     schema:
       name: documents_tags
       sql: >-
-        CREATE TABLE "documents_tags" (`id` integer PRIMARY KEY AUTOINCREMENT
-        NOT NULL, `documents_id` integer NULL, `tags_id` integer NULL,
-        CONSTRAINT `documents_tags_documents_id_foreign` FOREIGN KEY
-        (`documents_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
+        CREATE TABLE "documents_tags" (`documents_id` integer NULL DEFAULT null,
+        `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `tags_id` integer NULL
+        DEFAULT null, CONSTRAINT `documents_tags_documents_id_foreign` FOREIGN
+        KEY (`documents_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE,
         CONSTRAINT `documents_tags_tags_id_foreign` FOREIGN KEY (`tags_id`)
         REFERENCES `tags` (`id`) ON DELETE CASCADE)
   - collection: tags
@@ -208,13 +209,15 @@ collections:
     schema:
       name: tags
       sql: >-
-        CREATE TABLE "tags" (`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `sort` integer NULL, `user_created` char(36) NULL, `date_created`
-        datetime NULL, `user_updated` char(36) NULL, `date_updated` datetime
-        NULL, `name` varchar(255) NOT NULL DEFAULT null, CONSTRAINT
+        CREATE TABLE "tags" (`date_created` datetime NULL DEFAULT null,
+        `date_updated` datetime NULL DEFAULT null, `id` integer PRIMARY KEY
+        AUTOINCREMENT NOT NULL, `name` varchar(255) NOT NULL DEFAULT null,
+        `sort` integer NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
+        null, `user_updated` char(36) NULL DEFAULT null, CONSTRAINT
         `tags_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
-        `directus_users` (`id`), CONSTRAINT `tags_user_updated_foreign` FOREIGN
-        KEY (`user_updated`) REFERENCES `directus_users` (`id`))
+        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        `tags_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
+        `directus_users` (`id`) ON DELETE NO ACTION)
 fields:
   - collection: directus_files
     field: related_documents
@@ -294,7 +297,7 @@ fields:
       validation_message: null
       width: full
     schema:
-      data_type: char
+      data_type: varchar
       default_value: null
       foreign_key_column: null
       foreign_key_table: null

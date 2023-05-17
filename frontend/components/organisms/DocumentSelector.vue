@@ -123,18 +123,6 @@ async function refreshDocuments() {
 		limit: -1,
 	})
 }
-// documents = await query<Document>('documents', {
-// 	fields: [
-// 		'*',
-// 		'subscribers.directus_users_id.id',
-// 		'subscribers.directus_users_id.avatar',
-// 		'subscribers.directus_users_id.first_name',
-// 		'subscribers.directus_users_id.last_name',
-// 		'tags.id',
-// 		'tags.tags_id.*',
-// 	],
-// 	limit: -1,
-// })
 
 //* FILTERING
 const allTags = await readAll<Tag>('tags')

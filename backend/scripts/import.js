@@ -6,6 +6,7 @@ You will need to have Directus installed so npx can find the 'directus' command.
 
 These script will use administrator privileges to export Directus configurations of the following types into a JSON file and allow you to re-import them into another Directus instance
 - Collection schemas (Created by admin - exported with Directus CLI)
+- Project settings (asset presets, project name, number of login attempts, admin panel styling etc)
 - Dashboards (Insights module)
 - Panels (Used in dashboards)
 - Flows
@@ -56,7 +57,11 @@ if (envErrors.length) {
   process.exit(1)
 }
 
-const CONFIGS_TO_CREATE = [
+const OBJECT_CONFIGS_TO_CREATE = [
+  'settings' 
+]
+
+const ARRAY_CONFIGS_TO_CREATE = [
   'dashboards', 
   'panels',
   'flows',
@@ -111,16 +116,28 @@ async function main() {
     process.exit(1)
   }
 
-  //* CHECK FOR EXISTING ENTRIES FOR ALL CONFIGS IN THE DATABASE
+  //* CREATE THE SIMPLE OBJECT CONFIGS
+  // These have been stripped from IDs, since there is only a single config, so we don't need to check for existing entries
+  // As such, we always just update the existing config, since this type of config (e.g. project 'settings') always already exists
+  try {
+    for (const conf of OBJECT_CONFIGS_TO_CREATE) {
+      await update(conf, configs[conf], access_token)
+    }
+  } catch (err) {
+    console.error('There was an issue creating object configs')
+    console.error(err)
+    process.exit(1)
+  }
+
+  //* CHECK FOR EXISTING ENTRIES FOR ALL ARRAY CONFIGS IN THE DATABASE
   // Contains lists of all of the ids of the different config types in the actual database
   // If our imported config has the same ID as any of these, we need to update instead of create
   let configIds
   try {
     // Returns an array the resolved configs' ID for each config name in CONFIGS_TO_CREATE
-    configIds = (await Promise.all(CONFIGS_TO_CREATE
+    configIds = (await Promise.all(ARRAY_CONFIGS_TO_CREATE
       .map(confName => get(confName, access_token))))
-      .map(res => res.data
-      .map(conf => conf.id))
+      .map(res => res.data.map(conf => conf.id))
 
   } catch (err) {
     console.error('There was an issue getting the existing configs')
@@ -129,7 +146,7 @@ async function main() {
   }
 
   // Zip together config names and the resolved config data's ID from Directus into entries array (e.g. [ 'dashboards', [...dashboardIds] ])
-  const existingIdsEntries = CONFIGS_TO_CREATE.map((confName, i) => ([ confName, configIds[i] ]))
+  const existingIdsEntries = ARRAY_CONFIGS_TO_CREATE.map((confName, i) => ([ confName, configIds[i] ]))
   // const existingIds = Object.fromEntries(CONFIGS_TO_CREATE.map((confName, i) => ([ confName, configIds[i] ])))
   
   //* FIND THE CONFIGS THAT WE HAVE AND ALREADY EXIST, THEY WILL NEED TO BE UPDATED
@@ -143,6 +160,7 @@ async function main() {
   //* BATCH THE CONFIGS SO DEPENDENCIES CAN BE CREATED FIRST
   const batches = [
     {
+      // settings: configs.settings, // Settings have no dependencies
       dashboards: configs.dashboards, // Dashboards are created without any panels
       flows: configs.flows.map(f => omit(f, 'operation')), // Flows are created without any operations and without any initial operation
       roles: configs.roles, // Roles have no dependencies
@@ -162,8 +180,6 @@ async function main() {
     }
   ]
 
-
-
   //* DO THE UPDATES / CREATES
   try {
     // Go through all types of configs we have (dashboards, panels etc) in batches
@@ -171,8 +187,8 @@ async function main() {
       const batchPromises = [] // we populate this with promises for each config request for all config types of the batch
 
       for (const configName in batch) { // 'configName' is the name of the config type
-        const configArray = batch[configName] // 'configArray' are the actual configs for that type
-        
+        const configArray = batch[configName]
+
         // We then go through all configs for the type and update / create them and save the array of promises we get out
         const promises = configArray.map(conf => {
           if (alreadyCreated.has(configName) || updateThese[configName].includes(conf.id)) {
@@ -216,14 +232,29 @@ async function update(confName, conf, access_token) {
   const id = conf.id
   delete conf.id
 
-  const res = await fetch(`${DIRECTUS_URL}/${confName}/${id}?access_token=${access_token}`, {
+  // Every type of config exept for project 'settings' are arrays where entries have IDs. In these cases we need to update the specific entry of that ID
+  if (id) {
+    const res = await fetch(`${DIRECTUS_URL}/${confName}/${id}?access_token=${access_token}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(conf)
+    })
+    
+    return res.json()
+  }
+
+  // the 'settings' config is just an object (which technically have an ID, but we removed it in the export script).
+  // Configs with no ID will be handled here, where we target the global config instead of a specific config entry (like a specific dashboard etc)
+  const res = await fetch(`${DIRECTUS_URL}/${confName}?access_token=${access_token}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(conf)
   })
-
+  
   return res.json()
 }
 

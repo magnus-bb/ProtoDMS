@@ -6,6 +6,7 @@ You will need to have Directus installed so npx can find the 'directus' command.
 
 These script will use administrator privileges to export Directus configurations of the following types into a JSON file and allow you to re-import them into another Directus instance
 - Collection schemas (Created by admin - exported with Directus CLI)
+- Project settings (asset presets, project name, number of login attempts, admin panel styling etc)
 - Dashboards (Insights module)
 - Panels (Used in dashboards)
 - Flows
@@ -54,6 +55,7 @@ if (envErrors.length) {
 }
 
 const CONFIGS_TO_GET = [
+  'settings',
   'dashboards', 
   'panels',
   'flows',
@@ -119,6 +121,7 @@ async function main() {
 
   //* TRANSFORM DATA
   const output = {
+    settings: removeId(configData.settings),
     dashboards: configData.dashboards.map(removeCreatedMetaData).map(d => {
       delete d.panels // Panels are added to dashboards, not other way around
       return d
@@ -191,4 +194,10 @@ function removeRoleUsers(role) {
   delete role.users
 
   return role
+}
+
+// Returns the same object without an ID-prop
+function removeId(obj) {
+  delete obj.id
+  return obj
 }
