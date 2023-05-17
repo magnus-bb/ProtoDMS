@@ -40,6 +40,14 @@ export function readAllUsers(): Promise<DirectusUser[]> {
 	})
 }
 
+export function getUserData(id: string): Promise<DirectusUser> {
+	const directus = useDirectus()
+
+	return directus.users.readOne(id, {
+		fields: ['*', 'related_documents.document_id.*', 'subscriptions.documents_id.*'],
+	}) as unknown as Promise<DirectusUser>
+}
+
 //* DELETE
 export function deleteMany(collection: keyof CustomDirectusTypes, ids: number[]) {
 	const directus = useDirectus()

@@ -51,7 +51,7 @@ collections:
       note: null
       singleton: false
       sort: 5
-      sort_field: last_name
+      sort_field: null
       translations: null
       unarchive_value: null
     schema:
@@ -59,9 +59,9 @@ collections:
       sql: >-
         CREATE TABLE "documents_directus_users" (`directus_users_id` char(36)
         NULL DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        `documents_id` integer NULL DEFAULT null, `last_name` integer NULL,
-        CONSTRAINT `documents_directus_users_directus_users_id_foreign` FOREIGN
-        KEY (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE
+        `documents_id` integer NULL DEFAULT null, CONSTRAINT
+        `documents_directus_users_directus_users_id_foreign` FOREIGN KEY
+        (`directus_users_id`) REFERENCES `directus_users` (`id`) ON DELETE
         CASCADE, CONSTRAINT `documents_directus_users_documents_id_foreign`
         FOREIGN KEY (`documents_id`) REFERENCES `documents` (`id`) ON DELETE
         CASCADE)
@@ -270,6 +270,86 @@ fields:
       width: full
     schema: null
     type: alias
+  - collection: directus_users
+    field: organizational_id
+    meta:
+      collection: directus_users
+      conditions: null
+      display: raw
+      display_options: null
+      field: organizational_id
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options:
+        iconLeft: perm_identity
+        trim: true
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: char
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 36
+      name: organizational_id
+      numeric_precision: null
+      numeric_scale: null
+      table: directus_users
+    type: string
+  - collection: directus_users
+    field: phone_number
+    meta:
+      collection: directus_users
+      conditions: null
+      display: raw
+      display_options: null
+      field: phone_number
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options:
+        iconLeft: local_phone
+        trim: true
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: varchar
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: 255
+      name: phone_number
+      numeric_precision: null
+      numeric_scale: null
+      table: directus_users
+    type: string
   - collection: directus_users
     field: related_documents
     meta:
@@ -932,44 +1012,6 @@ fields:
       is_unique: false
       max_length: null
       name: id
-      numeric_precision: null
-      numeric_scale: null
-      table: documents_directus_users
-    type: integer
-  - collection: documents_directus_users
-    field: last_name
-    meta:
-      collection: documents_directus_users
-      conditions: null
-      display: raw
-      display_options: null
-      field: last_name
-      group: null
-      hidden: true
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: null
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      data_type: integer
-      default_value: null
-      foreign_key_column: null
-      foreign_key_table: null
-      generation_expression: null
-      has_auto_increment: false
-      is_generated: false
-      is_nullable: true
-      is_primary_key: false
-      is_unique: false
-      max_length: null
-      name: last_name
       numeric_precision: null
       numeric_scale: null
       table: documents_directus_users
