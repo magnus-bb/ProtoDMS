@@ -108,6 +108,17 @@
 					<span v-else class="text-base">Make public</span>
 				</button>
 			</li>
+			<!-- share document -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 || selectedDocIsPrivate }"
+				class="text-2xl"
+				title="Share document"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="shareDocument">
+					<Icon class="weight-700 fill optical-size-40">share</Icon>
+					<span class="text-base">Share document</span>
+				</button>
+			</li>
 		</ul>
 	</Teleport>
 
@@ -176,6 +187,16 @@
 							<NuxtLink target="_blank" :to="`/documents/${selectedDocs[0].id}`">
 								<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
 							</NuxtLink>
+						</li>
+						<!-- share document-->
+						<li
+							v-if="selectedDocs.length === 1 && !selectedDocIsPrivate"
+							class="items-center text-xl sm:text-2xl"
+							title="Share document"
+						>
+							<button @click="shareDocument">
+								<Icon class="weight-700 fill optical-size-40">share</Icon>
+							</button>
 						</li>
 						<!-- edit related docs -->
 						<li
@@ -1099,6 +1120,16 @@ async function togglePrivate() {
 	}
 
 	await executeSearch()
+}
+
+//* SHARE DOCUMENT
+function shareDocument() {
+	const selectedDoc = selectedDocs.value[0]
+	if (!selectedDoc || selectedDocIsPrivate) return
+
+	navigator.clipboard.writeText(`${window.location.origin}/documents/${selectedDoc.id}`)
+
+	alert(`Link to ${selectedDoc.title} has been copied to clipboard`)
 }
 </script>
 

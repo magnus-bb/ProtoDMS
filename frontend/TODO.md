@@ -64,14 +64,25 @@ DONE
   * Det burde vist sørge for, at man kun får det man må i frontenden
 
 ## Kortsigtet fildeling og skrivebeskyttet deling
+TODO: readonly-deling for dokumenter
+* Opret sidebar + dropdown menu item til readonly-deling
+* Den kaldte funktion skal oprette en share i Directus med `collection` som dokumentet og `item` som dokumentets id. Sharen skal have en expiry på 7 dage
+* Den returnerede share's ID bruges til at lave en URL (window.location.origin + /readonly/ + ID)
+* URLen skrives til udklipsholder med `navigator.clipboard.writeText` og en alert vises
+* På /readonly/:shareId skal det modtagne content vises i en readonly Quill uden andet UI
+* Auth middleware skal ignorere /readonly-siden ligesom den ignorerer login-siden
+
 * Både dokumenter og filer kan egentlig deles med andre på platformen, hvis de er logget ind
   * Ude fra søgeviewet skal der bare være en "share"-knap, der gemmer linket i ens clipboard
 * Når man navigerer direkte til et dokument eller en fils download link, men bliver redirected til login, så skal loginsiden huske den URL man var på vej til, og så redirect dertil, når man har logget ind
 
 ### Diskussion
-* Readonly fildeling skal nok cuttes og så skrive, at implementeringen er teknisk besværlig, men meget magen til alm. deling og derfor ikke så interessant at bruge tid på
-  * Alternativt kan det undersøges, at man bruger share-objektet og laver en separat side til readonly links (så man ikke får editor-view) som ikke har alm. auth men tjekker, om der er oprettet en share i Directus
-
+* Det vil være bedst, hvis man kun kan oprette 1 permanent share per doc som vises på dokumentets side og kan slettes til enhver tid.
+  * Alternativt skal man kunne vælge expiry på en share, når den oprettes og så skal den vises sammen med andre shares, der er aktive, på dokumentets side.
+  * Under alle omstændigheder skal der være transparens omkring, hvem der har adgang til et dokument, så man ikke kommer til at leak interne informationer
+* For også at undgå leaks, så burde man evt. fryse et dokuments indhold ind i selve sharen, så læsninger i fremtiden ikke også kan se ændringer siden, der måske ikke burde være public
+* Det samme er relevant for filer
+  * Det kunne være fint, hvis man kunne lave en download af filer til ikke-authed brugere, men man kan også bare download og sende manuelt. Det er teknisk svært at dele filer, da de ikke "sendes" på samme måde
 ## Realtidskollaboration
 * DONE
 
