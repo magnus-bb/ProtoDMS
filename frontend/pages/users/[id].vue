@@ -104,10 +104,12 @@
 
 		<Form
 			v-slot="{ meta: formMeta, isSubmitting }"
+			ref="form"
 			class="profile-form gap-x-4"
 			:validation-schema="schema"
+			:initial-values="userFormData"
 			@input="showAlert = false"
-			@submit="onUpdateDetails"
+			@submit="onSubmitDetails"
 		>
 			<!-- EMAIL -->
 			<Field v-slot="{ meta, field, errorMessage }" name="email" as="div" class="col-span-2">
@@ -115,7 +117,7 @@
 					<span class="label-text">E-mail address</span>
 				</label>
 				<div class="indicator w-full">
-					<span class="indicator-item indicator-center badge">Required</span>
+					<span class="indicator-item indicator-bottom indicator-center badge">Required</span>
 					<label class="input-group">
 						<Icon class="optical-size-40">alternate_email</Icon>
 						<input
@@ -141,7 +143,7 @@
 					<span class="label-text">First name</span>
 				</label>
 				<div class="indicator w-full">
-					<span class="indicator-item indicator-center badge">Required</span>
+					<span class="indicator-item indicator-bottom indicator-center badge">Required</span>
 					<input
 						id="first_name"
 						type="text"
@@ -269,9 +271,10 @@
 				</label>
 			</Field>
 
+			<!-- disable submit btn if the form is not touched, not valid, not changed or if we are already submitting a request -->
 			<button
 				role="submit"
-				:disabled="!formMeta.touched || !formMeta.valid || isSubmitting"
+				:disabled="!formMeta.valid || !formMeta.dirty || isSubmitting"
 				class="btn btn-block btn-accent col-span-2 row-start-5"
 				@click="updateProfile"
 			>
@@ -296,7 +299,10 @@ const {
 const isOwnProfile = $computed<boolean>(() => userId === 'me')
 
 //* USER INFORMATION
-const user = await getUserData(userId as string) // when userId is 'me', it works perfectly fine since Directus uses the route /users/me as well
+let user = $ref<DirectusUser>(await getUserData(userId as string)) // when userId is 'me', it works perfectly fine since Directus uses the route /users/me as well
+async function refreshUserData() {
+	user = await getUserData(userId as string)
+}
 
 const avatarUrl = $computed<string | undefined>(() => {
 	if (!user.avatar) return
@@ -318,25 +324,47 @@ const subscriptions = $computed<Document[]>(() => {
 	return user?.subscriptions?.map(rel => rel.documents_id as Document).filter(doc => doc) ?? []
 })
 
-//* UPDATE FORM
+//* FORM
+const form = ref<typeof Form>() // Form component with VeeValidate methods
+
 const schema = object({
 	first_name: string().trim().required().label('Your first name'),
 	last_name: string().trim().label('Your last name'),
-	// avatar: string().label('Your profile picture'), // HVORDAN FORMATTER MAN EN FIL?
 	title: string().trim().label('Your job title'),
 	location: string().trim().label('Your department'),
 	organizational_id: string().label('Your organizational ID'),
 	email: string().email().required().label('Your e-mail address'),
 	phone_number: string().label('Your phone number'),
 })
-function onUpdateDetails(formData: Partial<DirectusUser>) {
+
+// These are just the relevant form fields from the user object, which is used to reset and set initial form values
+// These will change when updates are made, and a new user object is fetched
+const userFormData = $computed<Partial<DirectusUser>>(() => ({
+	first_name: user.first_name,
+	last_name: user.last_name,
+	title: user.title,
+	location: user.location,
+	organizational_id: user.organizational_id,
+	email: user.email,
+	phone_number: user.phone_number,
+}))
+
+// This resets the values in the form to what is currently in the user object from Directus (i.e. the currently saved state)
+function resetFormData() {
+	form.value?.resetForm(userFormData)
+}
+
+async function onSubmitDetails(formData: Partial<DirectusUser>) {
 	try {
-		// DO THE UPDATE
+		await updateUser(user.id, formData)
 	} catch (err) {
 		console.error(err)
 
 		displayErrorMessage('There was an error updating your profile details')
 	}
+
+	hideUpdateModal()
+	refreshUserData()
 }
 
 //* ERROR MESSAGE
@@ -348,21 +376,16 @@ function displayErrorMessage(msg: string) {
 	showAlert = true
 }
 
-//* UPDATE MODAL
+//* MODAL
 let updateModalShown = $ref(false)
-
 function showUpdateModal() {
-	resetUpdateFormState()
+	resetFormData()
 
 	updateModalShown = true
 }
 
 function hideUpdateModal() {
 	updateModalShown = false
-}
-
-function resetUpdateFormState() {
-	// RESET VALUES TO USER DATA
 }
 </script>
 

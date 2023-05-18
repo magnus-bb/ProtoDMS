@@ -55,7 +55,7 @@ DONE
 * Der er måske et problem ved at man kan linke både til filer og fildokumentation, da det åbner op for forskellig brug af filer, der gør det svært at overholde ét princip
 
 ## Kategoriserende mærkater
-* Allerede done
+DONE
 
 ### Diskussion
 * Fedt, hvis man kunne lave ikoner og farver for lettere at skimme dem
@@ -131,10 +131,6 @@ MIKKEL
 * Dette var også lidt et afsnit om muligheder, men som sådan er de konkrete features ikke særdeles opbakket af litteratur, det er bare idéer
 
 ## Profilside
-TODO: hver gang modal åbnes skal den resette alle felter til det, der står i brugerobjektet
-TODO: sørg for, at Form ved, at dette ikke er en ændring
-  Disse to kræver måske at man laver et v-modelled objekt i Form eller lignende?
-TODO: send update requests og luk modal, når der gemmes og refresh sidens data ved at requeste user igen
 TODO: lav en edit-knap (lille blyant) i toppen af billedet til at vælge nyt billede, der uploader billede (i root er fint), sætter billedet som avatar, og refresher sidens data så det nye billede vises
   Directus har vist et endpoint, der kan uploade og sætte avataren i ét kald
 
