@@ -184,6 +184,7 @@ import type { SignInFormData, SignUpFormData } from '@/types/auth'
 //* PAGE VERSION
 const route = useRoute()
 const routeName = route.name as 'signin' | 'signup' // lets us know whether we are signing in or signing up
+const { redirectTo } = route.query // if you were redirected here because you tried to go somewhere else while not authed, we can send your there after login
 
 // Are we on the signin version of the page?
 const signInPage = $computed<boolean>(() => routeName === 'signin')
@@ -239,6 +240,10 @@ async function onSubmit(formData: unknown) {
 		}
 
 		return
+	}
+
+	if (redirectTo) {
+		return await navigateTo(redirectTo as string)
 	}
 
 	await navigateTo('/')

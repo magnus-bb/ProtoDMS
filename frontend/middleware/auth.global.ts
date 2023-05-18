@@ -10,6 +10,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 	} catch (err) {
 		console.warn('User is not authed, redirecting to log in page')
 		console.warn(err)
-		return navigateTo('/signin')
+		return navigateTo('/signin?redirectTo=' + to.fullPath)
 	}
 })
