@@ -1,7 +1,8 @@
 <template>
 	<Teleport to="#sidebar-content">
-		<div>
-			<h2 class="text-2xl font-semibold">Related documents</h2>
+		<h2 class="text-2xl font-semibold text-center">Related items</h2>
+		<div class="px-3">
+			<h3 class="text-lg font-semibold">Documents</h3>
 			<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="relDoc of relatedDocuments"
@@ -13,10 +14,10 @@
 					{{ relDoc.title }}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No related documents</p>
+			<p v-else class="font-light italic">No related documents</p>
 		</div>
-		<div>
-			<h2 class="text-2xl font-semibold">Subscribed to</h2>
+		<div class="px-3">
+			<h3 class="text-lg font-semibold">Subscriptions</h3>
 			<div v-if="subscriptions.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="sub of subscriptions"
@@ -28,29 +29,38 @@
 					{{ sub.title }}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No subscriptions</p>
+			<p v-else class="font-light italic">No subscriptions</p>
 		</div>
 	</Teleport>
 
-	<main class="row p-4 grid grid-cols-12 gap-8">
-		<img
-			v-if="avatarUrl"
-			:src="avatarUrl"
-			alt="User profile picture"
-			class="col-span-12 aspect-square mask mask-squircle object-cover mx-auto w-full max-w-md"
-		/>
+	<main class="row p-4 flex flex-col gap-y-8">
+		<div class="indicator col-span-12 w-full max-w-md mx-auto">
+			<button class="indicator-item right-12 top-12">
+				<FileSelector name="picture" button circle size="lg" @input="updateAvatar">
+					<Icon class="text-2xl weight-700 fill optical-size-40">edit</Icon>
+				</FileSelector>
+			</button>
+			<img
+				v-if="avatarUrl"
+				:src="avatarUrl"
+				alt="User profile picture"
+				class="aspect-square mask mask-squircle object-cover"
+			/>
+		</div>
 
-		<div class="details-section col-span-12 mx-auto">
-			<h2 class="[grid-area:name] sm:justify-self-end font-bold text-3xl">{{ fullName }}</h2>
+		<div class="details-section mx-auto">
+			<h2 class="[grid-area:name] sm:justify-self-end font-bold text-3xl sm:text-end">
+				{{ fullName }}
+			</h2>
 			<h3
 				v-if="user.title"
-				class="[grid-area:title] sm:justify-self-end text-primary text-xl font-medium"
+				class="[grid-area:title] sm:justify-self-end text-primary sm:text-end text-xl font-medium"
 			>
 				{{ user.title }}
 			</h3>
 			<h4
 				v-if="user.location"
-				class="[grid-area:location] sm:justify-self-end text-xl flex items-center gap-x-2"
+				class="[grid-area:location] sm:justify-self-end text-xl sm:text-end flex items-center gap-x-2"
 			>
 				{{ user.location }}
 			</h4>
@@ -75,24 +85,24 @@
 
 		<button
 			v-if="isOwnProfile"
-			class="col-span-12 btn btn-primary btn-wide btn-lg mx-auto"
+			class="btn btn-accent btn-wide btn-lg mx-auto"
 			@click="showUpdateModal"
 		>
 			Edit profile
 		</button>
+	</main>
 
-		<div v-show="showAlert" class="toast">
-			<div class="alert alert-error shadow-lg mb-4">
-				<div>
-					<Icon class="text-2xl -grade-25">block</Icon>
-					<h4 class="text-sm">{{ submissionErrorText }}</h4>
-				</div>
-				<div class="flex-none">
-					<button class="btn btn-sm" @click="showAlert = false">Alright</button>
-				</div>
+	<div v-show="showAlert" class="toast">
+		<div class="alert alert-error shadow-lg mb-4">
+			<div>
+				<Icon class="text-2xl -grade-25">block</Icon>
+				<h4 class="text-sm">{{ submissionErrorText }}</h4>
+			</div>
+			<div class="flex-none">
+				<button class="btn btn-sm" @click="showAlert = false">Alright</button>
 			</div>
 		</div>
-	</main>
+	</div>
 
 	<Modal
 		v-if="isOwnProfile"
@@ -386,6 +396,24 @@ function showUpdateModal() {
 
 function hideUpdateModal() {
 	updateModalShown = false
+}
+
+//* AVATAR UPDATE
+async function updateAvatar(e: Event) {
+	e.preventDefault()
+
+	const file = (e.target as HTMLInputElement).files?.[0]
+	if (!file) return
+
+	try {
+		await updateUserAvatar(user.id, file)
+	} catch (err) {
+		console.error(err)
+
+		displayErrorMessage('There was an error updating your profile picture')
+	}
+
+	refreshUserData()
 }
 </script>
 

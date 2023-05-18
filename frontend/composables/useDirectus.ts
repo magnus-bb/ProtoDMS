@@ -4,6 +4,7 @@ import type { Ref } from 'vue'
 import type {
 	CustomDirectusTypes,
 	DirectusUsers as DirectusUser,
+	DirectusFiles as DirectusFile,
 	Documents as Document,
 } from '@/types/directus'
 import type { SignInFormData, SignUpFormData } from '@/types/auth'
@@ -87,6 +88,20 @@ export function updateUser(id: string, changes: Partial<DirectusUser>) {
 	const directus = useDirectus()
 
 	return directus.items('directus_users').updateOne(id, changes)
+}
+
+export async function updateUserAvatar(userId: string, file: File) {
+	// Create a form with the file
+	const form = new FormData()
+	form.append('file', file)
+
+	const directus = useDirectus()
+
+	// Upload the file and save the file's Directus ID
+	const { id: fileId } = (await directus.files.createOne(form)) as unknown as DirectusFile
+
+	// Update the user to use the file ID for the avatar
+	return updateUser(userId, { avatar: fileId })
 }
 
 //* AUTH

@@ -1,7 +1,8 @@
 <template>
 	<Teleport to="#sidebar-content">
-		<div>
-			<h2 class="text-2xl font-semibold">Related documents</h2>
+		<h2 class="text-2xl font-semibold text-center">Related items</h2>
+		<div class="px-3">
+			<h2 class="text-lg font-semibold">Documents</h2>
 			<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="relDoc of relatedDocuments"
@@ -13,10 +14,10 @@
 					{{ relDoc.title }}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No related documents</p>
+			<p v-else class="font-light italic">No related documents</p>
 		</div>
-		<div>
-			<h2 class="text-2xl font-semibold">Related users</h2>
+		<div class="px-3">
+			<h2 class="text-lg font-semibold">Users</h2>
 			<div v-if="initialDocument?.related_users?.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_users"
@@ -35,10 +36,10 @@
 					}}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No related users</p>
+			<p v-else class="font-light italic">No related users</p>
 		</div>
-		<div>
-			<h2 class="text-2xl font-semibold">Related files</h2>
+		<div class="px-3">
+			<h2 class="text-lg font-semibold">Files</h2>
 			<div v-if="initialDocument?.related_files?.length" class="flex flex-wrap gap-2 mt-2">
 				<NuxtLink
 					v-for="rel of initialDocument!.related_files"
@@ -51,7 +52,7 @@
 					{{ ((rel as RelatedFile).file_id as File).filename_download }}
 				</NuxtLink>
 			</div>
-			<p v-else class="text-lg font-light italic">No related files</p>
+			<p v-else class="font-light italic">No related files</p>
 		</div>
 	</Teleport>
 

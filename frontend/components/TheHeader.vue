@@ -1,6 +1,6 @@
 <template>
 	<div class="navbar shadow-xl bg-base-300 mb-4 min-h-[80px]">
-		<nav class="navbar-start" aria-label="Home">
+		<nav class="navbar-start hidden xs:flex" aria-label="Home">
 			<NuxtLink
 				to="/"
 				title="Home"
@@ -11,8 +11,6 @@
 		</nav>
 
 		<div class="flex-none gap-6 navbar-center">
-			<!-- <ThemePicker /> -->
-
 			<!-- TODO: keyboard usage for nav (tab and arrow keys) -->
 			<nav aria-label="Main">
 				<div class="dropdown dropdown-end md:hidden">

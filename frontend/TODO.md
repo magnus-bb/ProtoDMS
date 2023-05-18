@@ -33,6 +33,7 @@ DONE
 
 ### Diskussion
 * Det er ok, at det ikke live-opdateres. Skriv om det i begrænsninger
+* Der er måske et problem ved at man kan linke både til filer og fildokumentation, da det åbner op for forskellig brug af filer, der gør det svært at overholde ét princip
 * Relationsbeskrivelser
 * Pga. teknisk Directus begrænsning er relationer kun énvejs i prototypen. Det er dog nok til at illustrere funktionen, og potentielt endda bedst, da relationsbeskrivelser eventuelt ville påkræve dette
 
@@ -49,10 +50,6 @@ DONE
 ### Diskussion
 * Det ville være en fordel, hvis man let kan navigere til fildokumenter fra en fils side også, så man nemmere kan se, hvad en fil indeholder eller bruges til.
   * Lige nu er det kun fra dokumentsiden, at man kan finde fildokumentation, da det er lavet til, at man gør filer søgbare ligesom dokumenter. Men det kan jo også være, at man faktisk har fat i filen og så har brug for at læse lidt om den
-
-### Diskussion
-* Det er ok, at det ikke live-opdateres. Skriv om det i begrænsninger
-* Der er måske et problem ved at man kan linke både til filer og fildokumentation, da det åbner op for forskellig brug af filer, der gør det svært at overholde ét princip
 
 ## Kategoriserende mærkater
 DONE
@@ -83,7 +80,6 @@ DONE
 
 ## Integrationer og SSO
 * Uden for scope, der er intet at integrere med, da det afhænger 100% af en organisations anvendte auth og andre systemer (herunder projektstyring)
-
 
 ## Bidragsscore
 * På brugerprofilen kan vises en contribution heatmap med https://github.com/julienr114/vue-calendar-heatmap
@@ -131,9 +127,7 @@ MIKKEL
 * Dette var også lidt et afsnit om muligheder, men som sådan er de konkrete features ikke særdeles opbakket af litteratur, det er bare idéer
 
 ## Profilside
-TODO: lav en edit-knap (lille blyant) i toppen af billedet til at vælge nyt billede, der uploader billede (i root er fint), sætter billedet som avatar, og refresher sidens data så det nye billede vises
-  Directus har vist et endpoint, der kan uploade og sætte avataren i ét kald
-
+DONE
 * Når man er på egen profilside skal man kunne redigere felter med
   * E-mailadresse (obligatorisk som del af login-oplysninger)
   * Telefonnummer
