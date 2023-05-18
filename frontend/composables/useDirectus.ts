@@ -191,7 +191,6 @@ export interface DirectusImageOptions {
 	key?: string
 	download?: boolean
 }
-
 export function getAssetUrl(assetId: string, options?: DirectusImageOptions): string {
 	const { directusUrl } = useRuntimeConfig().public
 	const { accessToken } = useUser()
@@ -230,4 +229,10 @@ export function getAssetUrl(assetId: string, options?: DirectusImageOptions): st
 	}
 
 	return url.href
+}
+
+export function getFileData(id: string) {
+	const directus = useDirectus()
+
+	return directus.files.readOne(id) as unknown as Promise<DirectusFile>
 }

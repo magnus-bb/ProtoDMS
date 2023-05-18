@@ -106,6 +106,16 @@
 								<Icon class="weight-700 fill optical-size-40">upload_file</Icon>
 							</FileSelector>
 						</li>
+						<!-- share file -->
+						<li
+							v-if="selectedFiles.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Share file"
+						>
+							<button @click="shareSelectedFile">
+								<Icon class="weight-700 fill optical-size-40">share</Icon>
+							</button>
+						</li>
 						<!-- rename file -->
 						<li
 							v-if="selectedFiles.length === 1"
@@ -640,7 +650,6 @@ async function deleteSelectedFiles() {
 
 	refreshFiles()
 }
-
 //* DOWNLOAD FILE
 const fileDownloadUrl = $computed<string>(() => {
 	if (selectedFiles.value.length !== 1) return ''
@@ -649,6 +658,19 @@ const fileDownloadUrl = $computed<string>(() => {
 
 	return getAssetUrl(file.id, { download: true })
 })
+
+//* SHARE FILE
+function shareSelectedFile() {
+	if (selectedFiles.value.length !== 1) return
+
+	const downloadPath = window.location.origin + '/download/' + selectedFiles.value[0].id
+
+	navigator.clipboard.writeText(downloadPath)
+
+	alert(
+		`Download link for ${selectedFiles.value[0].filename_download} has been copied to clipboard`
+	)
+}
 
 //* MOVE FILES
 function showMoveFilesModal() {
