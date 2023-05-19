@@ -2,7 +2,7 @@
 	<main class="grow xs:grid xs:place-items-center">
 		<div class="mockup-window border border-neutral bg-base-300 shadow-xl">
 			<code class="absolute top-8 left-24 tracking-wider leading-none -translate-y-3.5">
-				thesis.sh
+				ProtoDMS
 			</code>
 
 			<div class="bg-base-200 p-6 w-full">

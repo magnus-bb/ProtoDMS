@@ -31,7 +31,6 @@
 
 			<!-- MUST use a wrapper to get v-once working correctly with :content so quill does not keep failing updates
 			when searching which calls a diff check that fails -->
-			<!-- <QuillReadOnly :content="new Delta(document.content as any)" /> -->
 			<QuillReadOnly :content="(document.content as Delta)" />
 
 			<div class="card-actions grid items-center grid-cols-[1fr_auto]">

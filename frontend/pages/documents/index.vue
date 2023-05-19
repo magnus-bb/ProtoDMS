@@ -114,9 +114,23 @@
 				class="text-2xl"
 				title="Share document"
 			>
-				<button :disabled="selectedDocs.length !== 1" @click="shareDocument">
+				<button
+					:disabled="selectedDocs.length !== 1 || selectedDocIsPrivate"
+					@click="shareDocument"
+				>
 					<Icon class="weight-700 fill optical-size-40">share</Icon>
 					<span class="text-base">Share document</span>
+				</button>
+			</li>
+			<!-- share readonly document -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Share readonly document"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="shareReadonlyDocument">
+					<Icon class="weight-700 fill optical-size-40">edit_off</Icon>
+					<span class="text-base">Share readonly document</span>
 				</button>
 			</li>
 		</ul>
@@ -196,6 +210,16 @@
 						>
 							<button @click="shareDocument">
 								<Icon class="weight-700 fill optical-size-40">share</Icon>
+							</button>
+						</li>
+						<!-- share readonly document-->
+						<li
+							v-if="selectedDocs.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Share readonly document"
+						>
+							<button @click="shareReadonlyDocument">
+								<Icon class="weight-700 fill optical-size-40">edit_off</Icon>
 							</button>
 						</li>
 						<!-- edit related docs -->
@@ -519,6 +543,7 @@ import type {
 } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
 import { getAllFiles } from '~~/utils/files'
+import { createDocumentShare } from '~~/composables/useDirectus'
 
 definePageMeta({
 	layout: 'sidebar',
@@ -1130,6 +1155,24 @@ function shareDocument() {
 	navigator.clipboard.writeText(`${window.location.origin}/documents/${selectedDoc.id}`)
 
 	alert(`Link to ${selectedDoc.title} has been copied to clipboard`)
+}
+
+async function shareReadonlyDocument() {
+	const selectedDoc = selectedDocs.value[0]
+	if (!selectedDoc) return
+
+	const shareId = await createDocumentShare(selectedDoc.id)
+
+	if (!shareId) {
+		alert(`There was an error creating a readonly link to ${selectedDoc.title}`)
+		return
+	}
+
+	navigator.clipboard.writeText(`${window.location.origin}/readonly/${shareId}`)
+
+	alert(
+		`Readonly link to ${selectedDoc.title} has been copied to clipboard. It is valid for 7 days.`
+	)
 }
 </script>
 

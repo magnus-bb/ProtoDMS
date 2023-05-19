@@ -1,8 +1,10 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
-	const ALLOWED_ROUTES = ['/signin', '/signup']
-	if (ALLOWED_ROUTES.includes(to.path)) {
+const ALLOWED_ROUTES = ['/signin', '/signup', '/readonly']
+
+export default defineNuxtRouteMiddleware(async to => {
+	if (ALLOWED_ROUTES.some(route => to.path.startsWith(route))) {
 		return // let the user through
 	}
+
 	try {
 		const directus = useDirectus()
 		// If refresh works, it means user is authed - it also makes sure the access token is not stale

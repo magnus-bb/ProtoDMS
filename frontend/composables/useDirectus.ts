@@ -236,3 +236,36 @@ export function getFileData(id: string) {
 
 	return directus.files.readOne(id) as unknown as Promise<DirectusFile>
 }
+//* SHARING
+// Takes ID of document to create share for, returns the uuid of the share
+export async function createDocumentShare(id: number): Promise<string | undefined> {
+	const directus = useDirectus()
+
+	const inOneWeek = addWeeks(new Date(), 1)
+
+	const share = await directus.items('directus_shares').createOne({
+		name: 'Document readonly share',
+		collection: 'documents',
+		item: id.toString(),
+		date_end: inOneWeek.toISOString(),
+	})
+
+	return share?.id
+}
+function addWeeks(date: Date, weeks: number): Date {
+	date.setDate(date.getDate() + 7 * weeks)
+
+	return date
+}
+
+export async function getReadonlyDocument(shareId: string) {
+	const { directusUrl } = useRuntimeConfig().public
+
+	try {
+		const res = await fetch(`${trimTrailingSlash(directusUrl)}/readonly/${shareId}`)
+
+		return res.json()
+	} catch (err) {
+		return { error: 'There was an error getting the shared document', data: null }
+	}
+}

@@ -56,7 +56,7 @@
 		</div>
 	</Teleport>
 
-	<div class="p-4 flex flex-col gap-y-4">
+	<div class="row p-4 flex flex-col gap-y-4">
 		<header class="flex justify-between items-center gap-x-4">
 			<!-- document title -->
 			<InputToggle>
@@ -96,14 +96,14 @@
 		</header>
 
 		<!-- document editor -->
-		<main class="shadow-xl rounded-daisy-box p-2" data-theme="winter">
+		<main class="shadow-xl rounded-daisy-box p-8" data-theme="winter">
 			<QuillEditorToolbar id="editor-toolbar" />
+			<!-- handlers: {
+						'directus-select-or-upload-file': selectOrUploadFile,
+					}, -->
 			<QuillEditor
 				:toolbar="{
 					container: '#editor-toolbar',
-					handlers: {
-						'directus-select-or-upload-file': selectOrUploadFile,
-					},
 				}"
 				class="!border-none"
 				theme="snow"
@@ -296,10 +296,10 @@ async function editorReady(quillElement: Quill) {
 const quillModules = [useQuillMentions()]
 
 // This can be used to show modal that allows user to select file from directus or upload a new one and the use this.quill to insert a link etc at the current cursor location
-function selectOrUploadFile() {
-	console.warn('TODO: directus select / upload btn')
-	console.log(this.quill)
-}
+// function selectOrUploadFile() {
+// 	console.warn('TODO: directus select / upload btn')
+// 	console.log(this.quill)
+// }
 
 socket.on('content-changed', (delta: DeltaObject) => {
 	quill.updateContents(delta, 'silent')

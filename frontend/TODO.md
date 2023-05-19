@@ -64,14 +64,7 @@ DONE
   * Det burde vist sørge for, at man kun får det man må i frontenden
 
 ## Kortsigtet fildeling og skrivebeskyttet deling
-TODO: readonly-deling for dokumenter
-* Opret sidebar + dropdown menu item til readonly-deling
-* Den kaldte funktion skal oprette en share i Directus med `collection` som dokumentet og `item` som dokumentets id. Sharen skal have en expiry på 7 dage
-* Den returnerede share's ID bruges til at lave en URL (window.location.origin + /readonly/ + ID)
-* URLen skrives til udklipsholder med `navigator.clipboard.writeText` og en alert vises
-* På /readonly/:shareId skal det modtagne content vises i en readonly Quill uden andet UI
-* Auth middleware skal ignorere /readonly-siden ligesom den ignorerer login-siden
-
+DONE
 * Både dokumenter og filer kan egentlig deles med andre på platformen, hvis de er logget ind
   * Ude fra søgeviewet skal der bare være en "share"-knap, der gemmer linket i ens clipboard
 * Når man navigerer direkte til et dokument eller en fils download link, men bliver redirected til login, så skal loginsiden huske den URL man var på vej til, og så redirect dertil, når man har logget ind
@@ -88,6 +81,7 @@ TODO: readonly-deling for dokumenter
 
 ### Diskussion
 * Ikke CRDT eller OT-compliant, men det er fint nok i en prototype. Det vil altid synkronisere helt ved saves
+* Meget store filer, der indsættes med Quill som en blob, får realtime collab til at crashe og gør saving umuligt.
 
 ## Integrationer og SSO
 * Uden for scope, der er intet at integrere med, da det afhænger 100% af en organisations anvendte auth og andre systemer (herunder projektstyring)

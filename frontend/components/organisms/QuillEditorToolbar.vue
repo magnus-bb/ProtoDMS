@@ -126,9 +126,10 @@
 			<button class="ql-link" />
 			<button class="ql-video" />
 			<button class="ql-image" />
-			<button class="ql-directus-select-or-upload-file">
+			<!-- TODO link to file from directus -->
+			<!-- <button class="ql-directus-select-or-upload-file">
 				<Icon class="grade-200">description</Icon>
-			</button>
+			</button> -->
 			<div
 				class="px-2 tooltip tooltip-bottom"
 				data-tip="Type @, :person, :file, or :document to link to other resources."

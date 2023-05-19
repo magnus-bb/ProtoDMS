@@ -57,6 +57,7 @@ module.exports = {
 					'document_id',
 					'organizational_id',
 					'phone_number',
+					'date_end',
 				],
 			},
 		],
