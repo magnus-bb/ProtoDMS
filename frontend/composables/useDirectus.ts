@@ -50,17 +50,18 @@ export function getUserData(id: string): Promise<DirectusUser> {
 	}) as unknown as Promise<DirectusUser>
 }
 
-export function getDocumentRevisions(/* documentId: number */): Promise<Revision[]> {
+export async function getDocumentRevisions(documentId: number): Promise<Revision[]> {
 	const directus = useDirectus()
+	const { accessToken } = useUser()
 
-	return directus.revisions.readByQuery({ limit: -1 }) as Promise<Revision[]>
+	const url = new URL(`${trimTrailingSlash(directus.url)}/changelog/${documentId}`)
 
-	// return directus.revisions.readByQuery({
-	// 	filter: {
-	// 		document_id: documentId,
-	// 	},
-	// 	limit: -1,
-	// }) as unknown as Promise<Revision[]>
+	url.searchParams.append('access_token', accessToken.value as string)
+
+	// @ts-ignore
+	const { data } = await directus.transport.axios.get(url.href)
+
+	return data as Revision[]
 }
 
 //* DELETE
@@ -273,14 +274,18 @@ function addWeeks(date: Date, weeks: number): Date {
 	return date
 }
 
-export async function getReadonlyDocument(shareId: string) {
-	const { directusUrl } = useRuntimeConfig().public
+export async function getReadonlyDocument(shareId: string): Promise<Document | Error> {
+	const directus = useDirectus()
+	const directusUrl = directus.url
 
 	try {
-		const res = await fetch(`${trimTrailingSlash(directusUrl)}/readonly/${shareId}`)
+		// @ts-ignore
+		const { data } = await directus.transport.axios.get(
+			`${trimTrailingSlash(directusUrl)}/readonly/${shareId}`
+		)
 
-		return res.json()
+		return data
 	} catch (err) {
-		return { error: 'There was an error getting the shared document', data: null }
+		return new Error('There was an error getting the shared document')
 	}
 }

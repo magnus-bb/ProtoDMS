@@ -31,10 +31,7 @@ module.exports = {
 
 				const item = await itemsService.readOne(share.item)
 
-				return res.json({
-					error: null,
-					data: item
-				})
+				return res.json(item)
 			} catch (error) {
 
 				return res.status(500).send(new ServiceUnavailableException(error.message || 'Something went wrong'))

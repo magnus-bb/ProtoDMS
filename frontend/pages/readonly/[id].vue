@@ -1,26 +1,28 @@
 <template>
-	<main v-if="!error && document" class="row pt-8 flex flex-col gap-y-8">
-		<h1 class="text-4xl font-semibold text-center">{{ document.title }}</h1>
+	<main v-if="!error" class="row pt-8 flex flex-col gap-y-8">
+		<h1 class="text-4xl font-semibold text-center">{{ (data as Document).title }}</h1>
 		<div data-theme="winter" class="shadow-xl rounded-daisy-box p-8">
-			<QuillReadOnly :content="document.content" />
+			<QuillReadOnly :content="((data as Document).content as any)" />
 		</div>
 	</main>
 
-	<main v-else-if="error" class="text-xl text-error">
-		{{ error }}
+	<main v-else class="text-xl text-error">
+		{{ data || 'Something went wrong' }}
 	</main>
-
-	<main v-else class="text-xl text-error">Something went wrong</main>
 </template>
 
 <script setup lang="ts">
+import type { Documents as Document } from '@/types/directus'
+
 definePageMeta({
 	layout: false,
 })
 
 const { id: shareId } = useRoute().params
 
-const { error, data: document } = await getReadonlyDocument(shareId as string)
+const data = await getReadonlyDocument(shareId as string)
+
+const error = $computed<boolean>(() => data instanceof Error)
 
 if (error) {
 	console.error(error)
@@ -32,10 +34,6 @@ if (error) {
 :deep() {
 	.ql-toolbar {
 		@apply hidden;
-	}
-
-	.ql-editor {
-		@apply p-0 line-clamp-[10];
 	}
 
 	.ql-blank::before {

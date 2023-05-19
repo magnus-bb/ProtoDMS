@@ -54,6 +54,8 @@
 			</div>
 			<p v-else class="font-light italic">No related files</p>
 		</div>
+		<h2 class="text-2xl font-semibold text-center">Revisions</h2>
+		<pre>{{ documentRevisions }}</pre>
 	</Teleport>
 
 	<div class="row p-4 flex flex-col gap-y-4">
@@ -114,11 +116,11 @@
 		</main>
 
 		<!-- save button and save message -->
-		<div class="space-y-2 mt-2">
+		<div class="flex gap-x-2 items-center mt-2">
 			<button class="btn btn-accent gap-2" :disabled="!changeSinceSave" @click="saveDocument">
 				<Icon class="fill text-3xl">save</Icon>Save changes
 			</button>
-			<p class="text-muted text-sm">{{ relativeSaveTimeString }}</p>
+			<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
 		</div>
 	</div>
 
@@ -401,14 +403,21 @@ socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
 	ignoreTitleChange(() => {
 		renameDocumentInputValue.value = saveEventData.document.title as string
 	})
+
+	refreshDocumentRevisions()
 })
 
 //* REVISIONS
-const documentRevisions = computedAsync<Revision[]>(() => {
-	return getDocumentRevisions()
-})
-
-console.log(documentRevisions)
+let documentRevisions = $ref<Revision[]>([])
+await refreshDocumentRevisions()
+async function refreshDocumentRevisions() {
+	try {
+		documentRevisions = await getDocumentRevisions(initialDocument?.id as number)
+	} catch (err) {
+		console.error(err)
+		alert('There was an error getting document revisions')
+	}
+}
 
 onUnmounted(() => {
 	clearInterval(saveStringInterval)

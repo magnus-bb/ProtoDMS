@@ -157,6 +157,9 @@ DONE
 * Der skal være en liste af ændringer med brugerens avatar og navn samt en knap til at se ændringen i en modal?
 * Denne feature skal evt. cuttes på baggrund af at Directus' revision-system måske ikke egner sig godt til dette
 
+### Diskussion
+* Det ville være fedt at kunne se de egentlige deltaer i stedet for dokumentets state.
+
 ## Abonnementer
 DONE
 * Backenden er lavet, og måske tilføj/fjern i frontenden?
