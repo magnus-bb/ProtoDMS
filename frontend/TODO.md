@@ -1,6 +1,6 @@
 # Features
 ## Integrerede illustrationer
-* I edit-viewet af dokumenter skal der være en liste under dokumentet af illustrationer, der kan have en titel
+* I edit-viewet af dokumenter og readonly viewet skal der være en liste under dokumentet af illustrationer, der kan have en titel
 * De skal tilføjes med en "add illustration" knap
 * Når en illustration laves skal der komme en ny knap nedenunder til at oprette en ny så man kan tilføje flere
 * Der skal være en delete-knap

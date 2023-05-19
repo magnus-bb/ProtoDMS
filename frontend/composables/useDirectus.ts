@@ -4,6 +4,7 @@ import type { Ref } from 'vue'
 import type {
 	CustomDirectusTypes,
 	DirectusUsers as DirectusUser,
+	DirectusRevisions as Revision,
 	DirectusFiles as DirectusFile,
 	Documents as Document,
 } from '@/types/directus'
@@ -47,6 +48,19 @@ export function getUserData(id: string): Promise<DirectusUser> {
 	return directus.users.readOne(id, {
 		fields: ['*', 'related_documents.document_id.*', 'subscriptions.documents_id.*'],
 	}) as unknown as Promise<DirectusUser>
+}
+
+export function getDocumentRevisions(/* documentId: number */): Promise<Revision[]> {
+	const directus = useDirectus()
+
+	return directus.revisions.readByQuery({ limit: -1 }) as Promise<Revision[]>
+
+	// return directus.revisions.readByQuery({
+	// 	filter: {
+	// 		document_id: documentId,
+	// 	},
+	// 	limit: -1,
+	// }) as unknown as Promise<Revision[]>
 }
 
 //* DELETE
@@ -236,6 +250,7 @@ export function getFileData(id: string) {
 
 	return directus.files.readOne(id) as unknown as Promise<DirectusFile>
 }
+
 //* SHARING
 // Takes ID of document to create share for, returns the uuid of the share
 export async function createDocumentShare(id: number): Promise<string | undefined> {

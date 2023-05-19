@@ -148,6 +148,7 @@ import type {
 	DocumentsRelatedUsers as RelatedUser,
 	DocumentsRelatedFiles as RelatedFile,
 	DirectusFiles as File,
+	DirectusRevisions as Revision,
 	Documents as Document,
 } from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
@@ -401,6 +402,13 @@ socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
 		renameDocumentInputValue.value = saveEventData.document.title as string
 	})
 })
+
+//* REVISIONS
+const documentRevisions = computedAsync<Revision[]>(() => {
+	return getDocumentRevisions()
+})
+
+console.log(documentRevisions)
 
 onUnmounted(() => {
 	clearInterval(saveStringInterval)

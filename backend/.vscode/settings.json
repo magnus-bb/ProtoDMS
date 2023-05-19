@@ -3,8 +3,8 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "name": "directus",
-      "database": "\\\\wsl.localhost\\Ubuntu-20.04\\home\\magnus\\dev\\shouldiuse\\backend\\data.db"
+      "name": "Directus",
+      "database": "${workspaceFolder:backend}/data.db"
     }
   ]
 }
