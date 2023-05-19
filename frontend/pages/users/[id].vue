@@ -34,19 +34,38 @@
 	</Teleport>
 
 	<main class="row p-4 flex flex-col gap-y-8">
-		<div class="indicator col-span-12 w-full max-w-md mx-auto">
+		<div v-if="isOwnProfile && avatarUrl" class="indicator col-span-12 w-full max-w-md mx-auto">
 			<button class="indicator-item right-12 top-12">
 				<FileSelector name="picture" button circle size="lg" @input="updateAvatar">
 					<Icon class="text-2xl weight-700 fill optical-size-40">edit</Icon>
 				</FileSelector>
 			</button>
 			<img
-				v-if="avatarUrl"
 				:src="avatarUrl"
 				alt="User profile picture"
 				class="aspect-square mask mask-squircle object-cover"
 			/>
 		</div>
+
+		<img
+			v-else-if="avatarUrl"
+			:src="avatarUrl"
+			alt="User profile picture"
+			class="aspect-square mask mask-squircle object-cover col-span-12 w-full max-w-md mx-auto"
+		/>
+
+		<FileSelector
+			v-else-if="isOwnProfile"
+			center
+			name="picture"
+			button
+			circle
+			size="lg"
+			title="Upload profile picture"
+			@input="updateAvatar"
+		>
+			<Icon class="text-2xl weight-700 fill optical-size-40">photo_camera</Icon>
+		</FileSelector>
 
 		<div class="details-section mx-auto">
 			<h2 class="[grid-area:name] sm:justify-self-end font-bold text-3xl sm:text-end">
@@ -306,7 +325,9 @@ const {
 	params: { id: userId },
 } = useRoute()
 
-const isOwnProfile = $computed<boolean>(() => userId === 'me')
+const me = await getUser()
+
+const isOwnProfile = $computed<boolean>(() => userId === 'me' || userId === me.id)
 
 //* USER INFORMATION
 let user = $ref<DirectusUser>(await getUserData(userId as string)) // when userId is 'me', it works perfectly fine since Directus uses the route /users/me as well
@@ -401,6 +422,8 @@ function hideUpdateModal() {
 //* AVATAR UPDATE
 async function updateAvatar(e: Event) {
 	e.preventDefault()
+
+	if (!isOwnProfile) return
 
 	const file = (e.target as HTMLInputElement).files?.[0]
 	if (!file) return

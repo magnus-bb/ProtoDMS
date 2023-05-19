@@ -1,63 +1,4 @@
 <template>
-	<Teleport to="#sidebar-content">
-		<h2 class="text-2xl font-semibold text-center">Related items</h2>
-		<div class="px-3">
-			<h2 class="text-lg font-semibold">Documents</h2>
-			<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
-				<NuxtLink
-					v-for="relDoc of relatedDocuments"
-					:key="relDoc.id"
-					class="badge badge-lg badge-base-200"
-					target="_blank"
-					:to="`/documents/${relDoc.id}`"
-				>
-					{{ relDoc.title }}
-				</NuxtLink>
-			</div>
-			<p v-else class="font-light italic">No related documents</p>
-		</div>
-		<div class="px-3">
-			<h2 class="text-lg font-semibold">Users</h2>
-			<div v-if="initialDocument?.related_users?.length" class="flex flex-wrap gap-2 mt-2">
-				<NuxtLink
-					v-for="rel of initialDocument!.related_users"
-					:key="(rel as RelatedUser).id"
-					class="badge badge-lg badge-base-200"
-					target="_blank"
-					:to="`/users/${((rel as RelatedUser).user_id as DirectusUser).id}`"
-				>
-					{{
-						[
-							((rel as RelatedUser).user_id as DirectusUser).first_name,
-							((rel as RelatedUser).user_id as DirectusUser).last_name,
-						]
-							.filter(u => u)
-							.join(' ')
-					}}
-				</NuxtLink>
-			</div>
-			<p v-else class="font-light italic">No related users</p>
-		</div>
-		<div class="px-3">
-			<h2 class="text-lg font-semibold">Files</h2>
-			<div v-if="initialDocument?.related_files?.length" class="flex flex-wrap gap-2 mt-2">
-				<NuxtLink
-					v-for="rel of initialDocument!.related_files"
-					:key="(rel as RelatedFile).id"
-					class="badge badge-lg badge-base-200"
-					target="_blank"
-					:download="((rel as RelatedFile).file_id as File).filename_download"
-					:to="getAssetUrl(((rel as RelatedFile).file_id as File).id, { download: true })"
-				>
-					{{ ((rel as RelatedFile).file_id as File).filename_download }}
-				</NuxtLink>
-			</div>
-			<p v-else class="font-light italic">No related files</p>
-		</div>
-		<h2 class="text-2xl font-semibold text-center">Revisions</h2>
-		<pre>{{ documentRevisions }}</pre>
-	</Teleport>
-
 	<div class="row p-4 flex flex-col gap-y-4">
 		<header class="flex justify-between items-center gap-x-4">
 			<!-- document title -->
@@ -122,6 +63,93 @@
 			</button>
 			<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
 		</div>
+
+		<Teleport to="#sidebar-content" :disabled="noSidebar">
+			<h2 class="text-2xl font-semibold lg:text-center">Related items</h2>
+			<div class="lg:px-3">
+				<h2 class="text-lg font-semibold">Documents</h2>
+				<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
+					<NuxtLink
+						v-for="relDoc of relatedDocuments"
+						:key="relDoc.id"
+						class="badge badge-lg badge-base-200"
+						target="_blank"
+						:to="`/documents/${relDoc.id}`"
+					>
+						{{ relDoc.title }}
+					</NuxtLink>
+				</div>
+				<p v-else class="font-light italic">No related documents</p>
+			</div>
+
+			<div class="lg:px-3">
+				<h2 class="text-lg font-semibold">Users</h2>
+				<div v-if="initialDocument?.related_users?.length" class="flex flex-wrap gap-2 mt-2">
+					<NuxtLink
+						v-for="rel of initialDocument!.related_users"
+						:key="(rel as RelatedUser).id"
+						class="badge badge-lg badge-base-200"
+						target="_blank"
+						:to="`/users/${((rel as RelatedUser).user_id as DirectusUser).id}`"
+					>
+						{{
+							[
+								((rel as RelatedUser).user_id as DirectusUser).first_name,
+								((rel as RelatedUser).user_id as DirectusUser).last_name,
+							]
+								.filter(u => u)
+								.join(' ')
+						}}
+					</NuxtLink>
+				</div>
+				<p v-else class="font-light italic">No related users</p>
+			</div>
+
+			<div class="lg:px-3">
+				<h2 class="text-lg font-semibold">Files</h2>
+				<div v-if="initialDocument?.related_files?.length" class="flex flex-wrap gap-2 mt-2">
+					<NuxtLink
+						v-for="rel of initialDocument!.related_files"
+						:key="(rel as RelatedFile).id"
+						class="badge badge-lg badge-base-200"
+						target="_blank"
+						:download="((rel as RelatedFile).file_id as File).filename_download"
+						:to="getAssetUrl(((rel as RelatedFile).file_id as File).id, { download: true })"
+					>
+						{{ ((rel as RelatedFile).file_id as File).filename_download }}
+					</NuxtLink>
+				</div>
+				<p v-else class="font-light italic">No related files</p>
+			</div>
+
+			<h2 class="mt-4 text-2xl font-semibold lg:text-center">Revisions</h2>
+			<div class="lg:px-3">
+				<ul
+					v-if="documentRevisions.length"
+					class="menu menu-compact bg-base-200 lg:bg-base-100 rounded-box"
+				>
+					<!-- revisions are by default returned from oldest to newest, but we want the latest at the top, so we reverse -->
+					<li v-for="rev of [...documentRevisions].reverse()" :key="rev.id">
+						<button class="flex" @click="showActiveRevisionModal(rev)">
+							<Avatar
+								:user="((rev.activity as Activity).user as DirectusUser)"
+								avatar-class="w-8 text-sm border-2 border-secondary rounded-full overflow-hidden"
+								:avatar-options="{ key: 'user-avatar' }"
+							/>
+							<div class="flex flex-col items-start">
+								<span class="text-sm">{{
+									getFullName((rev.activity as Activity).user as DirectusUser)
+								}}</span>
+								<span class="text-xs text-muted">{{
+									dateStringFromTimestamp((rev.activity as Activity).timestamp)
+								}}</span>
+							</div>
+						</button>
+					</li>
+				</ul>
+				<p v-else class="font-light italic">No revisions</p>
+			</div>
+		</Teleport>
 	</div>
 
 	<div v-if="!online" class="toast toast-top toast-center w-72">
@@ -131,6 +159,36 @@
 			</div>
 		</div>
 	</div>
+
+	<Modal
+		sidebar-safe
+		:class="{ 'modal-open': activeRevisionModalShown }"
+		@hide="hideActiveRevisionModal"
+	>
+		<template #heading>
+			<NuxtLink
+				v-if="activeRevision"
+				:title="'Profile of ' + getFullName((activeRevision.activity as Activity).user as DirectusUser)"
+				target="_blank"
+				:to="`/users/${((activeRevision.activity as Activity).user as DirectusUser).id}`"
+				class="flex items-center gap-x-4"
+			>
+				<Avatar
+					:user="((activeRevision.activity as Activity).user as DirectusUser)"
+					avatar-class="w-10 border-2 border-secondary rounded-full overflow-hidden"
+					:avatar-options="{ key: 'user-avatar' }"
+				/>
+				<div class="flex flex-col items-start">
+					<span>{{ getFullName((activeRevision.activity as Activity).user as DirectusUser) }}</span>
+					<span class="text-sm font-mono text-muted">{{ activeRevisionTimeString }}</span>
+				</div>
+			</NuxtLink>
+		</template>
+
+		<div v-if="activeRevision" data-theme="winter" class="rounded-daisy-box p-4 readonly-quill">
+			<QuillReadOnly :key="activeRevision.id" :content="(activeRevision.data.content as any)" />
+		</div>
+	</Modal>
 </template>
 
 <script setup lang="ts">
@@ -138,6 +196,7 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
+import { breakpointsTailwind } from '@vueuse/core'
 import type { Quill, DeltaObject } from '@/types/quill'
 import type {
 	JoinRoomData,
@@ -151,9 +210,14 @@ import type {
 	DocumentsRelatedFiles as RelatedFile,
 	DirectusFiles as File,
 	DirectusRevisions as Revision,
+	DirectusActivity as Activity,
 	Documents as Document,
 } from '@/types/directus'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+
+interface DocumentRevision extends Revision {
+	data: Partial<Document>
+}
 
 definePageMeta({
 	layout: 'sidebar',
@@ -408,16 +472,49 @@ socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
 })
 
 //* REVISIONS
-let documentRevisions = $ref<Revision[]>([])
+let documentRevisions = $ref<DocumentRevision[]>([])
 await refreshDocumentRevisions()
 async function refreshDocumentRevisions() {
 	try {
-		documentRevisions = await getDocumentRevisions(initialDocument?.id as number)
+		documentRevisions = (await getDocumentRevisions(
+			initialDocument?.id as number
+		)) as unknown as DocumentRevision[]
 	} catch (err) {
 		console.error(err)
 		alert('There was an error getting document revisions')
 	}
 }
+
+function getFullName(user: DirectusUser): string {
+	const { first_name, last_name } = user
+	return [first_name, last_name].filter(name => name).join(' ')
+}
+
+function dateStringFromTimestamp(timestamp: string): string {
+	const date = new Date(timestamp)
+	return date.toLocaleString()
+}
+
+// Modal handling
+let activeRevision = $ref<DocumentRevision | null>(null)
+
+const activeRevisionTimeString = $computed<string>(() => {
+	if (!activeRevision) return ''
+	return dateStringFromTimestamp((activeRevision.activity as Activity).timestamp)
+})
+
+let activeRevisionModalShown = $ref<boolean>(false)
+function showActiveRevisionModal(revision: DocumentRevision) {
+	activeRevision = revision
+	activeRevisionModalShown = true
+}
+function hideActiveRevisionModal() {
+	activeRevisionModalShown = false
+}
+
+//* POSITION OF SIDEBAR / MENU
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const noSidebar = breakpoints.smallerOrEqual('lg')
 
 onUnmounted(() => {
 	clearInterval(saveStringInterval)
@@ -485,6 +582,17 @@ onUnmounted(() => {
 
 	.mention > span {
 		margin: 0 3px;
+	}
+
+	/* In revision modal, we have a readonly quill, which we don't want to style like the editor */
+	.readonly-quill {
+		.ql-toolbar {
+			@apply hidden;
+		}
+
+		.ql-blank::before {
+			@apply !text-muted !font-bold;
+		}
 	}
 }
 </style>

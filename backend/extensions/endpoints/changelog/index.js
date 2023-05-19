@@ -37,10 +37,17 @@ module.exports = {
 					limit: -1
 				})
 
-				// Revision MUST have a data prop (containing the doc state at the time) and must have private: false
-				const publicRevisionsForDoc = allRevisionsForDoc.filter(revision => revision.data && !revision.data?.private)
+				/* 
+				The only revisions we are interested in have
+					- document 'content' to show (will be there after first content has been added, but in the beginning, the doc will only have a 'title' and a 'private' flag)
+					- 'private' set to false (we don't want to show revisions on private docs)
+					- a 'delta' in which the 'content' was changed (we don't want to show revisions where metadata such as relations, subscriptions etc were changed)
+				*/ 
+				const publicRevisionsWithContentChanges = allRevisionsForDoc.filter(revision => {
+					return !revision.data?.private && revision.data?.content && revision.delta?.content
+				})
 				
-				return res.json(publicRevisionsForDoc)
+				return res.json(publicRevisionsWithContentChanges)
 			} catch (error) {
 				return res.status(500).send(new ServiceUnavailableException(error.message || 'Something went wrong'))
 			}

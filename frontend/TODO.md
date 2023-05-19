@@ -153,12 +153,15 @@ DONE
 * HUSK at redigere CREATION-modalen til også at have relationelle persons udover subscribers
 
 ## Versionshistorik
+DONE
 * Skal bruge Directus' revisions og bare vise ændringer i content (hvordan kan man filtrere så det kun er contentændringer?) i sidebaren
 * Der skal være en liste af ændringer med brugerens avatar og navn samt en knap til at se ændringen i en modal?
 * Denne feature skal evt. cuttes på baggrund af at Directus' revision-system måske ikke egner sig godt til dette
 
 ### Diskussion
-* Det ville være fedt at kunne se de egentlige deltaer i stedet for dokumentets state.
+* Det ville være fedt at kunne se de egentlige deltaer udover dokumentets state.
+* Det ville være godt, hvis man kunne være flere forfattere på en revision
+  * Dette er beskrevet et andet sted. Det er (lidt) begrænset af Directus, men det er måske også lidt problematisk at sige, at alle collaborators i et doc skal kunne stå inde for en ændring
 
 ## Abonnementer
 DONE
