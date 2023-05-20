@@ -76,6 +76,7 @@ DONE
 * For også at undgå leaks, så burde man evt. fryse et dokuments indhold ind i selve sharen, så læsninger i fremtiden ikke også kan se ændringer siden, der måske ikke burde være public
 * Det samme er relevant for filer
   * Det kunne være fint, hvis man kunne lave en download af filer til ikke-authed brugere, men man kan også bare download og sende manuelt. Det er teknisk svært at dele filer, da de ikke "sendes" på samme måde
+  * 
 ## Realtidskollaboration
 * DONE
 
