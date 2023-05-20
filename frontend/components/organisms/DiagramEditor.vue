@@ -1,20 +1,19 @@
 <template>
 	<div class="relative">
-		<ap-menu id="menu"></ap-menu>
+		<!-- <ap-menu id="menu"></ap-menu> -->
 		<ap-menu-shape id="menu-shape"></ap-menu-shape>
 		<div
 			id="tip"
 			style="
 				position: absolute;
-				top: 30%;
+				top: 50%;
 				left: 50%;
 				min-width: 290px;
-				transform: translate(-50%, -30%);
+				transform: translate(-50%, -50%);
 			"
 		>
 			<ul>
-				<li>Drag diagram image here to open</li>
-				<li>To select multiple shapes use long press</li>
+				<li>Long press to select multiple shapes</li>
 			</ul>
 		</div>
 		<!-- <div class="links" style="position: absolute; right: 0; bottom: 0; padding: 15px">
@@ -40,283 +39,286 @@
 </template>
 
 <script setup lang="ts">
+//* THANKS TO https://github.com/AlexeyBoiko/DgrmJS FOR THE APPROPRIATED SOURCE CODE
 onMounted(() => {
 	import('@/DgrmJS/index.js')
 })
 </script>
 
 <style lang="postcss" scoped>
-text {
-	color: rgb(73, 80, 87);
-	font-size: 16px;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	white-space: pre-wrap;
-}
-
-textarea {
-	padding: 10px;
-	padding-top: 0.8em;
-	overflow: hidden;
-	color: transparent;
-	font-size: 16px;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	line-height: 1em;
-	text-align: center;
-	background-color: transparent;
-	border: 0;
-	outline: none;
-	resize: none;
-	caret-color: #fff;
-}
-
-[data-connect] {
-	display: none;
-}
-
-.select path[data-key='selected'],
-.select .path-end,
-.select [data-connect],
-.highlight-e [data-key='end'] .path-end,
-.highlight-s [data-key='start'] .path-end,
-.hover [data-connect] {
-	display: unset;
-	opacity: 0.51;
-	fill: rgb(108 187 247);
-	stroke: rgb(108 187 247);
-}
-
-[data-connect].hover {
-	stroke-width: 25px;
-}
-
-.select path[data-key='selected'] {
-	fill: none;
-}
-
-.highlight [data-key='main'] {
-	paint-order: stroke;
-	stroke-width: 10px;
-	stroke: rgb(108 187 247 / 0.51);
-}
-
-.shpath [data-key='end'] .path,
-.shpath [data-key='start'] .path {
-	display: none;
-}
-
-.shpath.arw-e [data-key='end'] .path,
-.shpath.arw-s [data-key='start'] .path {
-	display: unset;
-}
-
-.shpath.dash [data-key='path'] {
-	stroke-dasharray: 5;
-}
-
-@media (pointer: coarse) {
-	circle.path-end {
-		r: 20px;
+:deep {
+	text {
+		color: rgb(73, 80, 87);
+		font-size: 16px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		white-space: pre-wrap;
 	}
 
-	.ative-elem {
-		stroke: rgb(108 187 247 / 0.51);
-		stroke-width: 70px;
+	textarea {
+		padding: 10px;
+		padding-top: 0.8em;
+		overflow: hidden;
+		color: transparent;
+		font-size: 16px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		line-height: 1em;
+		text-align: center;
+		background-color: transparent;
+		border: 0;
+		outline: none;
+		resize: none;
+		caret-color: #fff;
 	}
 
 	[data-connect] {
-		stroke-width: 15px;
+		display: none;
+	}
+
+	.select path[data-key='selected'],
+	.select .path-end,
+	.select [data-connect],
+	.highlight-e [data-key='end'] .path-end,
+	.highlight-s [data-key='start'] .path-end,
+	.hover [data-connect] {
+		display: unset;
+		opacity: 0.51;
+		fill: rgb(108 187 247);
+		stroke: rgb(108 187 247);
 	}
 
 	[data-connect].hover {
-		stroke-width: 70px;
+		stroke-width: 25px;
 	}
-}
 
-/* rect, text shape */
-.shrect.ta-1 text,
-.shtxt.ta-1 text {
-	text-anchor: start;
-}
+	.select path[data-key='selected'] {
+		fill: none;
+	}
 
-.shrect.ta-2 text,
-.shtxt.ta-2 text {
-	text-anchor: middle;
-}
+	.highlight [data-key='main'] {
+		paint-order: stroke;
+		stroke-width: 10px;
+		stroke: rgb(108 187 247 / 0.51);
+	}
 
-.shrect.ta-3 text,
-.shtxt.ta-3 text {
-	text-anchor: end;
-}
+	.shpath [data-key='end'] .path,
+	.shpath [data-key='start'] .path {
+		display: none;
+	}
 
-.shrect.ta-1 textarea,
-.shtxt.ta-1 textarea {
-	text-align: left;
-}
+	.shpath.arw-e [data-key='end'] .path,
+	.shpath.arw-s [data-key='start'] .path {
+		display: unset;
+	}
 
-.shrect.ta-2 textarea,
-.shtxt.ta-2 textarea {
-	text-align: center;
-}
+	.shpath.dash [data-key='path'] {
+		stroke-dasharray: 5;
+	}
 
-.shrect.ta-3 textarea,
-.shtxt.ta-3 textarea {
-	text-align: right;
-}
+	@media (pointer: coarse) {
+		circle.path-end {
+			r: 20px;
+		}
 
-.shtxt textarea {
-	caret-color: rgb(73, 80, 87);
-}
+		.ative-elem {
+			stroke: rgb(108 187 247 / 0.51);
+			stroke-width: 70px;
+		}
 
-.shtxt text {
-	fill: rgb(73, 80, 87);
-}
+		[data-connect] {
+			stroke-width: 15px;
+		}
 
-.shtxt [data-key='main'] {
-	fill: transparent;
-	stroke: transparent;
-}
+		[data-connect].hover {
+			stroke-width: 70px;
+		}
+	}
 
-.shtxt.select [data-key='main'],
-.shtxt.highlight [data-key='main'] {
-	stroke: rgb(108 187 247 / 0.51);
-	stroke-width: 2px;
-}
+	/* rect, text shape */
+	.shrect.ta-1 text,
+	.shtxt.ta-1 text {
+		text-anchor: start;
+	}
 
-/* rhomb shape */
-.shrhomb.highlight [data-key='border'] {
-	stroke-width: 28px;
-	stroke: rgb(108 187 247 / 0.51);
-}
+	.shrect.ta-2 text,
+	.shtxt.ta-2 text {
+		text-anchor: middle;
+	}
 
-.shrhomb.highlight [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #1d809f;
-}
+	.shrect.ta-3 text,
+	.shtxt.ta-3 text {
+		text-anchor: end;
+	}
 
-/* shape settings styles */
-.cl-red [data-key='main'] {
-	fill: #e74c3c;
-}
+	.shrect.ta-1 textarea,
+	.shtxt.ta-1 textarea {
+		text-align: left;
+	}
 
-.cl-red .path {
-	stroke: #e74c3c;
-}
+	.shrect.ta-2 textarea,
+	.shtxt.ta-2 textarea {
+		text-align: center;
+	}
 
-.cl-orange [data-key='main'] {
-	fill: #f60;
-}
+	.shrect.ta-3 textarea,
+	.shtxt.ta-3 textarea {
+		text-align: right;
+	}
 
-.cl-orange .path {
-	stroke: #f60;
-}
+	.shtxt textarea {
+		caret-color: rgb(73, 80, 87);
+	}
 
-.cl-green [data-key='main'] {
-	fill: #19bc9b;
-}
+	.shtxt text {
+		fill: rgb(73, 80, 87);
+	}
 
-.cl-green .path {
-	stroke: #19bc9b;
-}
+	.shtxt [data-key='main'] {
+		fill: transparent;
+		stroke: transparent;
+	}
 
-.cl-blue [data-key='main'] {
-	fill: #1aaee5;
-}
+	.shtxt.select [data-key='main'],
+	.shtxt.highlight [data-key='main'] {
+		stroke: rgb(108 187 247 / 0.51);
+		stroke-width: 2px;
+	}
 
-.cl-blue .path {
-	stroke: #1aaee5;
-}
+	/* rhomb shape */
+	.shrhomb.highlight [data-key='border'] {
+		stroke-width: 28px;
+		stroke: rgb(108 187 247 / 0.51);
+	}
 
-.cl-dblue [data-key='main'] {
-	fill: #1d809f;
-}
+	.shrhomb.highlight [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #1d809f;
+	}
 
-.cl-dblue .path {
-	stroke: #1d809f;
-}
+	/* shape settings styles */
+	.cl-red [data-key='main'] {
+		fill: #e74c3c;
+	}
 
-.cl-dgray [data-key='main'] {
-	fill: #495057;
-}
+	.cl-red .path {
+		stroke: #e74c3c;
+	}
 
-.cl-dgray .path {
-	stroke: #495057;
-}
+	.cl-orange [data-key='main'] {
+		fill: #f60;
+	}
 
-.shtxt.cl-red [data-key='main'] {
-	fill: transparent;
-}
+	.cl-orange .path {
+		stroke: #f60;
+	}
 
-.shtxt.cl-red text {
-	fill: #e74c3c;
-}
+	.cl-green [data-key='main'] {
+		fill: #19bc9b;
+	}
 
-.shtxt.cl-orange [data-key='main'] {
-	fill: transparent;
-}
+	.cl-green .path {
+		stroke: #19bc9b;
+	}
 
-.shtxt.cl-orange text {
-	fill: #f60;
-}
+	.cl-blue [data-key='main'] {
+		fill: #1aaee5;
+	}
 
-.shtxt.cl-green [data-key='main'] {
-	fill: transparent;
-}
+	.cl-blue .path {
+		stroke: #1aaee5;
+	}
 
-.shtxt.cl-green text {
-	fill: #19bc9b;
-}
+	.cl-dblue [data-key='main'] {
+		fill: #1d809f;
+	}
 
-.shtxt.cl-blue [data-key='main'] {
-	fill: transparent;
-}
+	.cl-dblue .path {
+		stroke: #1d809f;
+	}
 
-.shtxt.cl-blue text {
-	fill: #1aaee5;
-}
+	.cl-dgray [data-key='main'] {
+		fill: #495057;
+	}
 
-.shtxt.cl-dblue [data-key='main'] {
-	fill: transparent;
-}
+	.cl-dgray .path {
+		stroke: #495057;
+	}
 
-.shtxt.cl-dblue text {
-	fill: #1d809f;
-}
+	.shtxt.cl-red [data-key='main'] {
+		fill: transparent;
+	}
 
-.shtxt.cl-dgray [data-key='main'] {
-	fill: transparent;
-}
+	.shtxt.cl-red text {
+		fill: #e74c3c;
+	}
 
-.shtxt.cl-dgray text {
-	fill: #495057;
-}
+	.shtxt.cl-orange [data-key='main'] {
+		fill: transparent;
+	}
 
-.shrhomb.cl-red [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #e74c3c;
-}
+	.shtxt.cl-orange text {
+		fill: #f60;
+	}
 
-.shrhomb.cl-orange [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #f60;
-}
+	.shtxt.cl-green [data-key='main'] {
+		fill: transparent;
+	}
 
-.shrhomb.cl-green [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #19bc9b;
-}
+	.shtxt.cl-green text {
+		fill: #19bc9b;
+	}
 
-.shrhomb.cl-blue [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #1aaee5;
-}
+	.shtxt.cl-blue [data-key='main'] {
+		fill: transparent;
+	}
 
-.shrhomb.cl-dblue [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #1d809f;
-}
+	.shtxt.cl-blue text {
+		fill: #1aaee5;
+	}
 
-.shrhomb.cl-dgray [data-key='main'] {
-	stroke-width: 18px;
-	stroke: #495057;
+	.shtxt.cl-dblue [data-key='main'] {
+		fill: transparent;
+	}
+
+	.shtxt.cl-dblue text {
+		fill: #1d809f;
+	}
+
+	.shtxt.cl-dgray [data-key='main'] {
+		fill: transparent;
+	}
+
+	.shtxt.cl-dgray text {
+		fill: #495057;
+	}
+
+	.shrhomb.cl-red [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #e74c3c;
+	}
+
+	.shrhomb.cl-orange [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #f60;
+	}
+
+	.shrhomb.cl-green [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #19bc9b;
+	}
+
+	.shrhomb.cl-blue [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #1aaee5;
+	}
+
+	.shrhomb.cl-dblue [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #1d809f;
+	}
+
+	.shrhomb.cl-dgray [data-key='main'] {
+		stroke-width: 18px;
+		stroke: #495057;
+	}
 }
 </style>

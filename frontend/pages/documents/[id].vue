@@ -64,7 +64,7 @@
 			<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
 		</div>
 
-		<DiagramEditor class="w-full h-[50vh]" />
+		<DiagramEditor class="w-full h-[50vh] rounded-daisy-box overflow-hidden" />
 
 		<Teleport to="#sidebar-content" :disabled="noSidebar">
 			<h2 class="text-2xl font-semibold lg:text-center">Related items</h2>

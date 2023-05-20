@@ -11,8 +11,7 @@
 
 ### Diskussion
 * Det er okay, at disse ikke opdateres real time - det skrives bare i begrænsningerne
-* Det ville nok være bedst, hvis illustrationer har sin egen edit-side separat fra dokumenter, så man kan have dem separat og linke flere dokumenter til dem
-  * Så man tænker på dem ligesom filer, der kan have et metadata-dokument og så kan man linke andre dokumenter til den.
+* Det er teknisk svært at lave multiple illustrationer, da koden bruger mange IDs, så der mangler muligheden for at tilføje / fjerne illustrationer i flertal
 
 ## Skabeloner
 DONE
@@ -162,7 +161,8 @@ DONE
 ### Diskussion
 * Det ville være fedt at kunne se de egentlige deltaer udover dokumentets state.
 * Det ville være godt, hvis man kunne være flere forfattere på en revision
-  * Dette er beskrevet et andet sted. Det er (lidt) begrænset af Directus, men det er måske også lidt problematisk at sige, at alle collaborators i et doc skal kunne stå inde for en ændring
+  * Dette er beskrevet et andet sted. Det er (lidt) begrænset af Directus, men det er måske også lidt problematisk at sige, at alle collaborators i et doc skal kunne stå inde for en ændring'
+* Det ville være bedst, hvis illustrationer også var med i versionshistorikken, men det er teknisk krævende at lave
 
 ## Abonnementer
 DONE
