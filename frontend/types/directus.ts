@@ -320,6 +320,7 @@ export type Documents = {
   content?: unknown | null;
   date_created?: string | null;
   date_updated?: string | null;
+  diagram?: unknown | null;
   id: number;
   private: boolean;
   related_documents?: any[] | DocumentsRelatedDocuments[] | null;

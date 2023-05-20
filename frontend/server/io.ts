@@ -9,8 +9,11 @@ import type {
 	TitleEventData,
 	SocketUser,
 	DocumentSavedEventData,
+	DiagramEventData,
+	DiagramSavedEventData,
 } from '@/types/document-sync'
 import type { DeltaObject, DeltaDocument } from '@/types/quill'
+import type { Diagram } from '@/types/diagram'
 import type { CustomDirectusTypes } from '@/types/directus'
 
 // Annoying that we can't get nuxt context from here, since env var could be undef and we need to duplicate the fallback value
@@ -128,6 +131,45 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 				console.error(err)
 				// TODO: something that can undo the title change in the frontend?
 			}
+		},
+
+		/* Takes the client's access token and saves the diagram of the document of the user's session under the client's name.
+		If user save fails, the server will try with a static token called 'Collaborative session' instead.
+		Returns whether the save was successful regardless of whether it was by user or server. */
+		async 'save-diagram'({ documentId, diagramData }: DiagramEventData): Promise<boolean> {
+			if (!socketInRoom(socket, documentId)) {
+				console.warn('User has not been authorized to save diagram of the document:', documentId)
+
+				return false
+			}
+
+			// Used to try and save diagram as user first, then as server if user fails
+			const accessToken = socket.handshake.auth.token
+
+			const session = rooms.get(documentId)
+
+			if (!session) return false
+
+			// Try with the user's access token...
+			let savedDocument = await session.saveDiagram(diagramData, accessToken)
+			if (!savedDocument) {
+				// ... if user attempt failed, try with static token (no arg for token)
+				savedDocument = await session.saveDiagram(diagramData)
+
+				if (!savedDocument) {
+					console.warn(`Saving diagram for document ${documentId} with static token failed`)
+					return false
+				}
+			}
+
+			// Broadcast to everyone in room that diagram was saved
+			io.to(documentId).emit('diagram-saved', {
+				userId: socket.data.userId,
+				timestamp: Date.now(),
+				diagram: savedDocument.diagram,
+			} as DiagramSavedEventData)
+
+			return true
 		},
 
 		/* Takes a client's access token and saves the document of the user's session under the client's name.
@@ -332,7 +374,33 @@ class DocumentSession {
 			.catch(err => {
 				console.warn(err)
 				return null
-			}) as unknown as Promise<DeltaDocument> // mute the error, this it to be expected, when there is no actual changes to the document
+			}) as unknown as Promise<DeltaDocument> // mute the error, this is to be expected, when there is no actual changes to the document
+	}
+
+	// Persists the session cached document's diagram in Directus
+	saveDiagram(diagramData: Diagram, userAccessToken?: string): Promise<DeltaDocument | null> {
+		const accessToken = userAccessToken || DocumentSession.directusToken
+
+		return DocumentSession.directus
+			.items('documents')
+			.updateOne(
+				this.document.id,
+				{
+					diagram: diagramData,
+				},
+				{ fields: ['diagram'] },
+				{
+					requestOptions: {
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+					},
+				}
+			)
+			.catch(err => {
+				console.warn(err)
+				return null
+			}) as unknown as Promise<DeltaDocument> // mute the error, this is to be expected, when there is no actual changes to the document
 	}
 }
 

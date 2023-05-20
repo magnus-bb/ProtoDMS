@@ -1,17 +1,8 @@
 <template>
-	<div class="relative">
+	<div class="relative" v-bind="$attrs">
 		<!-- <ap-menu id="menu"></ap-menu> -->
 		<ap-menu-shape id="menu-shape"></ap-menu-shape>
-		<div
-			id="tip"
-			style="
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				min-width: 290px;
-				transform: translate(-50%, -50%);
-			"
-		>
+		<div id="tip">
 			<ul>
 				<li>Long press to select multiple shapes</li>
 			</ul>
@@ -20,32 +11,85 @@
 			<a href="https://github.com/AlexeyBoiko/DgrmJS" target="_blank">GitHub</a> |
 			<a href="https://linkedin.com/in/alexey-boyko-tech" target="_blank">LinkedIn</a>
 		</div> -->
-		<svg
-			id="diagram"
-			class="w-full h-full"
-			tabindex="0"
-			style="
-				display: block;
-				background-color: #fff;
-				user-select: none;
-				pointer-events: none;
-				touch-action: none;
-				-webkit-touch-callout: none;
-			"
-		>
+		<svg id="diagram" class="w-full h-full" tabindex="0">
 			<g id="canvas"></g>
 		</svg>
+	</div>
+
+	<div class="flex gap-x-2 items-center my-2">
+		<!-- :disabled="!diagramChangeSinceSave" -->
+		<button class="btn btn-accent gap-2" @click="saveDiagram">
+			<Icon class="fill text-3xl">save</Icon>Save diagram
+		</button>
+		<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
 	</div>
 </template>
 
 <script setup lang="ts">
 //* THANKS TO https://github.com/AlexeyBoiko/DgrmJS FOR THE APPROPRIATED SOURCE CODE
-onMounted(() => {
-	import('@/DgrmJS/index.js')
+import { deserialize, serialize } from '@/DgrmJS/diagram/dgrm-serialization.js'
+import { tipShow } from '@/DgrmJS//ui/ui.js'
+import type { Diagram } from '@/types/diagram'
+
+const { relativeSaveTimeString, editorContent } = defineProps<{
+	relativeSaveTimeString: string
+	editorContent: Diagram // when this changes, it is applied to the editor (it is not truly reactive)
+}>()
+
+onMounted(async () => {
+	await import('@/DgrmJS/index.js')
+
+	setEditorContent(editorContent)
 })
+watch(
+	() => editorContent,
+	(newContent, oldContent) => {
+		if (newContent !== oldContent) {
+			setEditorContent(newContent)
+		}
+	}
+)
+
+function setEditorContent(content: Diagram) {
+	// reference to the canvas is available in this component through the import of DgrmJS/index.js
+	// @ts-ignore
+	if (deserialize(canvas, content)) {
+		tipShow(false)
+	}
+}
+
+const emit = defineEmits<{
+	(e: 'save', diagram: Diagram): void
+}>()
+
+function saveDiagram() {
+	// reference to the canvas is available in this component through the import of DgrmJS/index.js
+	// @ts-ignore
+	const diagramData: Diagram = serialize(canvas)
+	emit('save', diagramData)
+}
 </script>
 
 <style lang="postcss" scoped>
+/* stylelint-disable-next-line */
+#tip {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	min-width: 290px;
+	transform: translate(-50%, -50%);
+}
+
+/* stylelint-disable-next-line */
+#diagram {
+	display: block;
+	background-color: #fff;
+	user-select: none;
+	pointer-events: none;
+	touch-action: none;
+	-webkit-touch-callout: none;
+}
+
 :deep {
 	text {
 		color: rgb(73, 80, 87);

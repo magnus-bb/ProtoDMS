@@ -1,5 +1,6 @@
 # Features
 ## Integrerede illustrationer
+DONE
 * I edit-viewet af dokumenter og readonly viewet skal der være en liste under dokumentet af illustrationer, der kan have en titel
 * De skal tilføjes med en "add illustration" knap
 * Når en illustration laves skal der komme en ny knap nedenunder til at oprette en ny så man kan tilføje flere
@@ -10,7 +11,7 @@
   * Det skal være sådan, at når relationen slettes fra dokumentets side, så sletter det også illustrationen
 
 ### Diskussion
-* Det er okay, at disse ikke opdateres real time - det skrives bare i begrænsningerne
+* Opdateres desværre ikke i realtime (man skal save, for at der sker noget). Derudover er det en separat knap fra content af tekniske årsager (for ikke at blande revisions, så en save af diagram viser en save af content)
 * Det er teknisk svært at lave multiple illustrationer, da koden bruger mange IDs, så der mangler muligheden for at tilføje / fjerne illustrationer i flertal
 
 ## Skabeloner

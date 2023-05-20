@@ -15,7 +15,7 @@
 				<template #display>
 					<button
 						title="Rename document"
-						class="flex items-center gap-4 px-0 text-xl sm:text-3xl font-semibold tracking-wide h-12"
+						class="flex items-center gap-4 px-0 text-2xl sm:text-3xl font-semibold tracking-wide h-12"
 					>
 						<h1>{{ renameDocumentInputValue }}</h1>
 						<Icon class="grade-200 weight-700 fill optical-size-40">drive_file_rename_outline</Icon>
@@ -56,15 +56,25 @@
 			/>
 		</main>
 
-		<!-- save button and save message -->
-		<div class="flex gap-x-2 items-center mt-2">
-			<button class="btn btn-accent gap-2" :disabled="!changeSinceSave" @click="saveDocument">
-				<Icon class="fill text-3xl">save</Icon>Save changes
+		<!-- save document button and save message -->
+		<div class="flex gap-x-2 items-center my-2">
+			<button
+				class="btn btn-accent gap-2"
+				:disabled="!documentChangeSinceSave"
+				@click="saveDocument"
+			>
+				<Icon class="fill text-3xl">save</Icon>Save document
 			</button>
-			<span class="text-muted text-sm">{{ relativeSaveTimeString }}</span>
+			<span class="text-muted text-sm">{{ relativeDocumentSaveTimeString }}</span>
 		</div>
 
-		<DiagramEditor class="w-full h-[50vh] rounded-daisy-box overflow-hidden" />
+		<h2 class="text-xl sm:text-2xl font-semibold">Attached diagram</h2>
+		<DiagramEditor
+			class="w-full h-[50vh] rounded-daisy-box overflow-hidden"
+			:relative-save-time-string="relativeDiagramSaveTimeString"
+			:editor-content="diagramContent"
+			@save="saveDiagram"
+		/>
 
 		<Teleport to="#sidebar-content" :disabled="noSidebar">
 			<h2 class="text-2xl font-semibold lg:text-center">Related items</h2>
@@ -205,6 +215,8 @@ import type {
 	EditorEventData,
 	JoinRoomResponse,
 	DocumentSavedEventData,
+	DiagramEventData,
+	DiagramSavedEventData,
 } from '@/types/document-sync'
 import type {
 	DirectusUsers as DirectusUser,
@@ -215,6 +227,7 @@ import type {
 	DirectusActivity as Activity,
 	Documents as Document,
 } from '@/types/directus'
+import type { Diagram } from '@/types/diagram'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 interface DocumentRevision extends Revision {
@@ -259,7 +272,7 @@ function getDocumentId(): string {
 //* JOINING COLLABORATION ROOM
 // Array of user IDs in the session
 let editingUserIds = $ref<string[]>([])
-let changeSinceSave = $ref<boolean>(false) // This is manipulated when joining document
+let documentChangeSinceSave = $ref<boolean>(false) // This is manipulated when joining document
 // Array of DirectusUsers with names and avatars in the session
 const editingUsers = computedAsync<DirectusUser[]>(
 	() => {
@@ -327,7 +340,7 @@ async function joinDocument(): Promise<JoinRoomResponse> {
 	/* We assume, that if there are other users than this user in the document, then the document has been changed since it was last saved,
 	 and we enable the save button. It is not perfect, but it is the best we can do without diffing with the db,
 	 and the backend will still not error if trying to save with no changes */
-	if (res.usersInDocument.length > 1) changeSinceSave = true
+	if (res.usersInDocument.length > 1) documentChangeSinceSave = true
 
 	return res
 }
@@ -358,7 +371,7 @@ async function editorReady(quillElement: Quill) {
 	quillElement.on('text-change', (delta: DeltaObject) => {
 		socket.emit('change-content', { documentId, delta } as EditorEventData)
 
-		changeSinceSave = true // when changing content, make save button active
+		documentChangeSinceSave = true // when changing content, make save button active
 	})
 }
 
@@ -372,7 +385,7 @@ const quillModules = [useQuillMentions()]
 
 socket.on('content-changed', (delta: DeltaObject) => {
 	quill.updateContents(delta, 'silent')
-	changeSinceSave = true // when changing content, make save button active
+	documentChangeSinceSave = true // when changing content, make save button active
 })
 
 function goBack(message: string) {
@@ -397,7 +410,7 @@ const { ignoreUpdates: ignoreTitleChange } = watchIgnorable(renameDocumentInputV
 			title: newTitle,
 		})
 
-		changeSinceSave = true // when changing title, make save button active
+		documentChangeSinceSave = true // when changing title, make save button active
 	} catch (err) {
 		alert('There was an error renaming document')
 		console.error(err)
@@ -408,52 +421,52 @@ const { ignoreUpdates: ignoreTitleChange } = watchIgnorable(renameDocumentInputV
 socket.on('title-changed', (title: string) => {
 	ignoreTitleChange(() => {
 		renameDocumentInputValue.value = title
-		changeSinceSave = true // when title was changed, make save button active
+		documentChangeSinceSave = true // when title was changed, make save button active
 	})
 })
 
 //* SAVING DOCUMENT
-const lastSave = ref<DocumentSavedEventData | null>(null) // Raw object from socket.io
-const lastSaveBy = ref<DirectusUser | null>(null) // User object from directus set by watcher when lastSave changes
-let relativeSaveTimeString = $ref<string>('') // String that shows how long ago the doc was saved, updated in interval which is why we can't use computed
+const lastDocumentSave = ref<DocumentSavedEventData | null>(null) // Raw object from socket.io
+const lastDocumentSaveBy = ref<DirectusUser | null>(null) // User object from directus set by watcher when lastDocumentSave changes
+let relativeDocumentSaveTimeString = $ref<string>('') // String that shows how long ago the doc was saved, updated in interval which is why we can't use computed
 
 // Get the saving user's name when document was saved, then trigger an update of the relative save time string
-whenever(lastSave, async (newSave, oldSave) => {
+whenever(lastDocumentSave, async (newSave, oldSave) => {
 	if (newSave?.userId !== oldSave?.userId) {
-		lastSaveBy.value = (await directus.users.readOne(newSave.userId)) as DirectusUser
+		lastDocumentSaveBy.value = (await directus.users.readOne(newSave.userId)) as DirectusUser
 	}
 
-	changeSinceSave = false // when content is saved, make save button disabled
+	documentChangeSinceSave = false // when content is saved, make save button disabled
 
-	setRelativeSaveTimeString()
+	setRelativeDocumentSaveTimeString()
 })
 
 // Updating the string that shows last time doc was saved
-function setRelativeSaveTimeString() {
-	if (!lastSave.value) return
+function setRelativeDocumentSaveTimeString() {
+	if (!lastDocumentSave.value) return
 
-	const relativeTime = dateToRelativeTimestamp(lastSave.value.timestamp)
+	const relativeTime = dateToRelativeTimestamp(lastDocumentSave.value.timestamp)
 
-	if (!lastSaveBy.value) {
-		relativeSaveTimeString = `Saved ${relativeTime}`
+	if (!lastDocumentSaveBy.value) {
+		relativeDocumentSaveTimeString = `Saved ${relativeTime}`
 		return
 	}
 
-	const { first_name, last_name } = lastSaveBy.value
+	const { first_name, last_name } = lastDocumentSaveBy.value
 
-	relativeSaveTimeString = `Saved ${relativeTime} by ${[first_name, last_name]
+	relativeDocumentSaveTimeString = `Saved ${relativeTime} by ${[first_name, last_name]
 		.filter(name => name)
 		.join(' ')}`
 }
 
 // Every 15s update the UI to show how long ago the doc was saved
-const saveStringInterval = setInterval(setRelativeSaveTimeString, 15_000)
+const documentSaveStringInterval = setInterval(setRelativeDocumentSaveTimeString, 15_000)
 
 async function saveDocument(): Promise<boolean> {
 	// Socket.io server needs a fresh access token for saving to work as user
 	await directus.auth.refresh()
 
-	const success = socket.emitP('save-document', documentId)
+	const success = await socket.emitP('save-document', documentId)
 	if (!success) alert('There was an error saving document')
 	return success
 }
@@ -461,7 +474,7 @@ async function saveDocument(): Promise<boolean> {
 // When the document is saved by anyone (self included), update the last save time and user
 socket.on('document-saved', (saveEventData: DocumentSavedEventData) => {
 	// Setting this will trigger a watcher to get the changing user's name and update the UI with a relative save time string
-	lastSave.value = saveEventData
+	lastDocumentSave.value = saveEventData
 
 	// Sync so everyone has the same content after a save
 	quill.setContents(saveEventData.document.content, 'silent')
@@ -514,12 +527,73 @@ function hideActiveRevisionModal() {
 	activeRevisionModalShown = false
 }
 
+//* DIAGRAM
+async function saveDiagram(diagramData: Diagram) {
+	try {
+		// Socket.io server needs a fresh access token for saving to work as user
+		await directus.auth.refresh()
+
+		const success = await socket.emitP('save-diagram', {
+			documentId,
+			diagramData,
+		} as DiagramEventData)
+
+		if (!success) alert("There was an error saving document's diagram")
+	} catch (err) {
+		console.error(err)
+		alert("There was an error saving the document's diagram")
+	}
+}
+const lastDiagramSave = ref<DiagramSavedEventData | null>(null) // Raw object from socket.io
+const lastDiagramSaveBy = ref<DirectusUser | null>(null) // User object from directus set by watcher when lastDiagramSave changes
+let relativeDiagramSaveTimeString = $ref<string>('') // String that shows how long ago the daigram was saved, updated in interval which is why we can't use computed
+const diagramContent = $computed<Diagram>(
+	() => (lastDiagramSave.value?.diagram as Diagram) || initialDocument!.diagram
+)
+
+// Get the saving user's name when diagram was saved, then trigger an update of the relative save time string
+whenever(lastDiagramSave, async (newSave, oldSave) => {
+	if (newSave?.userId !== oldSave?.userId) {
+		lastDiagramSaveBy.value = (await directus.users.readOne(newSave.userId)) as DirectusUser
+	}
+
+	setRelativeDiagramSaveTimeString()
+})
+
+// Updating the string that shows last time doc was saved
+function setRelativeDiagramSaveTimeString() {
+	if (!lastDiagramSave.value) return
+
+	const relativeTime = dateToRelativeTimestamp(lastDiagramSave.value.timestamp)
+
+	if (!lastDiagramSaveBy.value) {
+		relativeDiagramSaveTimeString = `Saved ${relativeTime}`
+		return
+	}
+
+	const { first_name, last_name } = lastDiagramSaveBy.value
+
+	relativeDiagramSaveTimeString = `Saved ${relativeTime} by ${[first_name, last_name]
+		.filter(name => name)
+		.join(' ')}`
+}
+
+// Every 15s update the UI to show how long ago the doc was saved
+const diagramSaveStringInterval = setInterval(setRelativeDiagramSaveTimeString, 15_000)
+
+// When the diagram is saved by anyone (self included), update the last save time and user
+socket.on('diagram-saved', (diagramEventData: DiagramSavedEventData) => {
+	// Setting this will trigger a watcher to get the changing user's name and update the UI with a relative save time string
+	lastDiagramSave.value = diagramEventData
+})
+
 //* POSITION OF SIDEBAR / MENU
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const noSidebar = breakpoints.smallerOrEqual('lg')
 
 onUnmounted(() => {
-	clearInterval(saveStringInterval)
+	clearInterval(documentSaveStringInterval)
+	clearInterval(diagramSaveStringInterval)
 	socket.disconnect()
 })
 </script>

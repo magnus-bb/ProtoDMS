@@ -8,6 +8,7 @@ import type {
 	DirectusFiles as DirectusFile,
 	Documents as Document,
 } from '@/types/directus'
+
 import type { SignInFormData, SignUpFormData } from '@/types/auth'
 
 export function useDirectus() {
