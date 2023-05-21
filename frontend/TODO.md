@@ -104,10 +104,14 @@ DONE
 * Formatet, der tillader realtidskollaboration er ikke super godt sammen med fuldtekstsøgning, da det kræver en konvertering content, der så caches i ens søgeengine (f.eks. ES)
 
 ## Overlapsfiltrering
+DONE
 * Per default er det vist et OR filter, der bliver anvendt, når man sender flere tags med i en søgning, og der var nogle problemer med at få AND til at virke
   * Tjek lige igen, om ikke man nemt kan formatere det som en AND
 * Hvis AND virker, så skal der bare være en toggle mellem AND og OR med en kort beskrivelse, e.g. "must contain all tags" eller "must contain any tag"
 * Det er fint, hvis ikke der er mulighed for individuelle AND og OR, da det både var en konstruktionsdetalje og svært at lave et view til (medmindre Directus' kan kopieres?)
+
+### Diskussion
+Overlapsfiltrering er nu implementeret sådan, at man enten SKAL have alle eller bare ét tag i sin søgning. For at tillade bedst specificitet og sensitivitet kan man evt lave endnu mere granulare søgninger, hvor man f.eks. også har NOT og tillader at brugere vælger om hver eneste tag skal være AND eller OR. Det er dog meget komplekst for brugere at anvende, så det skal overvejes om dette er relevant. Det kan f.eks. være brugbart i organisationer med dokumentation om emner, der minder så meget om hinanden, og har så meget dokumentation, at det kræver mere granular filterering end ellers tilladt. Dette er også beskrevet andetsteds.
 
 ## Grafvisning af dokumentnetværk
 DONE
