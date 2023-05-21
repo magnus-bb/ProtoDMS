@@ -4,7 +4,7 @@
 
 		<ul ref="actions" tabindex="0" class="menu p-2 rounded-box">
 			<li class="menu-title">
-				<span>Quick actions</span>
+				<span>Manage</span>
 			</li>
 			<!-- create document -->
 			<li class="text-2xl" title="New document">
@@ -13,32 +13,63 @@
 					<span class="text-base">New document <kbd class="kbd kbd-sm">insert</kbd></span>
 				</button>
 			</li>
+
+			<!-- delete documents -->
+			<li class="text-2xl" :class="{ disabled: !selectedDocs.length }" title="Delete selection">
+				<button :disabled="!selectedDocs.length" @click="deleteSelectedDocuments">
+					<Icon
+						class="weight-700 fill optical-size-40"
+						:class="{ 'text-error': selectedDocs.length }"
+						>delete</Icon
+					>
+					<span class="text-base">Delete selection <kbd class="kbd kbd-sm">delete</kbd></span>
+				</button>
+			</li>
+			<!-- duplicate document -->
+			<li
+				:class="{ disabled: selectedDocs.length !== 1 }"
+				class="text-2xl"
+				title="Duplicate document"
+			>
+				<button :disabled="selectedDocs.length !== 1" @click="duplicateDocument">
+					<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
+					<span class="text-base">Duplicate document</span>
+				</button>
+			</li>
+			<!-- manage tags -->
+			<li class="text-2xl" title="Manage tags">
+				<button @click="showAddRemoveTagsModal">
+					<Icon class="weight-700 fill optical-size-40">new_label</Icon>
+					<span class="text-base">Manage tags</span>
+				</button>
+			</li>
+			<li class="menu-title">
+				<span>Edit document</span>
+			</li>
 			<!-- edit document-->
-			<li class="text-2xl" :class="{ disabled: selectedDocs.length !== 1 }" title="Edit document">
+			<li class="text-2xl" :class="{ disabled: selectedDocs.length !== 1 }" title="Edit content">
 				<NuxtLink
 					v-if="selectedDocs.length === 1"
 					target="_blank"
 					:to="`/documents/${selectedDocs[0]?.id}`"
 				>
-					<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
-					<span class="text-base">Edit document <kbd class="kbd kbd-sm">↵</kbd></span>
+					<Icon
+						class="weight-700 fill optical-size-40"
+						:class="{ 'text-info': selectedDocs.length === 1 }"
+						>edit_document</Icon
+					>
+					<span class="text-base">Edit content <kbd class="kbd kbd-sm">↵</kbd></span>
 				</NuxtLink>
 				<span v-else>
-					<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
-					<span class="text-base">Edit document <kbd class="kbd kbd-sm">↵</kbd></span>
+					<Icon
+						class="weight-700 fill optical-size-40"
+						:class="{ 'text-info': selectedDocs.length === 1 }"
+						>edit_document</Icon
+					>
+					<span class="text-base">Edit content <kbd class="kbd kbd-sm">↵</kbd></span>
 				</span>
 			</li>
-			<!-- delete documents -->
-			<li class="text-2xl" :class="{ disabled: !selectedDocs.length }" title="Delete selection">
-				<button :disabled="!selectedDocs.length" @click="deleteSelectedDocuments">
-					<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
-					<span class="text-base">Delete selection <kbd class="kbd kbd-sm">delete</kbd></span>
-				</button>
-			</li>
-			<li class="menu-title">
-				<span>Relations</span>
-			</li>
-			<!-- edit related docs -->
+			<!-- set related docs -->
 			<li
 				:class="{ disabled: selectedDocs.length !== 1 }"
 				class="text-2xl"
@@ -56,7 +87,7 @@
 					<span class="text-base">Set tags</span>
 				</button>
 			</li>
-			<!-- edit subscribers -->
+			<!-- edit users and subs -->
 			<li
 				:class="{ disabled: selectedDocs.length !== 1 }"
 				class="text-2xl"
@@ -68,29 +99,14 @@
 				</button>
 			</li>
 			<!-- edit related files -->
-			<li
-				:class="{ disabled: selectedDocs.length !== 1 }"
-				class="text-2xl"
-				title="Set related files"
-			>
+			<li :class="{ disabled: selectedDocs.length !== 1 }" class="text-2xl" title="Attach files">
 				<button :disabled="selectedDocs.length !== 1" @click="showRelatedFilesModal">
 					<Icon class="weight-700 fill optical-size-40">attach_file</Icon>
-					<span class="text-base">Set related files</span>
+					<span class="text-base">Attach files</span>
 				</button>
 			</li>
 			<li class="menu-title">
-				<span>Manage</span>
-			</li>
-			<!-- duplicate document -->
-			<li
-				:class="{ disabled: selectedDocs.length !== 1 }"
-				class="text-2xl"
-				title="Duplicate document"
-			>
-				<button :disabled="selectedDocs.length !== 1" @click="duplicateDocument">
-					<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
-					<span class="text-base">Duplicate document</span>
-				</button>
+				<span>Access</span>
 			</li>
 			<!-- make private / publish -->
 			<li
@@ -105,7 +121,7 @@
 					<Icon v-if="selectedDocIsPrivate" class="weight-700 fill optical-size-40">lock_open</Icon>
 					<Icon v-else class="weight-700 fill optical-size-40">lock</Icon>
 					<span v-if="selectedDocIsPrivate" class="text-base">Make public</span>
-					<span v-else class="text-base">Make public</span>
+					<span v-else class="text-base">Make private</span>
 				</button>
 			</li>
 			<!-- share document -->
@@ -162,11 +178,24 @@
 						<Icon class="weight-700 fill optical-size-40">arrow_drop_down</Icon>
 					</button>
 
-					<ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-full">
-						<!-- create document -->
+					<ul tabindex="0" class="dropdown-content menu p-1 shadow bg-base-300 rounded-box w-full">
+						<li class="menu-title items-center">
+							<span>Manage</span>
+						</li>
+						<!-- new document -->
 						<li class="items-center text-xl sm:text-2xl" title="New document">
 							<button @click="showCreateModal">
 								<Icon class="weight-700 fill optical-size-40 text-success">note_add</Icon>
+							</button>
+						</li>
+						<!-- delete documents -->
+						<li
+							v-if="selectedDocs.length"
+							class="items-center text-xl sm:text-2xl"
+							title="Delete selection"
+						>
+							<button @click="deleteSelectedDocuments">
+								<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
 							</button>
 						</li>
 						<!-- duplicate document -->
@@ -179,48 +208,24 @@
 								<Icon class="weight-700 fill optical-size-40">file_copy</Icon>
 							</button>
 						</li>
-						<!-- make private / publish -->
-						<li
-							v-if="selectedDocs.length === 1 && isOwnerOfSelectedDoc"
-							class="items-center text-xl sm:text-2xl"
-							:title="selectedDocIsPrivate ? 'Make public' : 'Make private'"
-						>
-							<button @click="togglePrivate">
-								<Icon v-if="selectedDocIsPrivate" class="weight-700 fill optical-size-40"
-									>lock_open</Icon
-								>
-								<Icon v-else class="weight-700 fill optical-size-40">lock</Icon>
+						<!-- manage tags -->
+						<li class="items-center text-xl sm:text-2xl" title="Manage tags">
+							<button @click="showAddRemoveTagsModal">
+								<Icon class="weight-700 fill optical-size-40">new_label</Icon>
 							</button>
 						</li>
-						<!-- edit document-->
+						<li v-if="selectedDocs.length === 1" class="menu-title items-center">
+							<span>Edit</span>
+						</li>
+						<!-- edit content-->
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Edit document"
+							title="Edit content"
 						>
 							<NuxtLink target="_blank" :to="`/documents/${selectedDocs[0].id}`">
 								<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
 							</NuxtLink>
-						</li>
-						<!-- share document-->
-						<li
-							v-if="selectedDocs.length === 1 && !selectedDocIsPrivate"
-							class="items-center text-xl sm:text-2xl"
-							title="Share document"
-						>
-							<button @click="shareDocument">
-								<Icon class="weight-700 fill optical-size-40">share</Icon>
-							</button>
-						</li>
-						<!-- share readonly document-->
-						<li
-							v-if="selectedDocs.length === 1"
-							class="items-center text-xl sm:text-2xl"
-							title="Share readonly document"
-						>
-							<button @click="shareReadonlyDocument">
-								<Icon class="weight-700 fill optical-size-40">edit_off</Icon>
-							</button>
 						</li>
 						<!-- edit related docs -->
 						<li
@@ -242,7 +247,7 @@
 								<Icon class="weight-700 fill optical-size-40">sell</Icon>
 							</button>
 						</li>
-						<!-- edit subscribers -->
+						<!-- edit subs and users -->
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
@@ -256,20 +261,46 @@
 						<li
 							v-if="selectedDocs.length === 1"
 							class="items-center text-xl sm:text-2xl"
-							title="Set related files"
+							title="Attach files"
 						>
 							<button @click="showRelatedFilesModal">
 								<Icon class="weight-700 fill optical-size-40">attach_file</Icon>
 							</button>
 						</li>
-						<!-- delete documents -->
+						<li v-if="selectedDocs.length === 1" class="menu-title items-center">
+							<span>Access</span>
+						</li>
+						<!-- make private / public -->
 						<li
-							v-if="selectedDocs.length"
+							v-if="selectedDocs.length === 1 && isOwnerOfSelectedDoc"
 							class="items-center text-xl sm:text-2xl"
-							title="Delete selection"
+							:title="selectedDocIsPrivate ? 'Make public' : 'Make private'"
 						>
-							<button @click="deleteSelectedDocuments">
-								<Icon class="weight-700 fill optical-size-40 text-error">delete</Icon>
+							<button @click="togglePrivate">
+								<Icon v-if="selectedDocIsPrivate" class="weight-700 fill optical-size-40"
+									>lock_open</Icon
+								>
+								<Icon v-else class="weight-700 fill optical-size-40">lock</Icon>
+							</button>
+						</li>
+						<!-- share document-->
+						<li
+							v-if="selectedDocs.length === 1 && !selectedDocIsPrivate"
+							class="items-center text-xl sm:text-2xl"
+							title="Share document"
+						>
+							<button @click="shareDocument">
+								<Icon class="weight-700 fill optical-size-40">share</Icon>
+							</button>
+						</li>
+						<!-- share readonly document-->
+						<li
+							v-if="selectedDocs.length === 1"
+							class="items-center text-xl sm:text-2xl"
+							title="Share readonly document"
+						>
+							<button @click="shareReadonlyDocument">
+								<Icon class="weight-700 fill optical-size-40">edit_off</Icon>
 							</button>
 						</li>
 					</ul>
@@ -301,9 +332,6 @@
 
 			<!-- TAGS -->
 			<div class="flex items-center w-full max-w-md grow">
-				<button class="btn btn-square btn-outline rounded-r-none" @click="showAddRemoveTagsModal">
-					<Icon class="text-xl fill">edit</Icon>
-				</button>
 				<FilterSelect
 					v-model="tags"
 					name="tags"
@@ -312,11 +340,15 @@
 					label-prop="name"
 					emit-prop="id"
 					class="border-0 bg-base-300"
-					grouped="right"
 				>
 					Tags
 				</FilterSelect>
 			</div>
+
+			<span class="label cursor-pointer gap-2" title="All tags must be present">
+				<input v-model="strictTagsFilter" type="checkbox" class="checkbox checkbox-md" />
+				<span class="label-text">Strict filtering</span>
+			</span>
 
 			<button class="ml-auto btn btn-primary btn-outline btn-square" @click="toggleGraphView">
 				<Icon class="text-xl">{{ graphView ? 'grid_view' : 'hub' }}</Icon>
@@ -576,6 +608,9 @@ const search = $ref<string>((route.query.search as string) || '')
 const tags = $ref<number[]>(
 	route.query.tags?.length ? parseArray<number>(route.query.tags as string | string[]) : []
 )
+// Whether to use AND filters for tags or not
+const strictTagsFilter = $ref<boolean>(false)
+
 let allTags = $ref<Tag[]>([])
 await refreshTags()
 async function refreshTags() {
@@ -598,11 +633,15 @@ async function executeSearch() {
 	// Reset selections on search
 	selectedDocs.value = []
 
-	// Only add filters if they are used
 	const filter: { private?: boolean; tags?: { tags_id: any } } = {}
+
+	// We add the private: true filter to the required (_and) filters, if we are on the private docs page
 	if (privatePage) {
 		filter.private = true
 	}
+
+	// Since Directus is being a bitch, we technically always do an OR filter on tags (_in will do that).
+	// Then we just manually filter results later to emulate and AND filter, since there is no user access problems in any case
 	if (tags.length) {
 		filter.tags = {
 			tags_id: {
@@ -611,7 +650,7 @@ async function executeSearch() {
 		}
 	}
 
-	const res = await query<Document>('documents', {
+	let res = await query<Document>('documents', {
 		search,
 		filter,
 		fields: [
@@ -637,9 +676,19 @@ async function executeSearch() {
 		limit: -1,
 	})
 
+	// res contains array of documents
+
+	if (strictTagsFilter && tags.length) {
+		res = res.filter(doc => {
+			// remove every document that does not have all of the tags in the array tags
+			return tags.every(tag => {
+				return doc.tags?.some(docTag => docTag.tags_id.id === tag)
+			})
+		})
+	}
+
 	documents = res
 }
-
 // Animate on search
 const documentGrid = ref<HTMLElement>()
 // const actions = ref<HTMLElement>()
@@ -670,8 +719,8 @@ watchDebounced($$(search), executeSearch, {
 	maxWait: 2000,
 })
 
-// Execute search when tags change
-watch($$(tags), executeSearch)
+// Execute search when tags change or when strict mode is toggled
+watch([$$(tags), $$(strictTagsFilter)], executeSearch)
 
 //* DOCUMENT MODAL
 let documentModalShown = $ref<boolean>(false)
