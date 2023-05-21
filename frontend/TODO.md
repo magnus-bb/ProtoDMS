@@ -110,7 +110,7 @@ DONE
 * Det er fint, hvis ikke der er mulighed for individuelle AND og OR, da det både var en konstruktionsdetalje og svært at lave et view til (medmindre Directus' kan kopieres?)
 
 ## Grafvisning af dokumentnetværk
-MIKKEL
+DONE
 * Dokumenter og deres relaterede dokumenter skal vises i en graf på søgesiden
   * Bonus, hvis den kan opdateres med søgefiltre, så man kan bruge den som decideret resultatliste
 * Knuder skal kunne klikkes for at åbne dokumentet (bare naviger til dens side)
@@ -118,6 +118,7 @@ MIKKEL
 
 ### Diskussion
 * Det ville være smart at vise relaterede filer og brugere, og så give dem en anden farve + gøre dem klikbare (profilside og download link)
+* Det ville også være fedt at vise tags og private / public status i tooltip eller evt. stiplet border ved private etc
 
 ## OCR
 * Tilføj knap i dokumenter, der kan OCR en fil, som åbner en filpicker (evt. prædefineret til kun at vise png, jpg, bmp, pbm-filer)

@@ -90,7 +90,7 @@ function saveDiagram() {
 	-webkit-touch-callout: none;
 }
 
-:deep {
+:deep() {
 	text {
 		color: rgb(73, 80, 87);
 		font-size: 16px;

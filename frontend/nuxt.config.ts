@@ -32,7 +32,7 @@ export default defineNuxtConfig({
 	ssr: false,
 
 	devServer: {
-		port: process.env.PORT || 3000,
+		port: Number(process.env.PORT) || 3000,
 	},
 
 	// These are automatically read from environment when prefixed with NUXT_
@@ -86,7 +86,7 @@ export default defineNuxtConfig({
 		dataValue: 'theme', // Allows us to use DaisyUI data-theme
 	},
 
-	css: ['@/assets/css/styles.css'],
+	css: ['@/assets/css/styles.css', 'v-network-graph/lib/style.css'],
 
 	components: {
 		dirs: [

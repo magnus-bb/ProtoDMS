@@ -136,7 +136,7 @@
 		</ul>
 	</Teleport>
 
-	<div class="p-4 flex flex-col">
+	<div class="p-4 flex flex-col grow">
 		<div class="grid gap-x-4 gap-y-2 items-center grid-cols-2">
 			<div class="text-4xl font-semibold">
 				{{ privatePage ? 'Your private documents' : 'Public documents' }}
@@ -279,11 +279,13 @@
 
 		<div class="divider" />
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 row">
+		<!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"> -->
+		<div class="flex flex-wrap-reverse gap-4 mb-8">
 			<!-- SEARCH -->
-			<div class="form-control">
+			<div class="form-control w-full max-w-md grow">
 				<label for="search" class="sr-only">Simply start typing to search documents</label>
 				<div class="input-group">
+					<Icon class="text-xl fill optical-size-40 grade-100">search</Icon>
 					<input
 						id="search"
 						ref="searchInput"
@@ -294,12 +296,14 @@
 						class="input input-bordered placeholder:text-muted w-full"
 						placeholder="Simply start typing to search documents"
 					/>
-					<Icon class="text-2xl optical-size-40 grade-100">search</Icon>
 				</div>
 			</div>
 
 			<!-- TAGS -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center w-full max-w-md grow">
+				<button class="btn btn-square btn-outline rounded-r-none" @click="showAddRemoveTagsModal">
+					<Icon class="text-xl fill">edit</Icon>
+				</button>
 				<FilterSelect
 					v-model="tags"
 					name="tags"
@@ -308,19 +312,20 @@
 					label-prop="name"
 					emit-prop="id"
 					class="border-0 bg-base-300"
+					grouped="right"
 				>
 					Tags
 				</FilterSelect>
-				<button class="btn btn-outline btn-secondary" @click="showAddRemoveTagsModal">
-					Add/remove tags
-				</button>
 			</div>
+
+			<button class="ml-auto btn btn-primary btn-outline btn-square" @click="toggleGraphView">
+				<Icon class="text-xl">{{ graphView ? 'grid_view' : 'hub' }}</Icon>
+			</button>
 		</div>
 
-		<main class="space-y-8">
-			<div v-if="documents?.length" ref="documentGrid" class="document-grid">
-				<!-- TOP -->
-				<!-- DOCUMENTS -->
+		<main class="flex flex-col gap-y-8 grow">
+			<div v-if="documents?.length && !graphView" ref="documentGrid" class="document-grid">
+				<!-- DOCUMENT GRID VIEW -->
 				<DocumentPreview
 					v-for="doc of documents"
 					:key="doc.id"
@@ -328,6 +333,14 @@
 					class="cursor-default shadow-xl hover:shadow-2xl focus:shadow-2xl bg-base-200"
 					:document="doc"
 					@click="selectDoc(doc)"
+				/>
+			</div>
+			<div v-else-if="documents?.length && graphView" class="grow">
+				<!-- DOCUMENT GRAPH VIEW -->
+				<DocumentGraph
+					:input-data="graphNodes"
+					:style-object="graphStyle"
+					@node-click="graphNodeClick"
 				/>
 			</div>
 
@@ -542,6 +555,7 @@ import type {
 	DocumentsRelatedDocuments as RelatedDocument,
 } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
+import type { GraphNode } from '@/types/graph'
 import { getAllFiles } from '~~/utils/files'
 import { createDocumentShare } from '~~/composables/useDirectus'
 
@@ -1173,6 +1187,34 @@ async function shareReadonlyDocument() {
 	alert(
 		`Readonly link to ${selectedDoc.title} has been copied to clipboard. It is valid for 7 days.`
 	)
+}
+
+//* SEARCH RESULTS VIEW MODE
+let graphView = $ref<boolean>(false)
+
+function toggleGraphView() {
+	selectedDocs.value = []
+	graphView = !graphView
+}
+
+const graphStyle = {
+	nodeColor: '#10b981', // primary
+	edgeColor: '#6b96bf', // secondary
+	labelColor: 'white',
+}
+
+const graphNodes = $computed<GraphNode[]>(() =>
+	documents.map(doc => ({
+		id: doc.id,
+		title: doc.title,
+		linkedNodes: (doc.related_documents as RelatedDocument[])
+			.map((rel: RelatedDocument) => (rel.related_document_id as Document).id)
+			.filter(id => id),
+	}))
+)
+
+function graphNodeClick(documentId: number) {
+	window.open('/documents/' + documentId, '_blank')
 }
 </script>
 

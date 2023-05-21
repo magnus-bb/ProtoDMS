@@ -39,7 +39,7 @@
 		</header>
 
 		<!-- document editor -->
-		<main class="shadow-xl rounded-daisy-box p-8" data-theme="winter">
+		<main class="shadow-xl rounded-daisy-box p-8 quill-section" data-theme="winter">
 			<QuillEditorToolbar id="editor-toolbar" />
 			<!-- handlers: {
 						'directus-select-or-upload-file': selectOrUploadFile,
@@ -599,12 +599,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="postcss">
-:deep(.ql-toolbar) {
+.quill-section :deep(.ql-toolbar) {
 	@apply border-t-0 border-l-0 border-r-0;
 }
 
 /* Styling for quill-mention */
-:deep() {
+.quill-section :deep(.editor-toolbar),
+.quill-section :deep(.ql-container) {
 	.ql-mention-list-container {
 		z-index: 9001;
 		width: 270px;
@@ -659,16 +660,14 @@ onUnmounted(() => {
 	.mention > span {
 		margin: 0 3px;
 	}
+}
 
-	/* In revision modal, we have a readonly quill, which we don't want to style like the editor */
-	.readonly-quill {
-		.ql-toolbar {
-			@apply hidden;
-		}
+/* In revision modal, we have a readonly quill, which we don't want to style like the editor */
+.readonly-quill :deep(.ql-toolbar) {
+	@apply hidden;
 
-		.ql-blank::before {
-			@apply !text-muted !font-bold;
-		}
+	.readonly-quill :deep(.ql-blank::before) {
+		@apply !text-muted !font-bold;
 	}
 }
 </style>

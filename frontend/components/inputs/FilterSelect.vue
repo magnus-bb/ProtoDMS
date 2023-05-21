@@ -2,11 +2,14 @@
 	<div
 		ref="dropdown"
 		class="w-full scrollbar"
-		:class="{
-			'dropdown dropdown-hover': props.hover,
-			'toggleable-dropdown': !props.hover,
-			open: menuOpen,
-		}"
+		:class="[
+			{
+				'dropdown dropdown-hover': props.hover,
+				'toggleable-dropdown': !props.hover,
+				open: menuOpen,
+			},
+			inputGroupClass,
+		]"
 	>
 		<label class="sr-only" :for="props.name">
 			<slot />
@@ -17,7 +20,7 @@
 			:id="props.name"
 			tabindex="0"
 			class="btn btn-block h-fit py-2 pr-7 relative no-animation"
-			:class="{ 'btn-sm': props.small }"
+			:class="[{ 'btn-sm': props.small }, inputGroupClass]"
 			aria-haspopup="listbox"
 			:aria-labelledby="props.name"
 			@click="onButtonClick"
@@ -172,6 +175,12 @@ const props = defineProps({
 	hover: {
 		type: Boolean,
 		default: false,
+	},
+
+	// This is used to remove border radii on the left or right side of the dropdown so it fits inside a daisyui input-group
+	grouped: {
+		type: String, // 'right' or 'left' - the opposite side will have no border radius
+		default: null,
 	},
 })
 
@@ -406,6 +415,13 @@ function onButtonClick() {
 }
 onClickOutside(dropdown, () => {
 	if (menuOpen.value) menuOpen.value = false
+})
+
+//* STYLING ON ROOT ELEM
+const inputGroupClass = computed(() => {
+	if (!props.grouped) return ''
+
+	return props.grouped === 'left' ? 'rounded-r-none' : 'rounded-l-none'
 })
 </script>
 
