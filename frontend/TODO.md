@@ -82,6 +82,7 @@ DONE
 
 ### Diskussion
 * Ikke CRDT eller OT-compliant, men det er fint nok i en prototype. Det vil altid synkronisere helt ved saves
+  * `quill-delta` er bygget til at kunne understøtte OT og har metoder til at implementere dette selv, men det er en meget tidskrævende opgave.
 * Meget store filer, der indsættes med Quill som en blob, får realtime collab til at crashe og gør saving umuligt.
 
 ## Integrationer og SSO
@@ -101,7 +102,10 @@ DONE
   * Det er også ret svært at lave et view, der viser, når man matcher tekst i content, så man ved, hvad man rent faktisk finder
 
 ### Diskussion
-* Formatet, der tillader realtidskollaboration er ikke super godt sammen med fuldtekstsøgning, da det kræver en konvertering content, der så caches i ens søgeengine (f.eks. ES)
+* I øjeblikket virker fuldtekstsøgning simpelt, ved bare at tjekke om den søgte tekst indgår i dokumentets content. Det kan dog væsten være et problem, at dette er så simpelt og at det derudover er utransparent, da man muligvis får søgeresultater, man ikke forstår hvorfor dukker op. Et par måder, man kan gøre denne UX bedre:
+  * I previewet af søgeresultatets content kan man vise et udsnit af dokumentet omkring matches, og så highlighte matches, så man ved hvorfor et resultat dukker op
+  * Man kan tilføje mere avancerede søgefeatures, så man lettere kan kontrollere sensitiviteten og specificiteten af søgninger og man derfor ikke får irrelevante matches: https://docs.directus.io/reference/filter-rules.html#filter-operators
+    * Da et match i øjeblikket skal findes i ENTEN titlen eller content, så vil man sandsynligvis få mange flere matches på søgninger, da der i lange dokumenter er en stor sandsynlighed for at de indeholder ens søgeterm. Det vil hjælpe at kunne udelukke keywords samt at kunne søge på omtrentlige matches etc.
 
 ## Overlapsfiltrering
 DONE
@@ -166,6 +170,7 @@ DONE
 
 ### Diskussion
 * Det ville være fedt at kunne se de egentlige deltaer udover dokumentets state.
+  * Dette kan sandsynligvis opnås ved at anvende `diff()`-funktionen fra `quill-delta` på den forrige og ændrede document state.
 * Det ville være godt, hvis man kunne være flere forfattere på en revision
   * Dette er beskrevet et andet sted. Det er (lidt) begrænset af Directus, men det er måske også lidt problematisk at sige, at alle collaborators i et doc skal kunne stå inde for en ændring'
 * Det ville være bedst, hvis illustrationer også var med i versionshistorikken, men det er teknisk krævende at lave
