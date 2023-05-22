@@ -65,7 +65,7 @@ export function blendColors(color1: string, color2: string, blendRatio: number):
     @param: num         => the number to conver to hex
     @returns: string    => the hex representation of the provided number
 */
-function intToHex(num) {
+function intToHex(num: number): string {
 	let hex = Math.round(num).toString(16)
 	if (hex.length === 1) hex = '0' + hex
 	return hex

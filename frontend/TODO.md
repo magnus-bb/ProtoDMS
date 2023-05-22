@@ -96,6 +96,7 @@ DONE
 ### Diskussion
 * For at undgå, at brugere bare saver en masse gange, så vil det være en god idé at visualisere ændringer i versionshistorikken på en måde, som gør contribution-historikken lidt mere transparent.
   * Bare lige nok til, at brugere føler, at man godt kan tjekke om de har prøvet at hacke featuren, f.eks. hvis man faktisk skal bruge det som grundlag for f.eks. en lønforhøjelse etc, hvor ens chef potentielt lige ville tjekke den igennem.
+* I dette eksempel viser den bare antallet af updates eller creates af dokumenter, men det skal sandsynligvis tilpasses en organisation, præcis hvad de vil måle og kalde for en contribution
 
 ## Fuldtekstsøgning
 DONE
@@ -166,7 +167,6 @@ DONE
 DONE
 * Skal bruge Directus' revisions og bare vise ændringer i content (hvordan kan man filtrere så det kun er contentændringer?) i sidebaren
 * Der skal være en liste af ændringer med brugerens avatar og navn samt en knap til at se ændringen i en modal?
-* Denne feature skal evt. cuttes på baggrund af at Directus' revision-system måske ikke egner sig godt til dette
 
 ### Diskussion
 * Det ville være fedt at kunne se de egentlige deltaer udover dokumentets state.
@@ -183,7 +183,7 @@ DONE
 * Kunne måske lige gøre notifikationer klikbare, så de åbner dokumentet, hvis det er nemt. Det kræver dog mere data i flowet i backenden
 
 ### Diskussion
-* Det ville give mening, hvis man kunne previewe ændringer
+* Det ville give mening, hvis man kunne previewe ændringer og gå direkte til dokumentet
 
 # Frontend småting
 * Notifikationer

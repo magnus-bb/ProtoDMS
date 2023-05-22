@@ -111,6 +111,9 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		define: {
+			'process.env': { TESS_ENV: 'production' },
+		},
 		vue: {
 			reactivityTransform: true, // enables TypeScript props with default values
 		},

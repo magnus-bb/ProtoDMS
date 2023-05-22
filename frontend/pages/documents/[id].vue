@@ -208,6 +208,7 @@
 // TODO: Check modules here https://vueup.github.io/vue-quill/guide/modules.html
 
 import { QuillEditor } from '@vueup/vue-quill'
+import { createWorker } from 'tesseract.js'
 import { breakpointsTailwind } from '@vueuse/core'
 import type { Quill, DeltaObject } from '@/types/quill'
 import type {
@@ -596,6 +597,20 @@ onUnmounted(() => {
 	clearInterval(diagramSaveStringInterval)
 	socket.disconnect()
 })
+
+//* OCR
+const worker = await createWorker({
+	logger: m => console.log(m),
+})
+;(async () => {
+	await worker.loadLanguage('eng')
+	await worker.initialize('eng')
+	const {
+		data: { text },
+	} = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png')
+	console.log(text)
+	await worker.terminate()
+})()
 </script>
 
 <style scoped lang="postcss">
