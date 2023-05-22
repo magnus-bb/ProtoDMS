@@ -83,7 +83,7 @@
 					<NuxtLink
 						v-for="relDoc of relatedDocuments"
 						:key="relDoc.id"
-						class="badge badge-lg badge-base-200"
+						class="btn btn-sm btn-base-200"
 						target="_blank"
 						:to="`/documents/${relDoc.id}`"
 					>
@@ -98,7 +98,7 @@
 					<NuxtLink
 						v-for="sub of subscriptions"
 						:key="sub.id"
-						class="badge badge-lg badge-base-200"
+						class="btn btn-sm btn-base-200"
 						target="_blank"
 						:to="`/documents/${sub.id}`"
 					>

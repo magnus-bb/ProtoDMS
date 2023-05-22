@@ -79,12 +79,12 @@
 		<Teleport to="#sidebar-content" :disabled="noSidebar">
 			<h2 class="text-2xl font-semibold lg:text-center">Related items</h2>
 			<div class="lg:px-3">
-				<h2 class="text-lg font-semibold">Documents</h2>
+				<h3 class="text-lg font-semibold">Documents</h3>
 				<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
 					<NuxtLink
 						v-for="relDoc of relatedDocuments"
 						:key="relDoc.id"
-						class="badge badge-lg badge-base-200"
+						class="btn btn-sm btn-base-200"
 						target="_blank"
 						:to="`/documents/${relDoc.id}`"
 					>
@@ -95,12 +95,12 @@
 			</div>
 
 			<div class="lg:px-3">
-				<h2 class="text-lg font-semibold">Users</h2>
+				<h3 class="text-lg font-semibold">Users</h3>
 				<div v-if="initialDocument?.related_users?.length" class="flex flex-wrap gap-2 mt-2">
 					<NuxtLink
 						v-for="rel of initialDocument!.related_users"
 						:key="(rel as RelatedUser).id"
-						class="badge badge-lg badge-base-200"
+						class="btn btn-sm btn-base-200"
 						target="_blank"
 						:to="`/users/${((rel as RelatedUser).user_id as DirectusUser).id}`"
 					>
@@ -118,18 +118,30 @@
 			</div>
 
 			<div class="lg:px-3">
-				<h2 class="text-lg font-semibold">Files</h2>
+				<h3 class="text-lg font-semibold">Files</h3>
 				<div v-if="initialDocument?.related_files?.length" class="flex flex-wrap gap-2 mt-2">
-					<NuxtLink
+					<div
 						v-for="rel of initialDocument!.related_files"
 						:key="(rel as RelatedFile).id"
-						class="badge badge-lg badge-base-200"
-						target="_blank"
-						:download="((rel as RelatedFile).file_id as File).filename_download"
-						:to="getAssetUrl(((rel as RelatedFile).file_id as File).id, { download: true })"
+						class="flex items-center"
 					>
-						{{ ((rel as RelatedFile).file_id as File).filename_download }}
-					</NuxtLink>
+						<NuxtLink
+							class="btn btn-sm"
+							:class="{ 'rounded-r-none': fileCanBeScanned((rel as RelatedFile).file_id as File)}"
+							:download="((rel as RelatedFile).file_id as File).filename_download"
+							:to="getAssetUrl(((rel as RelatedFile).file_id as File).id, { download: true })"
+							>{{ ((rel as RelatedFile).file_id as File).filename_download }}</NuxtLink
+						>
+						<button
+							v-if="fileCanBeScanned((rel as RelatedFile).file_id as File)"
+							class="btn btn-sm btn-square rounded-l-none"
+							:disabled="!ocrWorker || scanInProcess !== null"
+							title="Scan image for text content"
+							@click="scanFile((rel as RelatedFile).file_id as File)"
+						>
+							<Icon class="optical-size-48 text-lg">document_scanner</Icon>
+						</button>
+					</div>
 				</div>
 				<p v-else class="font-light italic">No related files</p>
 			</div>
@@ -172,6 +184,25 @@
 		</div>
 	</div>
 
+	<div v-if="scanInProcess" class="toast toast-end mr-8">
+		<div class="alert">
+			<p>
+				Scanning <span class="font-mono font-semibold">{{ scanInProcess.file }}</span>
+			</p>
+			<div>
+				<div
+					class="radial-progress text-primary"
+					:style="`
+					--value: ${decimalToPercentage(scanInProcess.progress)};
+					--thickness: 0.25rem;
+					`"
+				>
+					{{ decimalToPercentage(scanInProcess.progress) }}%
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<Modal
 		sidebar-safe
 		:class="{ 'modal-open': activeRevisionModalShown }"
@@ -209,6 +240,7 @@
 
 import { QuillEditor } from '@vueup/vue-quill'
 import { createWorker } from 'tesseract.js'
+import type { Worker } from 'tesseract.js'
 import { breakpointsTailwind } from '@vueuse/core'
 import type { Quill, DeltaObject } from '@/types/quill'
 import type {
@@ -592,25 +624,83 @@ socket.on('diagram-saved', (diagramEventData: DiagramSavedEventData) => {
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const noSidebar = breakpoints.smallerOrEqual('lg')
 
-onUnmounted(() => {
-	clearInterval(documentSaveStringInterval)
-	clearInterval(diagramSaveStringInterval)
-	socket.disconnect()
+//* OCR
+let ocrWorker = $ref<Worker | null>(null) // When this is not null, we can start scanning images for text
+
+initializeOCRWorker().then(worker => {
+	ocrWorker = worker
+
+	// worker
+	// 	.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png')
+	// 	.then(res => console.log(res))
 })
 
-//* OCR
-const worker = await createWorker({
-	logger: m => console.log(m),
-})
-;(async () => {
-	await worker.loadLanguage('eng')
-	await worker.initialize('eng')
+async function initializeOCRWorker(): Promise<Worker> {
+	const worker = await createWorker({
+		logger: updateScanProgress,
+	})
+
+	await worker.loadLanguage('eng+dan')
+	await worker.initialize('eng+dan')
+
+	return worker
+}
+
+// Valid file types for tesseract.js: https://github.com/naptha/tesseract.js/blob/master/docs/image-format.md
+const SCANNABLE_FILE_TYPES = ['bmp', 'jpeg', 'png', 'bpm', 'webp']
+function fileCanBeScanned(file: File): boolean {
+	return SCANNABLE_FILE_TYPES.some(type => file.type?.includes(type))
+}
+
+let scanInProcess = $ref<{ file: string; progress: number } | null>(null)
+async function scanFile(file: File): Promise<string | void> {
+	if (!ocrWorker || scanInProcess) return
+
+	scanInProcess = { file: file.filename_download, progress: 0 }
+
+	const fileUrl = getAssetUrl(file.id)
+
 	const {
 		data: { text },
-	} = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png')
-	console.log(text)
-	await worker.terminate()
-})()
+	} = await ocrWorker.recognize(fileUrl)
+
+	// Save to clipboard
+	navigator.clipboard.writeText(text)
+
+	alert(`Contents of ${file.filename_download} has been copied to your clipboard`)
+
+	return text
+}
+
+// lol
+interface JobJect {
+	progress: number
+	status: string
+	userJobId: string
+	workerId?: string
+}
+
+function updateScanProgress(job: JobJect) {
+	if (job.status !== 'recognizing text' || !scanInProcess) return
+
+	if (job.progress === 1) {
+		scanInProcess = null
+		return
+	}
+
+	scanInProcess.progress = job.progress
+}
+
+function decimalToPercentage(decimal: number): number {
+	return Math.round(decimal * 100)
+}
+
+onUnmounted(() => {
+	ocrWorker?.terminate() // close down OCR worker
+	clearInterval(documentSaveStringInterval) // Stop updating the relative save time string
+	clearInterval(diagramSaveStringInterval) // Stop updating the relative save time string
+	socket.disconnect() // Log out of collaborative session
+})
 </script>
 
 <style scoped lang="postcss">

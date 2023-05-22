@@ -7,10 +7,6 @@
 				<li>Long press to select multiple shapes</li>
 			</ul>
 		</div>
-		<!-- <div class="links" style="position: absolute; right: 0; bottom: 0; padding: 15px">
-			<a href="https://github.com/AlexeyBoiko/DgrmJS" target="_blank">GitHub</a> |
-			<a href="https://linkedin.com/in/alexey-boyko-tech" target="_blank">LinkedIn</a>
-		</div> -->
 		<svg id="diagram" class="w-full h-full" tabindex="0">
 			<g id="canvas"></g>
 		</svg>

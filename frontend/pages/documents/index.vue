@@ -48,11 +48,7 @@
 			</li>
 			<!-- edit document-->
 			<li class="text-2xl" :class="{ disabled: selectedDocs.length !== 1 }" title="Edit content">
-				<NuxtLink
-					v-if="selectedDocs.length === 1"
-					target="_blank"
-					:to="`/documents/${selectedDocs[0]?.id}`"
-				>
+				<NuxtLink v-if="selectedDocs.length === 1" :to="`/documents/${selectedDocs[0]?.id}`">
 					<Icon
 						class="weight-700 fill optical-size-40"
 						:class="{ 'text-info': selectedDocs.length === 1 }"
@@ -223,7 +219,7 @@
 							class="items-center text-xl sm:text-2xl"
 							title="Edit content"
 						>
-							<NuxtLink target="_blank" :to="`/documents/${selectedDocs[0].id}`">
+							<NuxtLink :to="`/documents/${selectedDocs[0].id}`">
 								<Icon class="weight-700 fill optical-size-40 text-info">edit_document</Icon>
 							</NuxtLink>
 						</li>
@@ -350,7 +346,7 @@
 				<span class="label-text">Strict filtering</span>
 			</span>
 
-			<button class="ml-auto btn btn-primary btn-outline btn-square" @click="toggleGraphView">
+			<button class="ml-auto btn btn-square btn-outline" @click="toggleGraphView">
 				<Icon class="text-xl">{{ graphView ? 'grid_view' : 'hub' }}</Icon>
 			</button>
 		</div>
@@ -887,7 +883,7 @@ async function newDocument() {
 
 		hideDocumentModal()
 
-		if (createdDoc?.id) return window.open('/documents/' + createdDoc.id, '_blank')
+		if (createdDoc?.id) return (window.location.href = '/documents/' + createdDoc.id)
 	} catch (err) {
 		alert('There was an error creating document')
 		console.error(err)
@@ -1079,7 +1075,7 @@ onKeyStroke('Enter', (e: KeyboardEvent) => {
 	e.preventDefault()
 
 	if (selectedDocs.value.length === 1) {
-		window.open('/documents/' + selectedDocs.value[0].id, '_blank')
+		window.location.href = '/documents/' + selectedDocs.value[0].id
 	}
 })
 //* EDIT RELATED FILES
@@ -1262,7 +1258,8 @@ const graphNodes = $computed<GraphNode[]>(() =>
 )
 
 function graphNodeClick(documentId: number) {
-	window.open('/documents/' + documentId, '_blank')
+	// For some reason, the document page likes to be rendered from scratch
+	window.location.href = '/documents/' + documentId
 }
 </script>
 

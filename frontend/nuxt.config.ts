@@ -111,6 +111,7 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		// Tesseract.js insists on checking process.env, which is stripped away by Vite in the browser. This is a way to just populate process.env so the value is passed
 		define: {
 			'process.env': { TESS_ENV: 'production' },
 		},

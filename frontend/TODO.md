@@ -36,6 +36,7 @@ DONE
 * Der er måske et problem ved at man kan linke både til filer og fildokumentation, da det åbner op for forskellig brug af filer, der gør det svært at overholde ét princip
 * Relationsbeskrivelser
 * Pga. teknisk Directus begrænsning er relationer kun énvejs i prototypen. Det er dog nok til at illustrere funktionen, og potentielt endda bedst, da relationsbeskrivelser eventuelt ville påkræve dette
+* Det kunne være godt, at gøre så mentions inde i dokumentets tekst også anmoder brugeren om at forbinde på dokumentniveau og at de er klikbare for at navigere
 
 ## Filer med tekstuel metadata
 DONE
@@ -76,7 +77,7 @@ DONE
 * For også at undgå leaks, så burde man evt. fryse et dokuments indhold ind i selve sharen, så læsninger i fremtiden ikke også kan se ændringer siden, der måske ikke burde være public
 * Det samme er relevant for filer
   * Det kunne være fint, hvis man kunne lave en download af filer til ikke-authed brugere, men man kan også bare download og sende manuelt. Det er teknisk svært at dele filer, da de ikke "sendes" på samme måde
-  * 
+
 ## Realtidskollaboration
 * DONE
 
@@ -130,12 +131,14 @@ DONE
 * Det ville også være fedt at vise tags og private / public status i tooltip eller evt. stiplet border ved private etc
 
 ## OCR
+DONE
 * Tilføj knap i dokumenter, der kan OCR en fil, som åbner en filpicker (evt. prædefineret til kun at vise png, jpg, bmp, pbm-filer)
   * Den valgte fils url gives til tesseract.js https://www.npmjs.com/package/tesseract.js/v/2.1.1, og resultatet kopieres til clipboard med besked om, at det er gjort
-* Kan evt cuttes, hvis integration er et helvede 
 
 ### Diskussion
-* Kunne være godt at lave helt integreret, så man f.eks. uploader en fil, der så helt automatisk får et tilknyttet, søgbart dokument med indholdet uden brugere selv skal oprette noget. Dette kræver dog, at tesseract kører i backenden, hvilken kræver en dele mere infrastruktur (jeg heller ikke)
+* Kunne være godt at lave helt integreret, så man f.eks. uploader en fil, der så helt automatisk får et tilknyttet, søgbart dokument med indholdet uden brugere selv skal oprette noget. Dette kræver dog, at tesseract kører i backenden, hvilken kræver en dele mere infrastruktur
+  * Lige nu skal man selv køre det og kopiere teksten ind, og det er kun fra dokumentets side, hvis filen er linket allerede
+* Den aktuelle implementering kan bare tage et billede og give eng eller dan tekst tilbage. Det ville klart være mere brugbart, hvis den kunne tage imod pdf (konvertere til image først) også, og rotere billedet etc, samt hvis man selv kunne vælge sproget.
 
 ## NLP
 * Dette kan evt flyttes til noget diskussion i stedet?

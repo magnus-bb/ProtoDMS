@@ -92,11 +92,7 @@
 							class="items-center text-xl sm:text-2xl"
 							title="Download file"
 						>
-							<NuxtLink
-								target="_blank"
-								:download="selectedFiles[0].filename_download"
-								:to="fileDownloadUrl"
-							>
+							<NuxtLink :download="selectedFiles[0].filename_download" :to="fileDownloadUrl">
 								<Icon class="weight-700 fill optical-size-40">download</Icon>
 							</NuxtLink>
 						</li>
