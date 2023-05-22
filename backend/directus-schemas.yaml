@@ -30,8 +30,9 @@ collections:
         boolean NOT NULL DEFAULT '1', `sort` integer NULL DEFAULT null, `title`
         varchar(255) NOT NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
         null, `user_updated` char(36) NULL DEFAULT null, `diagram` json null,
-        CONSTRAINT `documents_user_created_foreign` FOREIGN KEY (`user_created`)
-        REFERENCES `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        `content_plaintext` text null default null, CONSTRAINT
+        `documents_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
+        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
         `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
         `directus_users` (`id`) ON DELETE NO ACTION)
   - collection: documents_directus_users
@@ -444,6 +445,46 @@ fields:
       numeric_scale: null
       table: documents
     type: json
+  - collection: documents
+    field: content_plaintext
+    meta:
+      collection: documents
+      conditions: null
+      display: raw
+      display_options: null
+      field: content_plaintext
+      group: null
+      hidden: false
+      interface: input-multiline
+      note: null
+      options:
+        placeholder: auto-generated
+        trim: true
+      readonly: true
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      data_type: text
+      default_value: null
+      foreign_key_column: null
+      foreign_key_table: null
+      generation_expression: null
+      has_auto_increment: false
+      is_generated: false
+      is_nullable: true
+      is_primary_key: false
+      is_unique: false
+      max_length: null
+      name: content_plaintext
+      numeric_precision: null
+      numeric_scale: null
+      table: documents
+    type: text
   - collection: documents
     field: date_created
     meta:

@@ -318,6 +318,7 @@ export type DirectusWebhooks = {
 
 export type Documents = {
   content?: unknown | null;
+  content_plaintext?: string | null;
   date_created?: string | null;
   date_updated?: string | null;
   diagram?: unknown | null;

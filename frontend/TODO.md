@@ -97,9 +97,8 @@ DONE
   * Bare lige nok til, at brugere føler, at man godt kan tjekke om de har prøvet at hacke featuren, f.eks. hvis man faktisk skal bruge det som grundlag for f.eks. en lønforhøjelse etc, hvor ens chef potentielt lige ville tjekke den igennem.
 
 ## Fuldtekstsøgning
-* Skal sandsynligvis cuttes, da formatet for deltaer ikke er rå tekst, og derfor ikke er super smart at søge i.
-  * Alternativt KAN man lave et computed felt, der genererer den rene tekst ud fra content-deltaen, og bruge dette som target for fuldtekstsøgning
-  * Det er også ret svært at lave et view, der viser, når man matcher tekst i content, så man ved, hvad man rent faktisk finder
+DONE
+* Det er også ret svært at lave et view, der viser, når man matcher tekst i content, så man ved, hvad man rent faktisk finder
 
 ### Diskussion
 * I øjeblikket virker fuldtekstsøgning simpelt, ved bare at tjekke om den søgte tekst indgår i dokumentets content. Det kan dog væsten være et problem, at dette er så simpelt og at det derudover er utransparent, da man muligvis får søgeresultater, man ikke forstår hvorfor dukker op. Et par måder, man kan gøre denne UX bedre:
