@@ -42,8 +42,10 @@
     "quill-delta": "^5.0.0",
     "quill-mention": "^3.1.0",
     "socket.io-client": "^4.5.4",
+    "tippy.js": "^6.3.7",
     "v-network-graph": "^0.9.3",
     "vee-validate": "^4.7.3",
+    "vue3-calendar-heatmap": "^2.0.5",
     "yup": "^0.32.11"
   }
 }

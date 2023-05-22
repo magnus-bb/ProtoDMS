@@ -1,11 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 
-const defaultTheme = require('tailwindcss/defaultTheme')
-const colors = require('tailwindcss/colors')
-const plugin = require('tailwindcss/plugin')
+// const defaultTheme = require('tailwindcss/defaultTheme')
+// const colors = require('tailwindcss/colors')
+// const plugin = require('tailwindcss/plugin')
+// const customDaisyTheme = require('./daisyui-theme.js')
+import defaultTheme from 'tailwindcss/defaultTheme'
+import colors from 'tailwindcss/colors'
+import plugin from 'tailwindcss/plugin'
+import customDaisyTheme from './daisyui-theme'
 
 // This file must be the vanilla js version for the tailwind vscode intellisense extension to work correctly
-module.exports = {
+export default {
 	darkMode: ['class', '[data-theme="dark"]'],
 	content: [
 		'./components/**/*.{js,vue,ts}',
@@ -67,18 +72,7 @@ module.exports = {
 	daisyui: {
 		themes: [
 			{
-				dark: {
-					// Neutral and base content are the same, and are both dark versions of primary
-					...require('daisyui/src/colors/themes')['[data-theme=dark]'],
-					primary: colors.emerald[500],
-					secondary: '#6b96bf',
-					accent: '#006ECE',
-					'accent-content': colors.white, // #fff
-					info: colors.indigo[200], // #e0e7ff
-					warning: colors.lime[400], // #a3e635
-					error: colors.rose[600], // #e11d48,
-					'--btn-text-case': 'none',
-				},
+				dark: customDaisyTheme,
 			},
 			'winter',
 		],

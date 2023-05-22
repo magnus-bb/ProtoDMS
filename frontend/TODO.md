@@ -89,6 +89,7 @@ DONE
 * Uden for scope, der er intet at integrere med, da det afhænger 100% af en organisations anvendte auth og andre systemer (herunder projektstyring)
 
 ## Bidragsscore
+DONE
 * På brugerprofilen kan vises en contribution heatmap med https://github.com/julienr114/vue-calendar-heatmap
 * Når man går ind på en brugers profil laves der en request efter revisions med brugerens navn, og disse vises så i heatmappet
 

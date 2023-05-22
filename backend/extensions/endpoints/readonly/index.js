@@ -3,7 +3,6 @@ module.exports = {
 
 	handler: (router, ctx) => {
 
-		// console.log(ctx)
 		const { SharesService, ItemsService } = ctx.services
 		const { ServiceUnavailableException, ForbiddenException } = ctx.exceptions
 		
@@ -33,6 +32,7 @@ module.exports = {
 
 				return res.json(item)
 			} catch (error) {
+				console.error(error)
 
 				return res.status(500).send(new ServiceUnavailableException(error.message || 'Something went wrong'))
 			}

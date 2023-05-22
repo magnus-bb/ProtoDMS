@@ -588,8 +588,6 @@ import type {
 } from '@/types/directus'
 import type { TreeFolder } from '@/types/files'
 import type { GraphNode } from '@/types/graph'
-import { getAllFiles } from '~~/utils/files'
-import { createDocumentShare } from '~~/composables/useDirectus'
 
 definePageMeta({
 	layout: 'sidebar',
@@ -1246,9 +1244,10 @@ function toggleGraphView() {
 	graphView = !graphView
 }
 
+const { $theme } = useNuxtApp()
 const graphStyle = {
-	nodeColor: '#10b981', // primary
-	edgeColor: '#6b96bf', // secondary
+	nodeColor: $theme.primary,
+	edgeColor: $theme.secondary,
 	labelColor: 'white',
 }
 

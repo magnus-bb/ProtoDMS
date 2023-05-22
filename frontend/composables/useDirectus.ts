@@ -6,6 +6,7 @@ import type {
 	DirectusUsers as DirectusUser,
 	DirectusRevisions as Revision,
 	DirectusFiles as DirectusFile,
+	DirectusActivity as Activity,
 	Documents as Document,
 } from '@/types/directus'
 
@@ -63,6 +64,20 @@ export async function getDocumentRevisions(documentId: number): Promise<Revision
 	const { data } = await directus.transport.axios.get(url.href)
 
 	return data as Revision[]
+}
+
+export async function getUserAggregatedDocumentActivity(userId: string) {
+	const directus = useDirectus()
+	const { accessToken } = useUser()
+
+	const url = new URL(`${trimTrailingSlash(directus.url)}/contributions/${userId}`)
+
+	url.searchParams.append('access_token', accessToken.value as string)
+
+	// @ts-ignore
+	const { data } = await directus.transport.axios.get(url.href)
+
+	return data as { date: string; count: number }[]
 }
 
 //* DELETE

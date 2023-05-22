@@ -1,38 +1,4 @@
 <template>
-	<Teleport to="#sidebar-content">
-		<h2 class="text-2xl font-semibold text-center">Related items</h2>
-		<div class="px-3">
-			<h3 class="text-lg font-semibold">Documents</h3>
-			<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
-				<NuxtLink
-					v-for="relDoc of relatedDocuments"
-					:key="relDoc.id"
-					class="badge badge-lg badge-base-200"
-					target="_blank"
-					:to="`/documents/${relDoc.id}`"
-				>
-					{{ relDoc.title }}
-				</NuxtLink>
-			</div>
-			<p v-else class="font-light italic">No related documents</p>
-		</div>
-		<div class="px-3">
-			<h3 class="text-lg font-semibold">Subscriptions</h3>
-			<div v-if="subscriptions.length" class="flex flex-wrap gap-2 mt-2">
-				<NuxtLink
-					v-for="sub of subscriptions"
-					:key="sub.id"
-					class="badge badge-lg badge-base-200"
-					target="_blank"
-					:to="`/documents/${sub.id}`"
-				>
-					{{ sub.title }}
-				</NuxtLink>
-			</div>
-			<p v-else class="font-light italic">No subscriptions</p>
-		</div>
-	</Teleport>
-
 	<main class="row p-4 flex flex-col gap-y-8">
 		<div v-if="isOwnProfile && avatarUrl" class="indicator col-span-12 w-full max-w-md mx-auto">
 			<button class="indicator-item right-12 top-12">
@@ -77,12 +43,12 @@
 			>
 				{{ user.title }}
 			</h3>
-			<h4
+			<h3
 				v-if="user.location"
 				class="[grid-area:location] sm:justify-self-end text-xl sm:text-end flex items-center gap-x-2"
 			>
 				{{ user.location }}
-			</h4>
+			</h3>
 
 			<span v-if="user.organizational_id" class="[grid-area:id] flex items-center gap-x-2">
 				<Icon class="text-2xl optical-size-48 weight-300" aria-hidden>badge</Icon>
@@ -109,6 +75,49 @@
 		>
 			Edit profile
 		</button>
+		<Teleport to="#sidebar-content" :disabled="noSidebar">
+			<h2 class="text-2xl font-semibold lg:text-center">Related items</h2>
+			<div class="lg:px-3">
+				<h3 class="text-lg font-semibold">Documents</h3>
+				<div v-if="relatedDocuments.length" class="flex flex-wrap gap-2 mt-2">
+					<NuxtLink
+						v-for="relDoc of relatedDocuments"
+						:key="relDoc.id"
+						class="badge badge-lg badge-base-200"
+						target="_blank"
+						:to="`/documents/${relDoc.id}`"
+					>
+						{{ relDoc.title }}
+					</NuxtLink>
+				</div>
+				<p v-else class="font-light italic">No related documents</p>
+			</div>
+			<div class="lg:px-3">
+				<h3 class="text-lg font-semibold">Subscriptions</h3>
+				<div v-if="subscriptions.length" class="flex flex-wrap gap-2 mt-2">
+					<NuxtLink
+						v-for="sub of subscriptions"
+						:key="sub.id"
+						class="badge badge-lg badge-base-200"
+						target="_blank"
+						:to="`/documents/${sub.id}`"
+					>
+						{{ sub.title }}
+					</NuxtLink>
+				</div>
+				<p v-else class="font-light italic">No subscriptions</p>
+			</div>
+			<h2 class="text-2xl font-semibold lg:text-center">Contributions</h2>
+			<CalendarHeatmap
+				class="w-full max-w-[200px] lg:mx-auto"
+				:round="2"
+				:values="contributions"
+				:end-date="new Date()"
+				vertical
+				:range-color="heatmapColors"
+				:max="maxHeatmapColor"
+			/>
+		</Teleport>
 	</main>
 
 	<div v-show="showAlert" class="toast">
@@ -122,7 +131,6 @@
 			</div>
 		</div>
 	</div>
-
 	<Modal
 		v-if="isOwnProfile"
 		:class="{ 'modal-open': updateModalShown }"
@@ -203,22 +211,6 @@
 					<span class="label-text-alt text-error">{{ errorMessage }}</span>
 				</label>
 			</Field>
-			<!-- AVATAR -->
-			<!-- <Field v-slot="{ meta, field, errorMessage }" name="avatar" as="div">
-				<label for="avatar" class="label">
-					<span class="label-text">Profile picture</span>
-				</label>
-				<input
-					id="avatar"
-					type="file"
-					v-bind="field"
-					class="file-input file-input-bordered w-full placeholder:text-muted transition-all"
-					:class="{ 'input-error': meta.dirty && !meta.valid }"
-				/>
-				<label :class="{ invisible: !errorMessage }" class="label">
-					<span class="label-text-alt text-error">{{ errorMessage }}</span>
-				</label>
-			</Field> -->
 			<!-- JOB TITLE -->
 			<Field v-slot="{ meta, field, errorMessage }" name="title" as="div">
 				<label for="title" class="label">
@@ -316,6 +308,9 @@
 <script setup lang="ts">
 import { Form, Field } from 'vee-validate'
 import { string, object } from 'yup'
+import 'vue3-calendar-heatmap/dist/style.css'
+import { CalendarHeatmap } from 'vue3-calendar-heatmap'
+import { breakpointsTailwind } from '@vueuse/core'
 import type { Documents as Document, DirectusUsers as DirectusUser } from '@/types/directus'
 
 definePageMeta({
@@ -438,6 +433,21 @@ async function updateAvatar(e: Event) {
 
 	refreshUserData()
 }
+
+//* CONTRIBUTION HEATMAP
+const contributions = await getUserAggregatedDocumentActivity(user.id)
+
+const { $theme } = useNuxtApp()
+const heatmapColors: string[] = [$theme['base-300'], $theme['base-300']]
+const maxHeatmapColor = 6
+
+for (let i = 1; i <= maxHeatmapColor; i++) {
+	heatmapColors.push(blendColors($theme.neutral, $theme.secondary, i / maxHeatmapColor))
+}
+
+//* SIDEBAR
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const noSidebar = breakpoints.smallerOrEqual('lg')
 </script>
 
 <style lang="postcss" scoped>
@@ -465,5 +475,10 @@ async function updateAvatar(e: Event) {
 
 .profile-form {
 	@apply grid grid-cols-2 grid-rows-5 items-center;
+}
+
+/* Just fixes a small bug with the vertical version of the heatmap component */
+.vch__container :deep(.vch__legend) {
+	display: none;
 }
 </style>
