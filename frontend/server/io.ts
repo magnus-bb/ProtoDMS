@@ -137,38 +137,44 @@ export default function (socket: Socket, io: BroadcastOperator<{ [event: string]
 		If user save fails, the server will try with a static token called 'Collaborative session' instead.
 		Returns whether the save was successful regardless of whether it was by user or server. */
 		async 'save-diagram'({ documentId, diagramData }: DiagramEventData): Promise<boolean> {
-			if (!socketInRoom(socket, documentId)) {
-				console.warn('User has not been authorized to save diagram of the document:', documentId)
+			try {
+				if (!socketInRoom(socket, documentId)) {
+					console.warn('User has not been authorized to save diagram of the document:', documentId)
 
-				return false
-			}
-
-			// Used to try and save diagram as user first, then as server if user fails
-			const accessToken = socket.handshake.auth.token
-
-			const session = rooms.get(documentId)
-
-			if (!session) return false
-
-			// Try with the user's access token...
-			let savedDocument = await session.saveDiagram(diagramData, accessToken)
-			if (!savedDocument) {
-				// ... if user attempt failed, try with static token (no arg for token)
-				savedDocument = await session.saveDiagram(diagramData)
-
-				if (!savedDocument) {
-					console.warn(`Saving diagram for document ${documentId} with static token failed`)
 					return false
 				}
+
+				// Used to try and save diagram as user first, then as server if user fails
+				const accessToken = socket.handshake.auth.token
+
+				const session = rooms.get(documentId)
+
+				if (!session) return false
+
+				// Try with the user's access token...
+				let savedDocument = await session.saveDiagram(diagramData, accessToken)
+				if (!savedDocument) {
+					// ... if user attempt failed, try with static token (no arg for token)
+					savedDocument = await session.saveDiagram(diagramData)
+
+					if (!savedDocument) {
+						console.warn(`Saving diagram for document ${documentId} with static token failed`)
+						return false
+					}
+				}
+
+				// Saves diagram it in the session memory for quick access when other users join session
+				session.applyDiagram(diagramData)
+
+				// Broadcast to everyone in room that diagram was saved
+				io.to(documentId).emit('diagram-saved', {
+					userId: socket.data.userId,
+					timestamp: Date.now(),
+					diagram: savedDocument.diagram,
+				} as DiagramSavedEventData)
+			} catch (err) {
+				console.error(err)
 			}
-
-			// Broadcast to everyone in room that diagram was saved
-			io.to(documentId).emit('diagram-saved', {
-				userId: socket.data.userId,
-				timestamp: Date.now(),
-				diagram: savedDocument.diagram,
-			} as DiagramSavedEventData)
-
 			return true
 		},
 
@@ -334,6 +340,13 @@ class DocumentSession {
 		const newContent = documentDelta.compose(change)
 
 		this.document.content = newContent
+
+		return this.document
+	}
+
+	// Takes a Diagram and saves it in the session memory for quick access when other users join session
+	applyDiagram(diagramData: Diagram): DeltaDocument {
+		this.document.diagram = diagramData
 
 		return this.document
 	}

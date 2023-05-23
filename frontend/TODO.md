@@ -13,6 +13,7 @@ DONE
 ### Diskussion
 * Opdateres desværre ikke i realtime (man skal save, for at der sker noget). Derudover er det en separat knap fra content af tekniske årsager (for ikke at blande revisions, så en save af diagram viser en save af content)
 * Det er teknisk svært at lave multiple illustrationer, da koden bruger mange IDs, så der mangler muligheden for at tilføje / fjerne illustrationer i flertal
+* I specialet kan det lige så godt omskrives med draw.io og GoJS, da de ikke er anvendt. Ellers sæt fokus på, at det kan være LIGESOM draw.io, men ikke GoJS
 
 ## Skabeloner
 DONE
@@ -49,8 +50,9 @@ DONE
 * HUSK at redigere creation-modalen til også at selecte relaterede filer
 
 ### Diskussion
-* Det ville være en fordel, hvis man let kan navigere til fildokumenter fra en fils side også, så man nemmere kan se, hvad en fil indeholder eller bruges til.
+* Det ville være en fordel, hvis man let kan navigere til og oprette fildokumenter fra en fils side også, så man nemmere kan se, hvad en fil indeholder eller bruges til.
   * Lige nu er det kun fra dokumentsiden, at man kan finde fildokumentation, da det er lavet til, at man gør filer søgbare ligesom dokumenter. Men det kan jo også være, at man faktisk har fat i filen og så har brug for at læse lidt om den
+  * Dette kan kombineres med OCR fra filsiden for lynhurtigt at oprette fildocs
 
 ## Kategoriserende mærkater
 DONE
@@ -77,6 +79,7 @@ DONE
 * For også at undgå leaks, så burde man evt. fryse et dokuments indhold ind i selve sharen, så læsninger i fremtiden ikke også kan se ændringer siden, der måske ikke burde være public
 * Det samme er relevant for filer
   * Det kunne være fint, hvis man kunne lave en download af filer til ikke-authed brugere, men man kan også bare download og sende manuelt. Det er teknisk svært at dele filer, da de ikke "sendes" på samme måde
+    * Der står, at der skal være readonly links til FILER i specialet, dette behøver kun være for docs, da filer ikke kan redigeres alligevel
 
 ## Realtidskollaboration
 * DONE

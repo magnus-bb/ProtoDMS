@@ -929,6 +929,7 @@ async function duplicateDocument() {
 	})
 
 	const duplicatedDocument = {
+		private: selected.private,
 		title: `Copy of ${selected.title}`,
 		content: selected.content,
 		tags: selectedTagIds,
@@ -1247,15 +1248,15 @@ const graphStyle = {
 	labelColor: 'white',
 }
 
-const graphNodes = $computed<GraphNode[]>(() =>
-	documents.map(doc => ({
+const graphNodes = $computed<GraphNode[]>(() => {
+	return documents.map(doc => ({
 		id: doc.id,
 		title: doc.title,
 		linkedNodes: (doc.related_documents as RelatedDocument[])
-			.map((rel: RelatedDocument) => (rel.related_document_id as Document).id)
-			.filter(id => id),
+			.map((rel: RelatedDocument) => (rel.related_document_id as Document)?.id) // Private docs, that can't be seen will have a relation (junction table) but related_document_id will be null
+			.filter(id => id), // Make sure relations to private docs that cannot be seen are filtered off
 	}))
-)
+})
 
 function graphNodeClick(documentId: number) {
 	// For some reason, the document page likes to be rendered from scratch
