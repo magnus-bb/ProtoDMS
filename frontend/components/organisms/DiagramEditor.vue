@@ -23,8 +23,8 @@
 
 <script setup lang="ts">
 //* THANKS TO https://github.com/AlexeyBoiko/DgrmJS FOR THE APPROPRIATED SOURCE CODE
-import { deserialize, serialize } from '@/DgrmJS/diagram/dgrm-serialization'
-import { tipShow } from '@/DgrmJS/ui/ui'
+// import { deserialize, serialize } from '@/DgrmJS/diagram/dgrm-serialization'
+// import { tipShow } from '@/DgrmJS/ui/ui'
 import type { Diagram } from '@/types/diagram'
 
 const { relativeSaveTimeString, editorContent } = defineProps<{
@@ -32,8 +32,9 @@ const { relativeSaveTimeString, editorContent } = defineProps<{
 	editorContent: Diagram // when this changes, it is applied to the editor (it is not truly reactive)
 }>()
 
-onMounted(async () => {
-	await import('@/DgrmJS/index.js')
+onMounted(() => {
+	// await import('@/DgrmJS/index.js')
+	useDiagram()
 
 	setEditorContent(editorContent)
 })
