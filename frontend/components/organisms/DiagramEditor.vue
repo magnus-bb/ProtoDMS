@@ -23,8 +23,8 @@
 
 <script setup lang="ts">
 //* THANKS TO https://github.com/AlexeyBoiko/DgrmJS FOR THE APPROPRIATED SOURCE CODE
-import { deserialize, serialize } from '@/DgrmJS/diagram/dgrm-serialization.js'
-import { tipShow } from '@/DgrmJS//ui/ui.js'
+import { deserialize, serialize } from '@/DgrmJS/diagram/dgrm-serialization'
+import { tipShow } from '@/DgrmJS/ui/ui'
 import type { Diagram } from '@/types/diagram'
 
 const { relativeSaveTimeString, editorContent } = defineProps<{

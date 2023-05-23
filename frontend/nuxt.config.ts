@@ -110,6 +110,16 @@ export default defineNuxtConfig({
 		},
 	},
 
+	vue: {
+		compilerOptions: {
+			isCustomElement: tag => {
+				const customElements = ['ap-menu-shape']
+
+				return customElements.includes(tag)
+			},
+		},
+	},
+
 	vite: {
 		// Tesseract.js insists on checking process.env, which is stripped away by Vite in the browser. This is a way to just populate process.env so the value is passed
 		define: {
