@@ -282,7 +282,7 @@
 						id="phone_number"
 						type="text"
 						v-bind="field"
-						placeholder="+45 21622009"
+						placeholder="+45 12 34 56 78"
 						class="input input-bordered w-full placeholder:text-muted transition-all"
 						:class="{ 'input-error': meta.dirty && !meta.valid }"
 					/>
@@ -439,7 +439,7 @@ const contributions = await getUserAggregatedDocumentActivity(user.id)
 
 const { $theme } = useNuxtApp()
 const heatmapColors: string[] = [$theme['base-300'], $theme['base-300']]
-const maxHeatmapColor = 6
+const maxHeatmapColor = 7
 
 for (let i = 1; i <= maxHeatmapColor; i++) {
 	heatmapColors.push(blendColors($theme.neutral, $theme.secondary, i / maxHeatmapColor))

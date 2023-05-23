@@ -244,6 +244,9 @@ async function onSubmit(formData: unknown) {
 
 	if (redirectTo) {
 		return await navigateTo(redirectTo as string)
+	} else if (!signInPage) {
+		// If user just signed up, go directly to profile page so they can add more information
+		return await navigateTo('/users/me')
 	}
 
 	await navigateTo('/')
