@@ -25,14 +25,14 @@ collections:
       name: documents
       sql: >-
         CREATE TABLE "documents" (`content` json NULL DEFAULT '{"ops":[]}',
-        `date_created` datetime NULL DEFAULT null, `date_updated` datetime NULL
-        DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL, `private`
-        boolean NOT NULL DEFAULT '1', `sort` integer NULL DEFAULT null, `title`
-        varchar(255) NOT NULL DEFAULT null, `user_created` char(36) NULL DEFAULT
-        null, `user_updated` char(36) NULL DEFAULT null, `diagram` json null,
-        `content_plaintext` text null default null, CONSTRAINT
-        `documents_user_created_foreign` FOREIGN KEY (`user_created`) REFERENCES
-        `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
+        `content_plaintext` text NULL DEFAULT null, `date_created` datetime NULL
+        DEFAULT null, `date_updated` datetime NULL DEFAULT null, `diagram` json
+        NULL DEFAULT null, `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        `private` boolean NOT NULL DEFAULT '1', `sort` integer NULL DEFAULT
+        null, `title` varchar(255) NOT NULL DEFAULT null, `user_created`
+        char(36) NULL DEFAULT null, `user_updated` char(36) NULL DEFAULT null,
+        CONSTRAINT `documents_user_created_foreign` FOREIGN KEY (`user_created`)
+        REFERENCES `directus_users` (`id`) ON DELETE NO ACTION, CONSTRAINT
         `documents_user_updated_foreign` FOREIGN KEY (`user_updated`) REFERENCES
         `directus_users` (`id`) ON DELETE NO ACTION)
   - collection: documents_directus_users

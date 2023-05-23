@@ -1,30 +1,20 @@
-module.exports = ({ action }, ctx) => {
-	const { ItemsService } = ctx.services
-
-	action('items.create', setPlaintextContent)
-	action('items.update', setPlaintextContent)
+module.exports = ({ filter }, ctx) => {
+	filter('items.create', setPlaintextContent)
+	filter('items.update', setPlaintextContent)
 
 
-	async function setPlaintextContent({ payload, keys, collection }, { schema, accountability }) {
+	async function setPlaintextContent(payload, { keys, collection }, { schema, accountability }) {
 		// We are only interested in setting content_plaintext on documents, obviously
 		if (collection !== 'documents') return console.warn('Not a document, skipping plaintext content update')
 		if (!payload.content?.ops) return console.warn('No content.ops, skipping plaintext content update')
-	
-		try {
 
-			const itemsService = new ItemsService(collection, { schema, accountability })
-			
-			const plaintext = toPlaintext(payload.content.ops)
+		const plaintext = toPlaintext(payload.content.ops)
 
-			// Only one update if this happens through the frontend, but technically could be multiple documents
-			await itemsService.updateMany(keys, { content_plaintext: plaintext })
-			
-		} catch (error) {
-			console.error(`Something went wrong updating the plaintext content of document(s) ${keys}. This might impact searching in document contents `, error)
-		}
+		payload.content_plaintext = plaintext
+
+		return payload
 	}
 }
-
 
 /*
 ISC License
