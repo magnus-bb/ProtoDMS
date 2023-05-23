@@ -27,15 +27,16 @@ import type { Diagram } from '@/types/diagram'
 
 const { relativeSaveTimeString, editorContent } = defineProps<{
 	relativeSaveTimeString: string
-	editorContent: Diagram // when this changes, it is applied to the editor (it is not truly reactive)
+	editorContent: Diagram | null // when this changes, it is applied to the editor (it is not truly reactive)
 }>()
 
 onMounted(() => {
 	useDiagram() // looks for the canvas element etc and initializes DgrmJS
 
-	setEditorContent(editorContent)
+	if (editorContent) setEditorContent(editorContent)
 })
-watch(
+
+whenever(
 	() => editorContent,
 	(newContent, oldContent) => {
 		if (newContent !== oldContent) {

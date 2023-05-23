@@ -501,13 +501,9 @@
 		</div>
 
 		<div class="flex flex-wrap gap-2">
-			<span
-				v-for="tag of filteredTags"
-				:key="tag.id"
-				class="badge badge-lg badge-outline badge-secondary gap-x-2"
-			>
+			<span v-for="tag of filteredTags" :key="tag.id" class="badge badge-lg badge-outline gap-x-2">
 				<button class="flex items-center text-sm" @click="removeTag(tag)">
-					<Icon class="fill optical-size-24 grade-100 text-error" aria-hidden>close</Icon>
+					<Icon class="fill optical-size-24 grade-100" aria-hidden>close</Icon>
 				</button>
 				{{ tag.name }}
 			</span>
