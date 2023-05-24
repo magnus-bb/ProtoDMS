@@ -24,7 +24,7 @@ Dokumentation i ProtoDMS organiseres i et netværk af relaterede dokumenter. Det
 ## Mærkater & filtrering
 Dokumenter kan facetteres og filtreres med brugervalgte mærkater, der kan denotere alt fra dokumenters kontekst til deres indhold og anvendelseskontekst. 
 
-![mærkater og filtrering](guides/m%C3%A6rkater_filtrering.gif)
+![mærkater og filtrering](guides/m%C3%A6rkater.gif)
 
 ### Mangler, begrænsninger og fremtidigt arbejde
 * Det kan potentielt hjælpe informationssøgere med hurtigt at identificere korrekte dokumenter, hvis man ved oprettelsen af mærkater også kan vælge mærkatets farve og / eller ikon
