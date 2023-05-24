@@ -1,5 +1,4 @@
-# ProtoDMS
-[Live demo kan tilgås her](https://dev3.documents.chcaa.au.dk).
+# ProtoDMS - [Live demo](https://dev3.documents.chcaa.au.dk)
 
 Mangler, begrænsninger og fremtidigt arbeje ved de følgende funktioner adresserer udelukkende tekniske og / eller praktiske emner ved den aktuelle implementering af disse i relation til funktionerne beskrevet i mit speciale. For at læse om yderligere indsigter, der adresserer videndeling i projektbaserede softwareorganisationer henvises der til bilag 3 af mit speciale.
 
