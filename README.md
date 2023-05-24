@@ -8,7 +8,7 @@ Da den live demo er til demonstrationsformål og ikke har reel data, er der inge
 ![registrering](guides/registrering.gif)
 
 ### Mangler, begrænsninger og fremtidigt arbejde
-* Inden registrering kan anvendes i produktion, skal det ProtoDMS udbygges til at anvende et beskyttet invitationssystem, hvor kun administratoren eller andre medlemmer kan invitere nye brugere ved at sende en invitations-email. Alternativt kan kan hele adgangen til ProtoDMS (inkl. registrering) beskyttes bag en VPN eller lignende, der kræver autoriseret adgang.
+* Inden registrering kan anvendes i produktion, skal det ProtoDMS udbygges til at anvende et beskyttet invitationssystem, hvor kun administratoren eller andre medlemmer kan invitere nye brugere ved at sende en invitations-email. Alternativt kan kan hele adgangen til ProtoDMS (inkl. registrering) beskyttes bag en VPN eller lignende, der kræver autoriseret adgang
 * Man kan i øjeblikket ikke fjerne sit profilbillede (kun ændre til et andet)
 * Man kan i øjeblikket ikke slette sin egen profil (kun administratoren kan gøre dette)
 
@@ -40,7 +40,7 @@ Man kan dele et download-link til filer med andre brugere af ProtoDMS, så de ik
 ![deling](guides/deling.gif)
 
 ### Mangler, begrænsninger og fremtidigt arbejde
-* ProtoDMS understøtter i øjeblikket ikke links til "skrivebeskyttede" filer, der kan sendes til personer uden adgang til platformen, da filer af deres natur ikke kan redigeres på ProtoDMS alligevel, og man derfor blot kan downloade en fil og sende den til modtageren igennem andre kanaler
+* ProtoDMS understøtter i øjeblikket ikke links til "skrivebeskyttede" **filer**, der kan sendes til personer uden adgang til platformen, da filer af deres natur ikke kan redigeres på ProtoDMS alligevel, og man derfor blot kan downloade en fil og sende den til modtageren igennem andre kanaler
   * Det ville dog være nyttigt at kunne oprette et sådant link, der kan deles med eksterne aktører (evt. via email, så man ikke behøver forlade ProtoDMS)
 
 ## Skabeloner
