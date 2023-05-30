@@ -67,7 +67,7 @@ Hvert dokument har et vedhæftet diagram til at illustrere simple flowcharts, se
 
 ![illustrationer](guides/illustrationer.gif)
 
-#### Mangler, begrænsninger og fremtidigt arbejde
+### Mangler, begrænsninger og fremtidigt arbejde
 * Grundet den tekniske udformning af diagram-editoren er dette ikke helt realtids-synkroniseret med andre i samme dokument-session. I stedet skal man først gemme diagrammet, før det kan ses af andre redaktører, men dette påkræver ikke en opdatering af siden for de resterende redaktører
 * Den implementerede diagram-funktionalitet er meget simpel og kan kun anvendes til simple flowcharts og sekvensdiagrammer (etc.)
   * En indlejret draw.io-editor vil tillade mere komplekse diagrammer (såsom UML-diagrammer), hvilket kan bruges til at understøtte præsentationen af langt flere softwareudviklingrelaterede emner
@@ -75,7 +75,7 @@ Hvert dokument har et vedhæftet diagram til at illustrere simple flowcharts, se
   * Ideelt vil denne funktionalitet bestå af en editor magen til [Figmas](https://www.figma.com/), hvor arbitrære illustrationer (f.eks. også UI-designs og lignende) kan gemmes og arbejdes på i realtid med andre kollaboratører
 * Grundet den tekniske udformning af diagram-editoren er det vanskeligt at have flere editors på samme side. Det ville være brugbart at kunne tilføje / fjerne fra en liste over arbitrære illustrationer med hver sin titel
 
-### Realtidskollaboration
+## Realtidskollaboration
 Ændringer i dokumenters indhold synkroniseres med alle brugere (ligesom Google Docs!), så man kan samarbejde om udarbejdelsen af dokumentation.
 
 ![realtidskollaboration](guides/realtidskollaboration.gif)
