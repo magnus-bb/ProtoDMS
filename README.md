@@ -1,5 +1,5 @@
 # ProtoDMS - [Live demo](https://dev3.documents.chcaa.au.dk)
-Du kan enten logge ind med følgende testbruger, eller oprette en ny profil ved at se illustrationen i [Registrering](#registrering):
+jeg vil anbefale dig at logge ind med følgende testbruger, men du kan også oprette en ny profil ved at se illustrationen i [Registrering](#registrering):
 ```
 E-mail: test@user.com
 Password: password
