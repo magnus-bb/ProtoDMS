@@ -5,7 +5,7 @@ E-mail: test@user.com
 Password: password
 ```
 
-Da der ikke er vigtige data på ProtoDMS, er der ingen begrænsninger for de handlinger, du som testbruger kan foretage dig.
+Da der ikke er vigtige data på ProtoDMS, er der ingen begrænsninger for de handlinger, du som testbruger kan foretage dig. Jeg vil dog opfordre til ikke at slette de eksisterende brugsvejledninger på platformen, så disse potentielt kan læses af andre.
 
 Udover præsentationen af ProtoDMS' funktioner, der findes i denne README, vil der fremgå en gennemgang af platformens funktioner efter login.
 
