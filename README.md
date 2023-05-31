@@ -1,5 +1,13 @@
 # ProtoDMS - [Live demo](https://dev3.documents.chcaa.au.dk)
+Du kan enten logge ind med følgende testbruger, eller oprette en ny profil ved at se illustrationen i [Registrering](#registrering):
+E-mail: test@user.com
+Password: password
 
+Da der ikke er vigtige data på ProtoDMS, er der ingen begrænsninger for de handlinger, du som testbruger kan foretage dig.
+
+Udover præsentationen af ProtoDMS' funktioner, der findes i denne README, vil der fremgå en gennemgang af platformens funktioner efter login.
+
+## Disclaimer
 Mangler, begrænsninger og fremtidigt arbeje ved de følgende funktioner adresserer udelukkende tekniske og / eller praktiske emner ved den aktuelle implementering af disse i relation til funktionerne beskrevet i mit speciale. For at læse om yderligere indsigter, der adresserer videndeling i projektbaserede softwareorganisationer henvises der til bilag 3 af mit speciale.
 
 ## Registrering
